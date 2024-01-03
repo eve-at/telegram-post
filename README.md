@@ -4,8 +4,8 @@ Post into Telegram channel via Web interface
 
 ## Installation
 - Clone & `composer install`
-- [Obtain your Telegram Bot Token](https://core.telegram.org/bots/tutorial#obtain-your-bot-token) and put it into TELEGRAM_BOT_TOKEN .env field
-- Get your Telegram Channel ID and put it into TELEGRAM_CHANNEL_ID .env field
+- [Obtain your Telegram Bot Token](https://core.telegram.org/bots/tutorial#obtain-your-bot-token) and put it into `TELEGRAM_BOT_TOKEN` .env field
+- Get your Telegram Channel ID and put it into `TELEGRAM_CHANNEL_ID` .env field
 
 ## How to find your Telegram Channel ID
 - Go to https://web.telegram.org and log in
