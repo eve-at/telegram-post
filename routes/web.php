@@ -97,7 +97,7 @@ $message = "<b>Разворот «Рускеальского Экспресса 
             'height' => 1920,
             'duration' => 71,
             'file_name' => 'Разворот_«Рускеальского_Экспресса_@ruskeal_expressВ_конце_2020_года',
-            'mime_type' => 'video/mp4',
+            'mime_type' => 'medias/mp4',
             'file_size' => 31632231,
         ]
     ]);
@@ -123,7 +123,7 @@ Route::get('/sendvideo', function () {
 
     $response = Telegram::sendVideo([
         'chat_id' => env('TELEGRAM_CHANNEL_ID'),
-        'video' => InputFile::create(storage_path('videos\\express.mp4'), 'express2.mp4'),
+        'video' => InputFile::create(storage_path('medias\\express.mp4'), 'express2.mp4'),
         'supports_streaming' => true,
         'caption' => $message,
         'parse_mode' => 'HTML',
@@ -158,7 +158,7 @@ Route::get('/resendvideo', function () {
         'height' => 1920,
         'duration' => 71,
         'file_name' => 'Разворот_«Рускеальского_Экспресса_@ruskeal_expressВ_конце_2020_года',
-        'mime_type' => 'video/mp4',
+        'mime_type' => 'medias/mp4',
         'file_size' => 31632231
     ]);
 
@@ -191,7 +191,7 @@ Route::get('/photo', function () {
 
     $response = Telegram::sendPhoto([
         'chat_id' => env('TELEGRAM_CHANNEL_ID'),
-        'photo' => InputFile::create(storage_path('images\\2.jpeg'), '2.jpeg'),
+        'photo' => InputFile::create(storage_path('medias\\2.jpeg'), '2.jpeg'),
         'caption' => $message,
         'parse_mode' => 'HTML',
     ]);
