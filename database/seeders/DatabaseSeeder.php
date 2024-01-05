@@ -3,7 +3,13 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\Channel;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
+
+use function Laravel\Prompts\password;
 
 class DatabaseSeeder extends Seeder
 {
@@ -12,11 +18,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        Channel::truncate();
+        User::truncate();
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        User::factory()->create([
+            'name' => 'Admin',
+            'email' => 'admin@example.com',
+            'email_verified_at' => now(),
+            'password' => bcrypt('password'),
+            'remember_token' => Str::random(10),
+        ]);
+
+        Channel::factory()->create();        
     }
 }
