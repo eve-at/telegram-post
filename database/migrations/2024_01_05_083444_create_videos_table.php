@@ -18,11 +18,11 @@ return new class extends Migration
             $table->integer('width')->nullable();
             $table->integer('height')->nullable();
             $table->integer('duration')->nullable();
-            $table->string('myme_type')->default('video/mp4');
+            $table->string('mime_type')->default('video/mp4');
             $table->string('source')->nullable();
             $table->timestamps();
 
-            $table->foreign('file_id')->references('id')->on('files');
+            $table->foreign('file_id')->references('id')->on('files')->cascadeOnDelete();
         });
     }
 

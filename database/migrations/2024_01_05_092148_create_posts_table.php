@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->text('text');
+            $table->text('text')->nullable(); // in case of a Poll
             $table->morphs('postable');
             $table->timestamps();
         });

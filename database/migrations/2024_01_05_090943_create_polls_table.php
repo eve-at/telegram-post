@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->set('type', ['quiz', 'regular'])->default('quiz');
             $table->string('question');
-            $table->string('options');
+            $table->text('options');
             $table->integer('correct_option_id')->deafult(0);
             $table->string('explanation')->nullable();
             $table->timestamps();

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('media_group_id');
             $table->morphs('mediable'); //['photo', 'video']
+            $table->integer('order');
             $table->timestamps();
 
             $table->foreign('media_group_id')->references('id')->on('media_groups');

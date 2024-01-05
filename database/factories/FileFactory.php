@@ -6,9 +6,9 @@ use App\Models\Channel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Channel>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\File>
  */
-class ChannelFactory extends Factory
+class FileFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -18,8 +18,9 @@ class ChannelFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->firstName() . ' ' . fake()->lastName(),
-            'chat_id' => '-100' . fake()->randomNumber(5, strict: true) . fake()->randomNumber(5, strict: true),
+            'channel_id' => Channel::find(1) ?? Channel::factory()->create(),
+            'file_id' => fake()->sha256(),
+            'file_unique_id' => fake()->md5(),
         ];
     }
 }

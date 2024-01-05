@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('channel_id');
             $table->unsignedBigInteger('post_id');
+            $table->text('text'); // full body of the post message (empji, text, source, footer)
             $table->boolean('status')->default(false); // 0 - draft, 1 - published
             $table->timestamps();
             $table->timestamp('published_at')->nullable();
