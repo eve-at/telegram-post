@@ -37,13 +37,13 @@ class DatabaseSeeder extends Seeder
         Poll::truncate();
         User::truncate();
 
-        User::factory()->create([
+        $users = [User::factory()->create([
             'name' => 'Admin',
             'email' => 'admin@example.com',
             'email_verified_at' => now(),
             'password' => bcrypt('password'),
             'remember_token' => Str::random(10),
-        ]);
+        ])];
 
         $channel = Channel::factory()->create([
             'chat_id' => env('TELEGRAM_CHANNEL_ID'),
@@ -51,7 +51,7 @@ class DatabaseSeeder extends Seeder
             'signature' => '<a href="#">Subscribe</a>',
         ]);        
 
-        $posts = Post::factory(100)->create();
+        $posts = Post::factory(100)->recycle($users)->create();
 
         $posts->each(function($post) use ($channel) {
             Message::factory()->create([

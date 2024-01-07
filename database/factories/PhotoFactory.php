@@ -18,7 +18,7 @@ class PhotoFactory extends Factory
     public function definition(): array
     {
         return [
-            'file_id' => File::factory()->create(),
+            'file_id' => File::factory(),
             'file_name' => fake()->slug(rand(1,3)) . '.mp4',
             'source' => fake()->firstName() . ' ' . fake()->lastName(),
         ];

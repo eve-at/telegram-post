@@ -18,7 +18,7 @@ class VideoFactory extends Factory
     public function definition(): array
     {
         return [
-            'file_id' => File::factory()->create(),
+            'file_id' => File::factory(),
             'file_name' => fake()->slug(rand(1,3)) . '.jpg',
             'width' => [null, 600, 800][rand(0, 2)],
             'height' => [null, 600, 800][rand(0, 2)],

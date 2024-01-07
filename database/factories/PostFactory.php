@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\MediaGroup;
 use App\Models\Photo;
 use App\Models\Poll;
+use App\Models\User;
 use App\Models\Video;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -24,7 +25,7 @@ class PostFactory extends Factory
         $postable = $postableClass::factory()->create();
 
         return [
-            'title' => fake()->sentence(rand(4, 8)),
+            'title' => str(fake()->sentence)->beforeLast('.'),
             'text' => $postableClass === Poll::class ? null : 
                 fake()->emoji() 
                 . fake()->paragraphs(1, asText: true)
@@ -33,6 +34,7 @@ class PostFactory extends Factory
                 . fake()->emoji(),
             'postable_type' => $postable::class,
             'postable_id' => $postable->id,
+            'user_id' => User::factory()
         ];
     }
 

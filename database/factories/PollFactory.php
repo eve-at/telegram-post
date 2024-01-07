@@ -18,17 +18,17 @@ class PollFactory extends Factory
     {
         return [
             'type'=> ['quiz', 'regular'][rand(0, 1)],
-            'question' => rtrim(fake()->sentence(), '.') . '?',
+            'question' => str(fake()->sentence)->beforeLast('.') . '?',
             'options' => $this->optionsJson(count: rand(3, 10)),
             'correct_option_id' => 0,
-            'explanation' => [null, null, fake()->sentence()][rand(0, 2)],
+            'explanation' => [null, null, str(fake()->sentence)->beforeLast('.')][rand(0, 2)],
         ];
     }
 
     protected function optionsJson($count = 5) 
     {
         return collect(range(1, $count))
-                ->map(fn($el) => fake()->sentence(rand(1, 3), variableNbWords: false))
+                ->map(fn($el) => str(fake()->sentence(rand(1, 3), variableNbWords: false))->beforeLast('.'))
                 ->toJson();
     }
     
