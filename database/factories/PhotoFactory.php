@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Channel;
 use App\Models\File;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,9 +20,15 @@ class PhotoFactory extends Factory
     public function definition(): array
     {
         return [
-            'file_id' => File::factory(),
-            'file_name' => fake()->slug(rand(1,3)) . '.mp4',
-            'source' => fake()->firstName() . ' ' . fake()->lastName(),
+            'channel_id' => Channel::factory(),
+            'user_id' => User::factory(),
+            'file_id' => File::factory()->create([
+                'type' => 'photo',
+                'filename' => fake()->slug() . '.jpg',
+            ]),
+            'title' => str(fake()->sentence())->beforeLast('.'),
+            'body' => fake()->emoji() . ' ' . fake()->realText(150),
+            'source' => '@' . fake()->firstName() . '_' . fake()->lastName(),
         ];
     }
 }

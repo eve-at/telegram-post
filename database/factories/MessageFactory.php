@@ -3,7 +3,12 @@
 namespace Database\Factories;
 
 use App\Models\Channel;
+use App\Models\MediaGroup;
+use App\Models\Photo;
+use App\Models\Poll;
 use App\Models\Post;
+use App\Models\User;
+use App\Models\Video;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,9 +27,18 @@ class MessageFactory extends Factory
         $createdAt = Carbon::make(fake()->dateTimeBetween('-1 year', 'now'));
         $publishedAt = Carbon::make($createdAt)->addDays(60);
 
+        $messagable = [
+            Post::class,
+            Poll::class,
+            Photo::class,
+            Video::class,
+            MediaGroup::class,
+        ][rand(0, 4)];
+
         return [
-            'channel_id' => Channel::find(1) ?? Channel::factory()->create(),
-            'post_id' => Post::factory(),
+            'channel_id' => Channel::factory(),
+            'messagable_type' => $messagable,
+            'messagable_id' => $messagable::factory(),
             'body' => 
                 fake()->emoji() 
                 . fake()->paragraphs(1, asText: true)

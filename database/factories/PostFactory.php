@@ -2,15 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Models\MediaGroup;
-use App\Models\Photo;
-use App\Models\Poll;
+use App\Models\Channel;
 use App\Models\User;
-use App\Models\Video;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Post>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Posts>
  */
 class PostFactory extends Factory
 {
@@ -21,31 +18,17 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
-        $postableClass = $this->postableClass();
-        $postable = $postableClass::factory()->create();
-
         return [
-            'title' => str(fake()->sentence)->beforeLast('.'),
-            'body' => $postableClass === Poll::class ? null : 
+            'channel_id' => Channel::factory(),
+            'user_id' => User::factory(),
+            'title' => str(fake()->sentence())->beforeLast('.'),
+            'body' => 
                 fake()->emoji() 
                 . fake()->paragraphs(1, asText: true)
                 . fake()->emoji() 
                 . fake()->paragraphs(1, asText: true)
-                . fake()->emoji(),
-            'postable_type' => $postable::class,
-            'postable_id' => $postable->id,
-            'user_id' => User::factory()
+                . fake()->emoji(), // 1-4096 characters
+            'source' => '@' . fake()->firstName() . '_' . fake()->lastName(),
         ];
     }
-
-    protected function postableClass() 
-    {
-        return [
-            Photo::class,
-            Video::class,
-            MediaGroup::class,
-            Poll::class,
-        ][rand(0, 3)];
-    }
-    
 }

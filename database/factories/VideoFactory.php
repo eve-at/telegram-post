@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Channel;
 use App\Models\File;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,13 +20,19 @@ class VideoFactory extends Factory
     public function definition(): array
     {
         return [
-            'file_id' => File::factory(),
-            'file_name' => fake()->slug(rand(1,3)) . '.jpg',
+            'channel_id' => Channel::factory(),
+            'user_id' => User::factory(),
+            'file_id' => File::factory()->create([
+                'type' => 'video',
+                'filename' => fake()->slug() . '.mp4',
+            ]),
+            'title' => str(fake()->sentence())->beforeLast('.'),
+            'body' => fake()->emoji() . ' ' . fake()->realText(150),
             'width' => [null, 600, 800][rand(0, 2)],
             'height' => [null, 600, 800][rand(0, 2)],
             'duration' => rand(20, 200),
             'mime_type' => 'video/mp4',
-            'source' => fake()->firstName() . ' ' . fake()->lastName(),
+            'source' => '@' . fake()->firstName() . '_' . fake()->lastName(),
         ];
     }
 }

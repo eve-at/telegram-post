@@ -14,13 +14,12 @@ return new class extends Migration
     {
         Schema::create('files', function (Blueprint $table) {
             $table->id();
-            //$table->unsignedBigInteger('channel_id');
             $table->foreignIdFor(Channel::class)->constrained()->cascadeOnDelete();
-            $table->string('file_id');
-            $table->string('file_unique_id');
+            $table->set('type', ['photo', 'video', 'document']);
+            $table->string('filename')->nullable(); // can be deleted after uploading
+            $table->string('file_id')->nullable(); // will be obtained after delayed upload
+            $table->string('file_unique_id')->nullable(); // will be obtained after delayed upload
             $table->timestamps();
-
-            //$table->foreign('channel_id')->references('id')->on('channels');
         });
     }
 

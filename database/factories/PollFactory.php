@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Channel;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,8 +19,10 @@ class PollFactory extends Factory
     public function definition(): array
     {
         return [
+            'channel_id' => Channel::factory(),
+            'user_id' => User::factory(),
             'type'=> ['quiz', 'regular'][rand(0, 1)],
-            'question' => str(fake()->sentence)->beforeLast('.') . '?',
+            'title' => str(fake()->sentence)->beforeLast('.') . '?', //question
             'options' => $this->optionsJson(count: rand(3, 10)),
             'correct_option_id' => 0,
             'explanation' => [null, null, str(fake()->sentence)->beforeLast('.')][rand(0, 2)],

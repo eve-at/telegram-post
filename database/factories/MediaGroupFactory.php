@@ -2,9 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\Channel;
+use App\Models\File;
 use App\Models\Media;
 use App\Models\MediaGroup;
+use App\Models\MediaGroupFile;
 use App\Models\Photo;
+use App\Models\User;
 use App\Models\Video;
 use Closure;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -22,7 +26,11 @@ class MediaGroupFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => fake()->sentence(rand(2, 4)),
+            'channel_id' => Channel::factory(),
+            'user_id' => User::factory(),
+            'title' => str(fake()->sentence(rand(2, 4)))->beforeLast('.'),
+            'body' => fake()->emoji() . ' ' . fake()->paragraph(),
+            'source' => '@' . fake()->firstName() . '_' . fake()->lastName(),
         ];
     }
 
@@ -30,25 +38,27 @@ class MediaGroupFactory extends Factory
     {
         return $this->afterCreating(function (MediaGroup $mediaGroup) {
             collect(range(1, rand(2, 10)))->each(function ($item) use ($mediaGroup) {
-                static $order = 1;
-                $mediableClass = $this->mediableClass();
-                $mediable = $mediableClass::factory()->create();
-                Media::create([
+                static $order = 0;
+                $mediable = $this->mediableType();
+                $file = File::factory()->create([
+                    'type' => $mediable[0],
+                    'filename' => fake()->slug() . $mediable[1],
+                ]);
+                MediaGroupFile::create([
                     'media_group_id' => $mediaGroup->id,
-                    'mediable_type' => $mediableClass,
-                    'mediable_id' => $mediable->id,
+                    'file_id' => $file->id,
                     'order' => $order++,
                 ]);
             });
         });
     }
     
-    protected function mediableClass() 
+    protected function mediableType() 
     {
         return [
-            Photo::class,
-            Photo::class,
-            Video::class,
+            ['photo', '.jpg'],
+            ['video', '.mp4'],
+            ['document', '.pdf'],
         ][rand(0, 2)];
     }
     

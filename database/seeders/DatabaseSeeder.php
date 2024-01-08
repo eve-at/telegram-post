@@ -27,14 +27,13 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         Message::truncate();
-        Post::truncate();
         Channel::truncate();
         MediaGroup::truncate();
         Photo::truncate();
         Video::truncate();
-        Media::truncate();
         File::truncate();
         Poll::truncate();
+        Post::truncate();
         User::truncate();
 
         $users = [User::factory()->create([
@@ -51,14 +50,22 @@ class DatabaseSeeder extends Seeder
             'signature' => '<a href="#">Subscribe</a>',
         ]);        
 
-        $posts = Post::factory(100)->recycle($users)->create();
-
-        $posts->each(function($post) use ($channel) {
-            Message::factory()->create([
-                'channel_id' => $channel,
-                'post_id' => $post,
-                'body' => $post->text . '<i>Source: Lorem Ipsum</i>' . $channel->signature,
-            ]);
+        collect([
+            Post::class,
+            Photo::class,
+            Video::class,
+            MediaGroup::class,
+            Poll::class,
+        ])->each(function ($class) use ($channel, $users) {
+            $messagable = $class::factory(50)->recycle($users)->create();
+            $messagable->each(function($messagable) use ($channel) {
+                Message::factory()->create([
+                    'channel_id' => $channel,
+                    'messagable_type' => get_class($messagable),
+                    'messagable_id' => $messagable->id,
+                    'body' => $messagable->body ? $messagable->body . '<i>Source: Lorem Ipsum</i>' . $channel->signature : null,
+                ]);
+            });
         });
     }
 }

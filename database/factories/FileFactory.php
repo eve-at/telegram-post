@@ -17,10 +17,18 @@ class FileFactory extends Factory
      */
     public function definition(): array
     {
+        $file = [
+            ['photo', '.jpg'],
+            ['video', '.mp4'],
+            ['document', '.pdf'],
+        ][rand(0, 2)];
+
         return [
             'channel_id' => Channel::find(1) ?? Channel::factory()->create(),
             'file_id' => fake()->sha256(),
             'file_unique_id' => fake()->md5(),
+            'type' => $file[0],
+            'filename' => fake()->slug() . $file[1],
         ];
     }
 }

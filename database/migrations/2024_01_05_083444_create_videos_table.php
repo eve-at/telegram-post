@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Channel;
 use App\Models\File;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,17 +16,17 @@ return new class extends Migration
     {
         Schema::create('videos', function (Blueprint $table) {
             $table->id();
-            //$table->unsignedBigInteger('file_id');
+            $table->foreignIdFor(Channel::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(File::class)->constrained()->cascadeOnDelete();
-            $table->string('file_name');
+            $table->foreignIdFor(User::class)->constrained()->restrictOnDelete();
+            $table->string('title');
+            $table->text('body')->nullable(); // max 1024 characters
             $table->integer('width')->nullable();
             $table->integer('height')->nullable();
             $table->integer('duration')->nullable();
             $table->string('mime_type')->default('video/mp4');
             $table->string('source')->nullable();
             $table->timestamps();
-
-            //$table->foreign('file_id')->references('id')->on('files')->cascadeOnDelete();
         });
     }
 
