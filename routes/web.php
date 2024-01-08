@@ -4,12 +4,6 @@ use App\Http\Controllers\ChannelController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Resources\MessageResource;
-use App\Http\Resources\PostResource;
-use App\Http\Resources\UserResource;
-use App\Models\Message;
-use App\Models\Post;
-use App\Models\User;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -34,15 +28,17 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', function () {
+        return Inertia::render('Dashboard');
+    })->name('dashboard');
 
-Route::middleware('auth')->group(function () {
     Route::get('/messages', [MessageController::class, 'index'])->name('message.index');
 
     Route::get('/posts', [PostController::class, 'index'])->name('post.index');
-    Route::get('/posts/{post}', [PostController::class, 'show'])->name('post.show');
+    Route::get('/posts/create', [PostController::class, 'create'])->name('post.create');
+    Route::get('/posts/{post}', [PostController::class, 'edit'])->name('post.edit');
+    Route::post('/posts/{post}', [PostController::class, 'store'])->name('post.store');
 
     Route::get('/channel/edit', [ChannelController::class, 'edit'])->name('channel.edit');
 });

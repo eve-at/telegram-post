@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->text('text')->nullable(); // in case of a Poll
+            $table->longText('body')->nullable(); // in case of a Poll
             $table->morphs('postable');
             $table->foreignIdFor(User::class)->constrained()->restrictOnDelete();
             $table->timestamps();

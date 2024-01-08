@@ -25,7 +25,7 @@ class MessageFactory extends Factory
         return [
             'channel_id' => Channel::find(1) ?? Channel::factory()->create(),
             'post_id' => Post::factory(),
-            'text' => 
+            'body' => 
                 fake()->emoji() 
                 . fake()->paragraphs(1, asText: true)
                 . fake()->emoji() 

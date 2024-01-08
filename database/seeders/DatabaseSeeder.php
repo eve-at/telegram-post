@@ -57,7 +57,7 @@ class DatabaseSeeder extends Seeder
             Message::factory()->create([
                 'channel_id' => $channel,
                 'post_id' => $post,
-                'text' => $post->text . '<i>Source: Lorem Ipsum</i>' . $channel->signature,
+                'body' => $post->text . '<i>Source: Lorem Ipsum</i>' . $channel->signature,
             ]);
         });
     }

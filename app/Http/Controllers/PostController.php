@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\PostResource;
 use App\Models\Post;
+use Clockwork\Request\Request;
 use Inertia\Inertia;
 
 class PostController extends Controller
@@ -15,11 +16,21 @@ class PostController extends Controller
         ]);
     }
 
-    public function show(Post $post) 
+    public function edit(Post $post) 
     {
-        return Inertia::render('Post/Show', [
+        return Inertia::render('Post/Edit', [
             'post' => PostResource::make($post)
         ]);
+    }
+
+    public function create() 
+    {
+        return Inertia::render('Post/Create');
+    }
+
+    public function store(Request $request, Post $post) 
+    {
+        
     }
     
 }

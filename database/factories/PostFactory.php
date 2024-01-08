@@ -26,7 +26,7 @@ class PostFactory extends Factory
 
         return [
             'title' => str(fake()->sentence)->beforeLast('.'),
-            'text' => $postableClass === Poll::class ? null : 
+            'body' => $postableClass === Poll::class ? null : 
                 fake()->emoji() 
                 . fake()->paragraphs(1, asText: true)
                 . fake()->emoji() 

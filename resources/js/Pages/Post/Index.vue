@@ -1,5 +1,5 @@
 <template>
-    <Head title="Posts" />
+    <Head title="Posts - List" />
 
     <AuthenticatedLayout>
         <template #header>
