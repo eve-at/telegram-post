@@ -7,7 +7,6 @@
 
     <div class="py-0">
         <div>
-            asdf
             <x-admin-menu />
         </div>
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">

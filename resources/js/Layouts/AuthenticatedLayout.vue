@@ -6,7 +6,6 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
-import AdminMenu from '@/Components/AdminMenu.vue';
 
 const showingNavigationDropdown = ref(false);
 </script>
@@ -32,6 +31,12 @@ const showingNavigationDropdown = ref(false);
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     Dashboard
+                                </NavLink>
+                                <NavLink :href="route('message.index')" :active="route().current().startsWith('message')">
+                                    Messages
+                                </NavLink>
+                                <NavLink :href="route('post.index')" :active="route().current().startsWith('post')">
+                                    Posts
                                 </NavLink>
                             </div>
                         </div>
@@ -145,8 +150,7 @@ const showingNavigationDropdown = ref(false);
             </header>
 
             <!-- Page Content -->
-            <main class="flex flex-1">
-                <AdminMenu class="w-1/12 shadow-sm bg-blue-300"/>
+            <main class="">
                 <slot />
             </main>
         </div>
