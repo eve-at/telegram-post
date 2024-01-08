@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/messages', [MessageController::class, 'index'])->name('message.index');
 
     Route::get('/posts', [PostController::class, 'index'])->name('post.index');
+    Route::get('/posts/{post}', [PostController::class, 'show'])->name('post.show');
 
     Route::get('/channel/edit', [ChannelController::class, 'edit'])->name('channel.edit');
 });
