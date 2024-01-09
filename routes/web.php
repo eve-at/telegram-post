@@ -37,8 +37,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/posts', [PostController::class, 'index'])->name('post.index');
     Route::get('/posts/create', [PostController::class, 'create'])->name('post.create');
+    Route::post('/posts/store', [PostController::class, 'store'])->name('post.store');
     Route::get('/posts/{post}', [PostController::class, 'edit'])->name('post.edit');
-    Route::post('/posts/{post}', [PostController::class, 'store'])->name('post.store');
+    Route::patch('/posts/{post}', [PostController::class, 'update'])->name('post.update');
+    Route::delete('/posts/{post}', [PostController::class, 'delete'])->name('post.delete');
 
     Route::get('/channel/edit', [ChannelController::class, 'edit'])->name('channel.edit');
 });
