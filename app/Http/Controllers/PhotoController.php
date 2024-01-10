@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\PhotoResource;
 use App\Models\Channel;
 use App\Models\Photo;
+use Exception;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Http\Client\ResponseSequence;
 use Illuminate\Http\Request;
@@ -30,8 +31,6 @@ class PhotoController extends Controller
                 'filename' => '',
                 'body' => '',
                 'source' => '',
-                'file_id' => '',
-                'file_unique_id' => '',
             ])
         ]);
     }
@@ -76,6 +75,15 @@ class PhotoController extends Controller
         }
 
         return $request->file('filename')->hashName();
+    }
+
+    public function uploadUndo(Request $request) 
+    {
+        try {
+            Storage::delete('public/tmp/' . $request->getContent());
+        } catch(Exception $e) {
+            return response()->json(['error', 'Error while removing temporary file.']);
+        }        
     }
 
     public function edit(Photo $photo) 

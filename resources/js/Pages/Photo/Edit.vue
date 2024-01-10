@@ -28,6 +28,7 @@
                             accepted-file-types="image/jpeg"
                             @init="filepondInitialized"
                             @processfile="handleProcessedFile"
+                            @removefile="handleRemoveFile"
                             allow-multiple="false" 
                             max-files="1" 
                         />
@@ -72,11 +73,18 @@
 import vueFilePond, { setOptions } from 'vue-filepond';
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import 'filepond/dist/filepond.min.css';
+import VueCookies from 'vue-cookies';
 
 setOptions({
     server: {
         process: {
             url: './upload',
+            headers: {
+                'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
+            }
+        },
+        revert: {
+            url: './upload-undo',
             headers: {
                 'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
             }
@@ -149,10 +157,18 @@ const handleProcessedFile = (error, file) => {
     photoForm.filename = '';
 
     if (error) {
-        console.error('Filepond', error);
+        console.error('Filepond Processed File', error);
         return;
     }
     console.log(file);
+    photoForm.filename = file.serverId;
+}
+
+const handleRemoveFile = (error, file) => {
+    if (error) {
+        console.error('Filepond Remove File', error);
+        return;
+    }
     photoForm.filename = file.serverId;
 }
 </script>

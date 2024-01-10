@@ -37,8 +37,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
 
     Route::resource('posts', PostController::class)->except(['show']);
-    Route::resource('photos', PhotoController::class)->except(['show']);
+
     Route::post('/photos/upload', [PhotoController::class, 'upload'])->name('photos.upload');
+    Route::delete('/photos/upload-undo', [PhotoController::class, 'uploadUndo'])->name('photos.upload.undo');
+    Route::resource('photos', PhotoController::class)->except(['show']);
 
     Route::get('/channel/edit', [ChannelController::class, 'edit'])->name('channels.edit');
 });
