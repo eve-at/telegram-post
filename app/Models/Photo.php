@@ -16,11 +16,6 @@ class Photo extends Model
         return $this->belongsTo(User::class);    
     }
 
-    public function file()
-    {
-        return $this->belongsTo(File::class);    
-    }
-
     public function channel()
     {
         return $this->belongsTo(Channel::class);    

@@ -19,6 +19,29 @@
                     </div>
 
                     <div class="mb-3">
+                        <InputLabel for="title">Photo</InputLabel>
+                        <input type="hidden" name="filename" v-model="photoForm.filename"/>
+                        <file-pond 
+                            name="filename"
+                            ref="pond"
+                            label-idle="Click to choose image, or drag here..."
+                            accepted-file-types="image/jpeg"
+                            @init="filepondInitialized"
+                            @processfile="handleProcessedFile"
+                            allow-multiple="false" 
+                            max-files="1" 
+                        />
+                        <div v-if="photoForm.filename"
+                            class="py-3 flex"
+                        >
+                            <img :src="'/storage/tmp/' + photoForm.filename" 
+                                class="rounded w-3/12"
+                            />
+                        </div>
+                        <InputError :message="photoForm.errors.filename" />
+                    </div>
+
+                    <div class="mb-3">
                         <InputLabel for="body">Body</InputLabel>
                         <TextArea id="body" v-model="photoForm.body" rows="10" />
                         <InputError :message="photoForm.errors.body" />
@@ -44,6 +67,36 @@
         </div>
     </AuthenticatedLayout>
 </template>
+
+<script>
+import vueFilePond, { setOptions } from 'vue-filepond';
+import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
+import 'filepond/dist/filepond.min.css';
+
+setOptions({
+    server: {
+        process: {
+            url: './upload',
+            headers: {
+                'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
+            }
+        }
+    }
+});
+
+const FilePond = vueFilePond(FilePondPluginFileValidateType);
+export default {
+    components: {
+        FilePond
+    },
+    methods: {
+        filepondInitialized() {
+            console.log('Filepond is ready');
+        }
+        
+    }
+}
+</script>
 
 <script setup>
 import InputError from '@/Components/InputError.vue';
@@ -73,6 +126,7 @@ const props = defineProps({
 
 const photoForm = useForm({
     title: props.photo.title,
+    filename: props.photo.filename,
     body: props.photo.body,
     source: props.photo.source,
 })
@@ -89,5 +143,16 @@ const createPhoto = () => {
             onSuccess: () => photoForm.reset(),
         })
     }
+}
+
+const handleProcessedFile = (error, file) => {
+    photoForm.filename = '';
+
+    if (error) {
+        console.error('Filepond', error);
+        return;
+    }
+    console.log(file);
+    photoForm.filename = file.serverId;
 }
 </script>
