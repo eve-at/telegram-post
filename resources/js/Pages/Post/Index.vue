@@ -39,10 +39,12 @@
                             text="Edit"
                         ></Link>
                         <Link 
+                            :href="route('post.delete', post.id)" 
+                            method="delete"
+                            as="button"
+                            :onBefore="() => confirm('Are you sure?')"
                             class="hover:underline hover:text-blue-600"
-                            :href="'/posts/' + post.id" 
-                            text="Delete"
-                        ></Link>
+                        >Delete</Link>
                     </div>
                 </div>
             </div>
@@ -64,4 +66,5 @@ defineProps({
     }
 })
 const formateDate = (datetime) => formatDistance(parseISO(datetime), new Date) + ' ago';
+const confirm = () => window.confirm("Are you sure?");
 </script>

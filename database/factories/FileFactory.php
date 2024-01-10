@@ -24,7 +24,7 @@ class FileFactory extends Factory
         ][rand(0, 2)];
 
         return [
-            'channel_id' => Channel::find(1) ?? Channel::factory()->create(),
+            'channel_id' => Channel::find(1) ?? Channel::factory(),
             'file_id' => fake()->sha256(),
             'file_unique_id' => fake()->md5(),
             'type' => $file[0],

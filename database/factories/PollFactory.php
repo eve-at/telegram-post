@@ -19,7 +19,7 @@ class PollFactory extends Factory
     public function definition(): array
     {
         return [
-            'channel_id' => Channel::factory(),
+            'channel_id' => Channel::first() ?? Channel::factory(),
             'user_id' => User::factory(),
             'type'=> ['quiz', 'regular'][rand(0, 1)],
             'title' => str(fake()->sentence)->beforeLast('.') . '?', //question

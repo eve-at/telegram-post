@@ -40,7 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/posts/store', [PostController::class, 'store'])->name('post.store');
     Route::get('/posts/{post}', [PostController::class, 'edit'])->name('post.edit');
     Route::patch('/posts/{post}', [PostController::class, 'update'])->name('post.update');
-    Route::delete('/posts/{post}', [PostController::class, 'delete'])->name('post.delete');
+    Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('post.delete');
 
     Route::get('/channel/edit', [ChannelController::class, 'edit'])->name('channel.edit');
 });

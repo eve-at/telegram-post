@@ -26,7 +26,7 @@ class MediaGroupFactory extends Factory
     public function definition(): array
     {
         return [
-            'channel_id' => Channel::factory(),
+            'channel_id' => Channel::first() ?? Channel::factory(),
             'user_id' => User::factory(),
             'title' => str(fake()->sentence(rand(2, 4)))->beforeLast('.'),
             'body' => fake()->emoji() . ' ' . fake()->paragraph(),

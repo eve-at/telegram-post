@@ -20,7 +20,7 @@ class PhotoFactory extends Factory
     public function definition(): array
     {
         return [
-            'channel_id' => Channel::factory(),
+            'channel_id' => Channel::first() ?? Channel::factory(),
             'user_id' => User::factory(),
             'file_id' => File::factory()->create([
                 'type' => 'photo',

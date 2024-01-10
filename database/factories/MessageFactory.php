@@ -36,7 +36,7 @@ class MessageFactory extends Factory
         ][rand(0, 4)];
 
         return [
-            'channel_id' => Channel::factory(),
+            'channel_id' => Channel::first() ?? Channel::factory(),
             'messagable_type' => $messagable,
             'messagable_id' => $messagable::factory(),
             'body' => 
