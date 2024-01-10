@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ChannelController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
@@ -33,16 +34,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
-    Route::get('/messages', [MessageController::class, 'index'])->name('message.index');
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
 
-    Route::get('/posts', [PostController::class, 'index'])->name('post.index');
-    Route::get('/posts/create', [PostController::class, 'create'])->name('post.create');
-    Route::post('/posts/store', [PostController::class, 'store'])->name('post.store');
-    Route::get('/posts/{post}', [PostController::class, 'edit'])->name('post.edit');
-    Route::patch('/posts/{post}', [PostController::class, 'update'])->name('post.update');
-    Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('post.delete');
+    Route::resource('posts', PostController::class)->except(['show']);
+    Route::resource('photos', PhotoController::class)->except(['show']);
 
-    Route::get('/channel/edit', [ChannelController::class, 'edit'])->name('channel.edit');
+    Route::get('/channel/edit', [ChannelController::class, 'edit'])->name('channels.edit');
 });
 
 Route::middleware('auth')->group(function () {

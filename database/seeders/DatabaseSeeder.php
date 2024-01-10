@@ -31,7 +31,6 @@ class DatabaseSeeder extends Seeder
         MediaGroup::truncate();
         Photo::truncate();
         Video::truncate();
-        File::truncate();
         Poll::truncate();
         Post::truncate();
         User::truncate();

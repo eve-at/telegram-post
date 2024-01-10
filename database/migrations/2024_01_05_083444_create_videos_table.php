@@ -17,15 +17,17 @@ return new class extends Migration
         Schema::create('videos', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Channel::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(File::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained()->restrictOnDelete();
             $table->string('title');
             $table->text('body')->nullable(); // max 1024 characters
+            $table->string('source')->nullable();
+            $table->string('filename');
+            $table->string('file_id')->nullable(); // will be obtained after delayed upload
+            $table->string('file_unique_id')->nullable(); // will be obtained after delayed upload
+            $table->string('mime_type')->default('video/mp4');
             $table->integer('width')->nullable();
             $table->integer('height')->nullable();
             $table->integer('duration')->nullable();
-            $table->string('mime_type')->default('video/mp4');
-            $table->string('source')->nullable();
             $table->timestamps();
         });
     }

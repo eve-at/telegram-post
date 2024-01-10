@@ -16,8 +16,11 @@ return new class extends Migration
         Schema::create('media_group_files', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(MediaGroup::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(File::class)->constrained()->cascadeOnDelete();
             $table->integer('order')->default(0);
+            $table->set('type', ['photo', 'video', 'document']);
+            $table->string('filename');
+            $table->string('file_id')->nullable(); // will be obtained after delayed upload
+            $table->string('file_unique_id')->nullable(); // will be obtained after delayed upload
             $table->timestamps();
         });
     }

@@ -17,11 +17,13 @@ return new class extends Migration
         Schema::create('photos', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Channel::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(File::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained()->restrictOnDelete();
             $table->string('title');
             $table->text('body')->nullable(); // max 1024 characters
             $table->string('source')->nullable();
+            $table->string('filename');
+            $table->string('file_id')->nullable(); // will be obtained after delayed upload
+            $table->string('file_unique_id')->nullable(); // will be obtained after delayed upload
             $table->timestamps();
         });
     }

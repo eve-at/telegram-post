@@ -22,12 +22,11 @@ class VideoFactory extends Factory
         return [
             'channel_id' => Channel::first() ?? Channel::factory(),
             'user_id' => User::factory(),
-            'file_id' => File::factory()->create([
-                'type' => 'video',
-                'filename' => fake()->slug() . '.mp4',
-            ]),
             'title' => str(fake()->sentence())->beforeLast('.'),
             'body' => fake()->emoji() . ' ' . fake()->realText(150),
+            'filename' => fake()->slug() . '.mp4',
+            'file_id' => fake()->sha256(),
+            'file_unique_id' => fake()->md5(),
             'width' => [null, 600, 800][rand(0, 2)],
             'height' => [null, 600, 800][rand(0, 2)],
             'duration' => rand(20, 200),

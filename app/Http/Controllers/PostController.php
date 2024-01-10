@@ -22,7 +22,7 @@ class PostController extends Controller
     {
         return Inertia::render('Post/Edit', [
             'title' => 'Create',
-            'toRoute' => 'post.store',
+            'toRoute' => 'posts.store',
             'post' => Post::make([
                 'title' => '',
                 'body' => '',
@@ -46,7 +46,7 @@ class PostController extends Controller
 
         $post->save();
 
-        return to_route('post.index')->with('success', 'The post was created');
+        return to_route('posts.index')->with('success', 'The post was created');
     }
 
     public function edit(Post $post) 
@@ -54,7 +54,7 @@ class PostController extends Controller
         return Inertia::render('Post/Edit', [
             'post' => PostResource::make($post),
             'title' => 'Edit',
-            'toRoute' => 'post.update',
+            'toRoute' => 'posts.update',
         ]);
     }
 
@@ -68,14 +68,14 @@ class PostController extends Controller
 
         $post->update($data);
 
-        return to_route('post.index')->with('success', 'The post was updated');
+        return to_route('posts.index')->with('success', 'The post was updated');
     }
 
     public function destroy(Request $request, Post $post) 
     {
         $post->delete();
 
-        return to_route('post.index')->with('success', 'The post was deleted');
+        return to_route('posts.index')->with('success', 'The post was deleted');
     }
     
 }

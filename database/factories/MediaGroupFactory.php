@@ -40,13 +40,13 @@ class MediaGroupFactory extends Factory
             collect(range(1, rand(2, 10)))->each(function ($item) use ($mediaGroup) {
                 static $order = 0;
                 $mediable = $this->mediableType();
-                $file = File::factory()->create([
-                    'type' => $mediable[0],
-                    'filename' => fake()->slug() . $mediable[1],
-                ]);
+
                 MediaGroupFile::create([
                     'media_group_id' => $mediaGroup->id,
-                    'file_id' => $file->id,
+                    'type' => $mediable[0],
+                    'filename' => fake()->slug() . $mediable[1],
+                    'file_id' => fake()->sha256(),
+                    'file_unique_id' => fake()->md5(),
                     'order' => $order++,
                 ]);
             });

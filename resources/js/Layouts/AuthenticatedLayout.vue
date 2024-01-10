@@ -20,11 +20,14 @@
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     Dashboard
                                 </NavLink>
-                                <NavLink :href="route('message.index')" :active="route().current().startsWith('message')">
+                                <NavLink :href="route('messages.index')" :active="route().current().startsWith('messages')">
                                     Messages
                                 </NavLink>
-                                <NavLink :href="route('post.index')" :active="route().current().startsWith('post')">
+                                <NavLink :href="route('posts.index')" :active="route().current().startsWith('posts')">
                                     Posts
+                                </NavLink>
+                                <NavLink :href="route('photos.index')" :active="route().current().startsWith('photos')">
+                                    Photos
                                 </NavLink>
                             </div>
                         </div>
