@@ -114,6 +114,7 @@ class VideoController extends Controller
 
     public function destroy(Request $request, Video $video)
     {
+        Storage::delete('public/medias/' . $video->filename);
         $video->delete();
 
         return to_route('videos.index')->with('success', 'The video was deleted');
