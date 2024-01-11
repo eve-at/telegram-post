@@ -164,8 +164,12 @@ class MediaGroupController extends Controller
 
     public function destroy(Request $request, MediaGroup $media)
     {
+        $files = $media->filenames->pluck('filename');
+
         $media->delete();
 
-        return to_route('medias.index')->with('success', 'The group was deleted');
+        Storage::delete($files->map(fn ($filename) => 'public/medias/' . $filename)->toArray());
+
+        return to_route('medias.index')->with('success', 'The media group was deleted');
     }
 }
