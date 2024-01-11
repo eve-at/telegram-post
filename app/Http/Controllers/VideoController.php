@@ -61,9 +61,9 @@ class VideoController extends Controller
 
         // There is no explicit rules for a video 
         // @see: https://core.telegram.org/bots/api#sendvideo
-        /*$request->validate([
+        $request->validate([
             'filename' => ['required', 'video', 'mimes:mp4', 'max:102400'], //100MB
-        ]);*/
+        ]);
 
         if (!$request->file('filename')->store('public/tmp')) {
             return response()->json(['error', 'The file could no be saved.'], 500);

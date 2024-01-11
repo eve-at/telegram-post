@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\MediaGroupResource;
 use App\Models\Channel;
 use App\Models\MediaGroup;
+use App\Models\MediaGroupFile;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -24,8 +25,12 @@ class MediaGroupController extends Controller
         return Inertia::render('MediaGroup/Edit', [
             'title' => 'Create',
             'toRoute' => 'medias.store',
-            'group' => new MediaGroup,
-            'files' => []
+            'group' => MediaGroup::make([
+                'title' => '',
+                'filenames' => [],
+                'body' => '',
+                'source' => '',
+            ])
         ]);
     }
 
@@ -33,20 +38,29 @@ class MediaGroupController extends Controller
     {
         $data = $request->validate([
             'title' => ['required', 'max:190'],
-            'filename' => ['required', 'max:190'],
+            'filenames' => ['required', 'min:2', 'max:10'], // 2-10 files
+            'filenames.*' => ['max:190'], // 190 max filename length
             'body' => ['max:1024'],
             'source' => ['max:190'],
         ]);
 
-        Storage::move('public/tmp/' . $data['filename'], 'public/medias/' . $data['filename']);
-
         $group = MediaGroup::make($data);
         $group->user()->associate($request->user());
         $group->channel()->associate(Channel::first());
-
         $group->save();
 
-        return to_route('medias.index')->with('success', 'The group was created');
+        foreach($data['filenames'] as $index=>$filename) {
+            Storage::move('public/tmp/' . $filename, 'public/medias/' . $filename);
+
+            $file = new MediaGroupFile;
+            $file->filename = $filename;
+            $file->order = $index;
+            $file->type = str_ends_with($filename, '.mp4') ? 'video' : 'photo';
+            $file->media_group_id = $group->id;
+            $file->save();
+        }
+
+        return to_route('medias.index')->with('success', 'The media group was created');
     }
 
     public function upload(Request $request)
@@ -56,12 +70,19 @@ class MediaGroupController extends Controller
         }
 
         // TODO:
-        //  - The group must be at most 10 MB in size.
-        //  - The group's width and height must not exceed 10000 in total.
+        //  - The image must be at most 10 MB in size.
+        //  - The image's width and height must not exceed 10000 in total.
         //  - Width and height ratio must be at most 20.
         // @see: https://core.telegram.org/bots/api#sendgroup
+        //  - There is no explicit rules for a video 
+        // @see: https://core.telegram.org/bots/api#sendgroup
+        $rules = ['required', 'image', 'mimes:jpeg,jpg', 'max:4096'];
+        if ($request->file('filename')->getClientMimeType() === 'video/mp4') {
+            $rules = ['required', 'file', 'mimes:mp4', 'max:102400'];
+        }
+       
         $request->validate([
-            'filename' => ['required', 'image', 'mimes:jpeg,jpg', 'max:4096'],
+            'filename' => $rules,
         ]);
 
         if (!$request->file('filename')->store('public/tmp')) {
@@ -80,40 +101,85 @@ class MediaGroupController extends Controller
         }
     }
 
-    public function edit(MediaGroup $group)
+    public function edit(MediaGroup $media)
     {
-        $pr = MediaGroupResource::make($group);
         return Inertia::render('MediaGroup/Edit', [
             'title' => 'Edit',
-            'group' => $pr,
-            'files' => $pr->files,
+            'group' => MediaGroupResource::make($media),
             'toRoute' => 'medias.update',
         ]);
     }
 
-    public function update(Request $request, MediaGroup $group)
+    public function update(Request $request, MediaGroup $media)
     {
+
         $data = $request->validate([
             'title' => ['required', 'max:190'],
-            'filename' => ['required', 'max:190'],
-            'body' => ['required', 'max:1024'],
+            'filenames' => ['required', 'min:2', 'max:10'], // 2-10 files
+            'filenames.*' => ['max:190'], // 190 max filename length
+            'body' => ['max:1024'],
             'source' => ['max:190'],
         ]);
 
-        $oldFilename = $group->filename;
-        $group->update($data);
+        $filesBefore = $media->filenames->pluck('filename');
+        $filesAfter = collect($data['filenames']);
 
-        if ($data['filename'] !== $oldFilename) {
-            Storage::delete('public/medias/' . $oldFilename);
-            Storage::move('public/tmp/' . $data['filename'], 'public/medias/' . $data['filename']);
+        // remove missing files (disk and DB)
+        $filesDeleted = $filesBefore->diff($filesAfter);
+        if ($filesDeleted) {
+            MediaGroupFile::whereIn('filename', $filesDeleted)
+                ->where('media_group_id', $media->id)
+                ->delete();
+
+            Storage::delete($filesDeleted->map(fn ($filename) => 'public/medias/' . $filename)->toArray());
         }
+
+        // move new files (disk, and add into DB)
+        $filesNew = $filesAfter->diff($filesBefore);
+
+        return [
+            'filesBefore' => $filesBefore,
+            'filesAfter' => $filesAfter,
+            'filesDeleted' => $filesDeleted,
+            'filesNew' => $filesNew,
+        ];
+
+        // move new files (disk, and add into DB)
+        // reorder files in DB
+
+
+        // $oldFilename = $media->filename;
+        // $media->update($data);
+
+        // if ($data['filename'] !== $oldFilename) {
+        //     Storage::delete('public/medias/' . $oldFilename);
+        //     Storage::move('public/tmp/' . $data['filename'], 'public/medias/' . $data['filename']);
+        // }
+
+        $media = MediaGroup::make($data);
+        $media->user()->associate($request->user());
+        $media->channel()->associate(Channel::first());
+        $media->save();
+
+        foreach($data['filenames'] as $index=>$filename) {
+            Storage::move('public/tmp/' . $filename, 'public/medias/' . $filename);
+
+            $file = new MediaGroupFile;
+            $file->filename = $filename;
+            $file->order = $index;
+            $file->type = str_ends_with($filename, '.mp4') ? 'video' : 'photo';
+            $file->media_group_id = $media->id;
+            $file->save();
+        }
+
+        return to_route('medias.index')->with('success', 'The media group was created');
 
         return to_route('medias.index')->with('success', 'The group was updated');
     }
 
-    public function destroy(Request $request, MediaGroup $group)
+    public function destroy(Request $request, MediaGroup $media)
     {
-        $group->delete();
+        $media->delete();
 
         return to_route('medias.index')->with('success', 'The group was deleted');
     }

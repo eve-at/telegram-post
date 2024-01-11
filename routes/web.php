@@ -48,10 +48,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/videos/upload-undo', [VideoController::class, 'uploadUndo'])->name('videos.upload.undo');
     Route::resource('videos', VideoController::class)->except(['show']);
    
+    // Route::get('/medias/{id}/{filename}', [MediaGroupController::class, 'fetch'])
+    //     ->where(['id' => '[0-9]+', 'filename' => '[A-Za-z0-9.]+'])
+    //     ->name('medias.fetch');
     Route::post('/medias/upload', [MediaGroupController::class, 'upload'])->name('medias.upload');
     Route::delete('/medias/upload-undo', [MediaGroupController::class, 'uploadUndo'])->name('medias.upload.undo');
-    Route::resource('medias', MediaGroupController::class)->except(['show']);
-
+    Route::resource('medias', MediaGroupController::class, ['parameters' => [
+        'media' => 'media_group' //type-hinted variable for model biding
+    ]])->except(['show']);
+    
     Route::get('/channel/edit', [ChannelController::class, 'edit'])->name('channels.edit');
 });
 

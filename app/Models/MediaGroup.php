@@ -10,6 +10,7 @@ class MediaGroup extends Model
     use HasFactory;
 
     public $guarded = ['id'];
+    public $with = ['filenames'];
     
     public function user()
     {
@@ -21,8 +22,8 @@ class MediaGroup extends Model
         return $this->belongsTo(Channel::class);    
     }
         
-    public function files()
+    public function filenames()
     {
-        return $this->hasMany(MediaGroupFile::class);    
+        return $this->hasMany(MediaGroupFile::class)->orderBy('order');    
     }
 }

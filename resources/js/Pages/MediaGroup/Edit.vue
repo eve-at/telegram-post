@@ -29,26 +29,13 @@
                             @init="filepondInitialized"
                             @processfile="handleProcessedFile"
                             @removefile="handleRemoveFile"
+                            @reorderfiles="handleReorderFiles"
                             allow-multiple="true" 
                             max-files="10" 
+                            :allow-reorder="true"
+                            :files="groupForm.filepaths"
                         />
-                        <div v-if="groupForm.filenames.length"
-                            class="py-3 flex"
-                        >
-                            <div v-for="(filename, index) in groupForm.filenames" 
-                                :key="index"
-                                class="w-3/12 px-1"
-                            >
-                                <video v-if="isVideo(filename)" :src="mediaPath(filename)" width="320" height="240" controls muted>
-                                    <!-- <source :src="videoPath()" type="video/mp4"> -->
-                                    Your browser does not support the video tag.
-                                </video>
-                                <img v-if="!isVideo(filename)" :src="mediaPath(filename)" 
-                                    class="rounded"
-                                />
-                            </div>
-                        </div>
-                        <InputError :message="groupForm.errors.filename" />
+                        <InputError :message="groupForm.errors.filenames" />
                     </div>
 
                     <div class="mb-3">
@@ -81,26 +68,36 @@
 <script>
 import vueFilePond, { setOptions } from 'vue-filepond';
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
+import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import 'filepond/dist/filepond.min.css';
+import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
 
 setOptions({
     server: {
+        //upload file
         process: {
             url: '/medias/upload',
             headers: {
                 'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
             }
         },
+
+        //delete uploaded file
         revert: {
             url: '/medias/upload-undo',
+
             headers: {
                 'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
             }
-        }
+        },
+
+        //preload existed files
+        load: '/storage/medias/',
     }
 });
 
-const FilePond = vueFilePond(FilePondPluginFileValidateType);
+const FilePond = vueFilePond(FilePondPluginFileValidateType, FilePondPluginImagePreview);
+//const FilePond = vueFilePond(FilePondPluginFileValidateType);
 export default {
     components: {
         FilePond
@@ -108,7 +105,7 @@ export default {
     methods: {
         filepondInitialized() {
             console.log('Filepond is ready');
-        }        
+        }
     }
 }
 </script>
@@ -139,10 +136,6 @@ const props = defineProps({
         default: null,
         required: false
     },
-    files: {
-        type: Array,
-        default: []
-    },
     filenames: {
         type: Array,
         default: [],
@@ -153,19 +146,25 @@ const groupForm = useForm({
     title: props.group.title,
     body: props.group.body,
     source: props.group.source ?? '',
-    filenames: props.group.files ?? [],
+    filenames: props.group.filenames ?? [],
+    filepaths: props.group.filepaths ?? [],
 })
 
+// const filepondInitialized = () => {
+//     console.log('Filepond is ready!');
+//     this.$refs.pond.addFiles(props.group.filenames)
+// }
+
 const mediaPath = (filename) => {
-    /*if (!mediaUpdated && props.media.id) {
+    if (props.group.id) {
         return '/storage/medias/' + filename;
-    }*/
+    }
     return '/storage/tmp/' + filename;
 }
 
 const createGroup = () => {
-    if (props.medias.id) { //update
-        groupForm.patch(route(props.toRoute, props.media.id), {
+    if (props.group.id) { //update
+        groupForm.patch(route(props.toRoute, props.group.id), {
             preserveScroll: true,
             onSuccess: () => groupForm.reset(),
         })
@@ -178,8 +177,6 @@ const createGroup = () => {
 }
 
 const handleProcessedFile = (error, file) => {
-    //groupForm.filename = '';
-
     if (error) {
         console.error('Filepond Processed File', error);
         return;
@@ -187,16 +184,21 @@ const handleProcessedFile = (error, file) => {
     
     mediaUpdated = true;
 
-    groupForm.filenames.push(file.serverId);
+    // prepend the new file
+    groupForm.filenames.unshift(file.serverId);
 }
 
-const handleRemoveFile = (error, file) => {
+const handleRemoveFile = (error, removedFile) => {
     if (error) {
         console.error('Filepond Remove File', error);
         return;
     }
-    mediaUpdated = false;
-    //groupForm.filename = props.filename;
+
+    groupForm.filenames = groupForm.filenames.filter((file) => file !== removedFile.serverId);
+}
+
+const handleReorderFiles = (files) => {
+    groupForm.filenames = files.map((file) => file.serverId);
 }
 
 const isVideo = (filename) => filename.endsWith('.mp4');

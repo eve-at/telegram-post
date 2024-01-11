@@ -14,14 +14,25 @@ class MediaGroupResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $filenames = $this->filenames->pluck('filename');
         return [
             'id' => $this->id,
             'title' => $this->title,
             'body' => $this->body,
-            'files' => $this->files,
             'source' => $this->source,
             'created_at' => $this->created_at,
-            'user' => UserResource::make($this->user)
+            'user' => UserResource::make($this->user),
+
+            //names of files
+            'filenames' => $filenames, 
+
+            //URI of files for PQINA file plugin
+            'filepaths' => $filenames->map(function ($filename) {
+                return [
+                    'source' => $filename,
+                    'options' => ['type' => 'local'], //local => existing server file
+                ];          
+            }),            
         ];
     }
 }

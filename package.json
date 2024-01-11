@@ -23,6 +23,7 @@
         "@heroicons/vue": "^2.1.1",
         "date-fns": "^3.1.0",
         "filepond": "^4.30.6",
+        "filepond-plugin-image-preview": "^4.6.12",
         "vue-filepond": "^7.0.4"
     }
 }
