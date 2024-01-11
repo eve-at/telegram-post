@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use PhpParser\Node\Expr\FuncCall;
 
 class MediaGroupController extends Controller
 {
@@ -110,9 +111,9 @@ class MediaGroupController extends Controller
         ]);
     }
 
+    // TODO: take out MediaGroupFile
     public function update(Request $request, MediaGroup $media)
     {
-
         $data = $request->validate([
             'title' => ['required', 'max:190'],
             'filenames' => ['required', 'min:2', 'max:10'], // 2-10 files
@@ -121,12 +122,13 @@ class MediaGroupController extends Controller
             'source' => ['max:190'],
         ]);
 
+        $media->update(collect($data)->except('filenames')->toArray());
+
         $filesBefore = $media->filenames->pluck('filename');
         $filesAfter = collect($data['filenames']);
 
         // remove missing files (disk and DB)
-        $filesDeleted = $filesBefore->diff($filesAfter);
-        if ($filesDeleted) {
+        if ($filesDeleted = $filesBefore->diff($filesAfter)) {
             MediaGroupFile::whereIn('filename', $filesDeleted)
                 ->where('media_group_id', $media->id)
                 ->delete();
@@ -135,46 +137,29 @@ class MediaGroupController extends Controller
         }
 
         // move new files (disk, and add into DB)
-        $filesNew = $filesAfter->diff($filesBefore);
-
-        return [
-            'filesBefore' => $filesBefore,
-            'filesAfter' => $filesAfter,
-            'filesDeleted' => $filesDeleted,
-            'filesNew' => $filesNew,
-        ];
-
-        // move new files (disk, and add into DB)
-        // reorder files in DB
-
-
-        // $oldFilename = $media->filename;
-        // $media->update($data);
-
-        // if ($data['filename'] !== $oldFilename) {
-        //     Storage::delete('public/medias/' . $oldFilename);
-        //     Storage::move('public/tmp/' . $data['filename'], 'public/medias/' . $data['filename']);
-        // }
-
-        $media = MediaGroup::make($data);
-        $media->user()->associate($request->user());
-        $media->channel()->associate(Channel::first());
-        $media->save();
-
-        foreach($data['filenames'] as $index=>$filename) {
-            Storage::move('public/tmp/' . $filename, 'public/medias/' . $filename);
-
-            $file = new MediaGroupFile;
+        $orders = $filesAfter->flip();
+        $filesAfter->diff($filesBefore)->each(function($filename) use ($media, $orders) {
+            $file = new MediaGroupFile();
             $file->filename = $filename;
-            $file->order = $index;
             $file->type = str_ends_with($filename, '.mp4') ? 'video' : 'photo';
             $file->media_group_id = $media->id;
+            $file->order = $orders->get($filename);
             $file->save();
-        }
 
-        return to_route('medias.index')->with('success', 'The media group was created');
+            // TODO: queue it
+            Storage::move('public/tmp/' . $filename, 'public/medias/' . $filename);
+        });
 
-        return to_route('medias.index')->with('success', 'The group was updated');
+        // reorder old files in DB
+        $filesAfter->flip()
+            ->intersectByKeys($filesBefore->flip())
+            ->each(function($order, $filename) use ($media) {
+                MediaGroupFile::where('filename', $filename)
+                    ->where('media_group_id', $media->id)
+                    ->update(['order' => $order]);
+            });
+
+        return to_route('medias.index')->with('success', 'The media group was updated');
     }
 
     public function destroy(Request $request, MediaGroup $media)
