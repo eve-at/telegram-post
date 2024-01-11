@@ -98,7 +98,7 @@ class MediaGroupController extends Controller
         try {
             Storage::delete('public/tmp/' . $request->getContent());
         } catch(Exception $e) {
-            return response()->json(['error', 'Error while removing temporary file.']);
+            return response()->json(['error', 'Error while removing temporary file.'], 500);
         }
     }
 

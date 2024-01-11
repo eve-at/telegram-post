@@ -72,11 +72,16 @@ import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import 'filepond/dist/filepond.min.css';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
 
+let serverMessage = {};
+
 setOptions({
     server: {
         //upload file
         process: {
             url: '/medias/upload',
+            onerror: (response) => {
+                serverMessage = JSON.parse(response);
+            },
             headers: {
                 'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
             }
@@ -93,6 +98,9 @@ setOptions({
 
         //preload existed files
         load: '/storage/medias/',
+    },
+    labelFileProcessingError: () => {
+        return serverMessage.error;
     }
 });
 

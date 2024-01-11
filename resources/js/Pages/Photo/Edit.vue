@@ -74,10 +74,15 @@ import vueFilePond, { setOptions } from 'vue-filepond';
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import 'filepond/dist/filepond.min.css';
 
+let serverMessage = {};
+
 setOptions({
     server: {
         process: {
             url: '/photos/upload',
+            onerror: (response) => {
+                serverMessage = JSON.parse(response);
+            },
             headers: {
                 'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
             }
@@ -88,6 +93,9 @@ setOptions({
                 'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
             }
         }
+    },
+    labelFileProcessingError: () => {
+        return serverMessage.error;
     }
 });
 

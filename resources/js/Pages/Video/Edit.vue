@@ -36,7 +36,6 @@
                             class="py-3 flex"
                         >
                             <video :src="videoPath()" width="320" height="240" controls muted>
-                                <!-- <source :src="videoPath()" type="video/mp4"> -->
                                 Your browser does not support the video tag.
                             </video>
                         </div>
@@ -75,10 +74,15 @@ import vueFilePond, { setOptions } from 'vue-filepond';
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import 'filepond/dist/filepond.min.css';
 
+let serverMessage = {};
+
 setOptions({
     server: {
         process: {
             url: '/videos/upload',
+            onerror: (response) => {
+                serverMessage = JSON.parse(response);
+            },
             headers: {
                 'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
             }
@@ -89,6 +93,9 @@ setOptions({
                 'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
             }
         }
+    },
+    labelFileProcessingError: () => {
+        return serverMessage.error;
     }
 });
 
