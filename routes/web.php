@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ChannelController;
+use App\Http\Controllers\MediaGroupController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\PostController;
@@ -46,6 +47,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/videos/upload', [VideoController::class, 'upload'])->name('videos.upload');
     Route::delete('/videos/upload-undo', [VideoController::class, 'uploadUndo'])->name('videos.upload.undo');
     Route::resource('videos', VideoController::class)->except(['show']);
+   
+    Route::post('/medias/upload', [MediaGroupController::class, 'upload'])->name('medias.upload');
+    Route::delete('/medias/upload-undo', [MediaGroupController::class, 'uploadUndo'])->name('medias.upload.undo');
+    Route::resource('medias', MediaGroupController::class)->except(['show']);
 
     Route::get('/channel/edit', [ChannelController::class, 'edit'])->name('channels.edit');
 });

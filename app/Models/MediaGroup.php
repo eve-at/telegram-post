@@ -9,6 +9,8 @@ class MediaGroup extends Model
 {
     use HasFactory;
 
+    public $guarded = ['id'];
+    
     public function user()
     {
         return $this->belongsTo(User::class);    
@@ -17,5 +19,10 @@ class MediaGroup extends Model
     public function channel()
     {
         return $this->belongsTo(Channel::class);    
+    }
+        
+    public function files()
+    {
+        return $this->hasMany(MediaGroupFile::class);    
     }
 }

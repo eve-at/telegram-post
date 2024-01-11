@@ -32,6 +32,9 @@
                                 <NavLink :href="route('videos.index')" :active="route().current().startsWith('videos')">
                                     Videos
                                 </NavLink>
+                                <NavLink :href="route('medias.index')" :active="route().current().startsWith('medias')">
+                                    Media Groups
+                                </NavLink>
                             </div>
                         </div>
 
