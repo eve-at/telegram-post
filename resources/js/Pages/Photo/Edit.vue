@@ -35,7 +35,7 @@
                         <div v-if="photoForm.filename"
                             class="py-3 flex"
                         >
-                            <img :src="'/storage/tmp/' + photoForm.filename" 
+                            <img :src="imagePath()" 
                                 class="rounded w-3/12"
                             />
                         </div>
@@ -73,18 +73,17 @@
 import vueFilePond, { setOptions } from 'vue-filepond';
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import 'filepond/dist/filepond.min.css';
-import VueCookies from 'vue-cookies';
 
 setOptions({
     server: {
         process: {
-            url: './upload',
+            url: '/photos/upload',
             headers: {
                 'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
             }
         },
         revert: {
-            url: './upload-undo',
+            url: '/photos/upload-undo',
             headers: {
                 'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
             }
@@ -116,6 +115,8 @@ import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 
+let photoUpdated = false;
+
 const props = defineProps({
     title: {
         type: String,
@@ -129,6 +130,10 @@ const props = defineProps({
         type: Object,
         default: null,
         required: false
+    },
+    filename: {
+        type: String,
+        default: '',
     }
 });
 
@@ -138,6 +143,13 @@ const photoForm = useForm({
     body: props.photo.body,
     source: props.photo.source,
 })
+
+const imagePath = () => {
+    if (!photoUpdated && props.photo.id) {
+        return '/storage/medias/' + photoForm.filename;
+    }
+    return '/storage/tmp/' + photoForm.filename;
+}
 
 const createPhoto = () => {
     if (props.photo.id) { //update
@@ -160,7 +172,8 @@ const handleProcessedFile = (error, file) => {
         console.error('Filepond Processed File', error);
         return;
     }
-    console.log(file);
+    
+    photoUpdated = true;
     photoForm.filename = file.serverId;
 }
 
@@ -169,6 +182,7 @@ const handleRemoveFile = (error, file) => {
         console.error('Filepond Remove File', error);
         return;
     }
-    photoForm.filename = file.serverId;
+    photoUpdated = false;
+    photoForm.filename = props.filename;
 }
 </script>
