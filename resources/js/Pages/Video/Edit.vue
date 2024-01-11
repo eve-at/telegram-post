@@ -1,67 +1,68 @@
 <template>
-    <Head :title="'Photo - ' + $props.title" />
+    <Head :title="'Video - ' + $props.title" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2 
                 class="font-semibold text-xl text-gray-800 leading-tight" 
-                v-html="'Photo - ' + $props.title"
+                v-html="'Video - ' + $props.title"
             ></h2>
         </template>
 
         <div class="mx-auto w-10/12 flex overflow-hidden flex-col">
             <div class="p-3 border bg-white border-gray-300 rounded-xl m-2 divide-y divide-solid overflow-hidden">
-                <form @submit.prevent="createPhoto" class="w-6/12">
+                <form @submit.prevent="createVideo" class="w-6/12">
                     <div class="mb-3">
                         <InputLabel for="title">Title</InputLabel>
-                        <TextInput id="title" v-model="photoForm.title"/>
-                        <InputError :message="photoForm.errors.title" />
+                        <TextInput id="title" v-model="videoForm.title"/>
+                        <InputError :message="videoForm.errors.title" />
                     </div>
 
                     <div class="mb-3">
-                        <InputLabel for="title">Photo</InputLabel>
-                        <input type="hidden" name="filename" v-model="photoForm.filename"/>
+                        <InputLabel for="title">Video</InputLabel>
+                        <input type="hidden" name="filename" v-model="videoForm.filename"/>
                         <file-pond 
                             name="filename"
                             ref="pond"
                             label-idle="Click to choose image, or drag here..."
-                            accepted-file-types="image/jpeg"
+                            accepted-file-types="video/mp4"
                             @init="filepondInitialized"
                             @processfile="handleProcessedFile"
                             @removefile="handleRemoveFile"
                             allow-multiple="false" 
                             max-files="1" 
                         />
-                        <div v-if="photoForm.filename"
+                        <div v-if="videoForm.filename"
                             class="py-3 flex"
                         >
-                            <img :src="imagePath()" 
-                                class="rounded w-3/12"
-                            />
+                            <video :src="videoPath()" width="320" height="240" controls muted>
+                                <!-- <source :src="videoPath()" type="video/mp4"> -->
+                                Your browser does not support the video tag.
+                            </video>
                         </div>
-                        <InputError :message="photoForm.errors.filename" />
+                        <InputError :message="videoForm.errors.filename" />
                     </div>
 
                     <div class="mb-3">
                         <InputLabel for="body">Body</InputLabel>
-                        <TextArea id="body" v-model="photoForm.body" rows="10" />
-                        <InputError :message="photoForm.errors.body" />
+                        <TextArea id="body" v-model="videoForm.body" rows="10" />
+                        <InputError :message="videoForm.errors.body" />
                     </div>
 
                     <div class="mb-3">
                         <InputLabel for="source">Source</InputLabel>
-                        <TextInput id="source" v-model="photoForm.source"/>
-                        <InputError :message="photoForm.errors.source" />
+                        <TextInput id="source" v-model="videoForm.source"/>
+                        <InputError :message="videoForm.errors.source" />
                     </div>
 
                     <div class="mb-3 flex justify-end space-x-3">
                         <PrimaryButton 
                             type="submit" 
-                            :disable="photoForm.processing"
+                            :disable="videoForm.processing"
                         >
                             Submit
                         </PrimaryButton>
-                        <SecondaryButtonLink :href="route('photos.index')">Cancel</SecondaryButtonLink>
+                        <SecondaryButtonLink :href="route('videos.index')">Cancel</SecondaryButtonLink>
                     </div>
                 </form>
             </div>
@@ -77,13 +78,13 @@ import 'filepond/dist/filepond.min.css';
 setOptions({
     server: {
         process: {
-            url: '/photos/upload',
+            url: '/videos/upload',
             headers: {
                 'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
             }
         },
         revert: {
-            url: '/photos/upload-undo',
+            url: '/videos/upload-undo',
             headers: {
                 'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
             }
@@ -99,8 +100,7 @@ export default {
     methods: {
         filepondInitialized() {
             console.log('Filepond is ready');
-        }
-        
+        }        
     }
 }
 </script>
@@ -115,7 +115,7 @@ import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 
-let photoUpdated = false;
+let videoUpdated = false;
 
 const props = defineProps({
     title: {
@@ -126,7 +126,7 @@ const props = defineProps({
         type: String,
         required: true
     },
-    photo: {
+    video: {
         type: Object,
         default: null,
         required: false
@@ -137,44 +137,44 @@ const props = defineProps({
     }
 });
 
-const photoForm = useForm({
-    title: props.photo.title,
-    filename: props.photo.filename,
-    body: props.photo.body,
-    source: props.photo.source ?? '',
+const videoForm = useForm({
+    title: props.video.title,
+    filename: props.video.filename,
+    body: props.video.body,
+    source: props.video.source ?? '',
 })
 
-const imagePath = () => {
-    if (!photoUpdated && props.photo.id) {
-        return '/storage/medias/' + photoForm.filename;
+const videoPath = () => {
+    if (!videoUpdated && props.video.id) {
+        return '/storage/medias/' + videoForm.filename;
     }
-    return '/storage/tmp/' + photoForm.filename;
+    return '/storage/tmp/' + videoForm.filename;
 }
 
-const createPhoto = () => {
-    if (props.photo.id) { //update
-        photoForm.patch(route(props.toRoute, props.photo.id), {
+const createVideo = () => {
+    if (props.video.id) { //update
+        videoForm.patch(route(props.toRoute, props.video.id), {
             preserveScroll: true,
-            onSuccess: () => photoForm.reset(),
+            onSuccess: () => videoForm.reset(),
         })
     } else { //create
-        photoForm.post(route(props.toRoute), {
+        videoForm.post(route(props.toRoute), {
             preserveScroll: true,
-            onSuccess: () => photoForm.reset(),
+            onSuccess: () => videoForm.reset(),
         })
     }
 }
 
 const handleProcessedFile = (error, file) => {
-    photoForm.filename = '';
+    videoForm.filename = '';
 
     if (error) {
         console.error('Filepond Processed File', error);
         return;
     }
     
-    photoUpdated = true;
-    photoForm.filename = file.serverId;
+    videoUpdated = true;
+    videoForm.filename = file.serverId;
 }
 
 const handleRemoveFile = (error, file) => {
@@ -182,7 +182,7 @@ const handleRemoveFile = (error, file) => {
         console.error('Filepond Remove File', error);
         return;
     }
-    photoUpdated = false;
-    photoForm.filename = props.filename;
+    videoUpdated = false;
+    videoForm.filename = props.filename;
 }
 </script>

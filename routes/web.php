@@ -5,6 +5,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\VideoController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -41,6 +42,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/photos/upload', [PhotoController::class, 'upload'])->name('photos.upload');
     Route::delete('/photos/upload-undo', [PhotoController::class, 'uploadUndo'])->name('photos.upload.undo');
     Route::resource('photos', PhotoController::class)->except(['show']);
+   
+    Route::post('/videos/upload', [VideoController::class, 'upload'])->name('videos.upload');
+    Route::delete('/videos/upload-undo', [VideoController::class, 'uploadUndo'])->name('videos.upload.undo');
+    Route::resource('videos', VideoController::class)->except(['show']);
 
     Route::get('/channel/edit', [ChannelController::class, 'edit'])->name('channels.edit');
 });

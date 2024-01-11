@@ -29,6 +29,9 @@
                                 <NavLink :href="route('photos.index')" :active="route().current().startsWith('photos')">
                                     Photos
                                 </NavLink>
+                                <NavLink :href="route('videos.index')" :active="route().current().startsWith('videos')">
+                                    Videos
+                                </NavLink>
                             </div>
                         </div>
 
