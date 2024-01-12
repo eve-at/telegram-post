@@ -9,7 +9,7 @@
             ></h2>
         </template>
 
-        <LayoutContent :body="groupForm.body" :source="groupForm.source">
+        <LayoutContent :body="groupForm.body" :source="groupForm.source" :medias="filepaths">
             <template #form>
                 <form @submit.prevent="createGroup">
                     <div class="mb-3">
@@ -19,7 +19,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <InputLabel for="title">Medias</InputLabel>
+                        <InputLabel for="title">Medias (from 2 to 10 JPG or MP4)</InputLabel>
                         <input type="hidden" name="filenames[]" v-model="groupForm.filenames"/>
                         <file-pond 
                             name="filename"
@@ -60,22 +60,7 @@
                         <SecondaryButtonLink :href="route('medias.index')">Cancel</SecondaryButtonLink>
                     </div>
                 </form>
-            </template>
-            <template #media>
-                <div v-if="filepondIsReady">
-                    <div v-for="filepath in filepaths">
-                        <img v-if="!isVideo(filepath)" 
-                            :src="filepath" 
-                            class="w-full"
-                        />
-                        <div v-if="isVideo(filepath)">
-                            <video :src="filepath" controls muted>
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </div>
-                </div>
-            </template>
+            </template>            
         </LayoutContent>
     </AuthenticatedLayout>
 </template>
@@ -83,9 +68,9 @@
 <script>
 import vueFilePond, { setOptions } from 'vue-filepond';
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
-import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import 'filepond/dist/filepond.min.css';
-import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
+//import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
+//import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
 import { watch } from 'vue';
 
 let serverMessage = {};
@@ -120,8 +105,8 @@ setOptions({
     }
 });
 
-const FilePond = vueFilePond(FilePondPluginFileValidateType, FilePondPluginImagePreview);
-//const FilePond = vueFilePond(FilePondPluginFileValidateType);
+//const FilePond = vueFilePond(FilePondPluginFileValidateType, FilePondPluginImagePreview);
+const FilePond = vueFilePond(FilePondPluginFileValidateType);
 export default {
     components: {
         FilePond
@@ -157,7 +142,6 @@ const props = defineProps({
     },
 });
 
-let filepondIsReady = false;
 let filepathsInitial = [];
 let filepaths = ref([]);
 
@@ -170,7 +154,6 @@ const groupForm = useForm({
 })
 
 const updateFilepaths = (init = false) => {
-    
     if (init) {
         groupForm.filenames.forEach(filename => {
             filepathsInitial.push(filename);
@@ -188,10 +171,7 @@ const updateFilepaths = (init = false) => {
 
 const filepondInitialized = () => {
     updateFilepaths(true);
-    filepondIsReady = true;
 }
-
-const isVideo = (filename) => filename.endsWith('.mp4');
 
 const createGroup = () => {
     if (props.group.id) { //update

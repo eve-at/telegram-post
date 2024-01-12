@@ -9,7 +9,7 @@
             ></h2>
         </template>
 
-        <LayoutContent :body="videoForm.body" :source="videoForm.source">
+        <LayoutContent :body="videoForm.body" :source="videoForm.source" :medias="filepaths">
             <template #form>
                 <form @submit.prevent="createVideo">
                     <div class="mb-3">
@@ -19,7 +19,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <InputLabel for="title">Video</InputLabel>
+                        <InputLabel for="title">Video (one MP4 video)</InputLabel>
                         <input type="hidden" name="filename" v-model="videoForm.filename"/>
                         <file-pond 
                             name="filename"
@@ -58,14 +58,7 @@
                         <SecondaryButtonLink :href="route('videos.index')">Cancel</SecondaryButtonLink>
                     </div>
                 </form>
-            </template>
-            <template #media>
-                <div v-if="videoForm.filename">
-                    <video :src="videoPath()" controls muted>
-                        Your browser does not support the video tag.
-                    </video>
-                </div>
-            </template>
+            </template>            
         </LayoutContent>
     </AuthenticatedLayout>
 </template>
@@ -105,11 +98,11 @@ export default {
     components: {
         FilePond
     },
-    methods: {
-        filepondInitialized() {
-            console.log('Filepond is ready');
-        }        
-    }
+    // methods: {
+    //     filepondInitialized() {
+    //         console.log('Filepond is ready');
+    //     }        
+    // }
 }
 </script>
 
@@ -123,8 +116,7 @@ import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import LayoutContent from '@/Components/LayoutContent.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-
-let videoUpdated = false;
+import { ref } from 'vue';
 
 const props = defineProps({
     title: {
@@ -146,6 +138,9 @@ const props = defineProps({
     }
 });
 
+let filepathInitial = null;
+let filepaths = ref([]);
+
 const videoForm = useForm({
     title: props.video.title,
     body: props.video.body,
@@ -154,11 +149,17 @@ const videoForm = useForm({
     filepaths: props.video.filepaths ?? [],
 })
 
-const videoPath = () => {
-    if (!videoUpdated && props.video.id) {
-        return '/storage/medias/' + videoForm.filename;
+const updateFilepaths = (init = false) => {
+    if (init) {
+        filepathInitial = videoForm.filename;
+        filepaths.value.push('/storage/medias/' + videoForm.filename);
+        return;
     }
-    return '/storage/tmp/' + videoForm.filename;
+    
+    filepaths.value = [];
+    if (videoForm.filename) {
+        filepaths.value.push((filepathInitial.indexOf(videoForm.filename) >=0 ? '/storage/medias/' : '/storage/tmp/') + videoForm.filename);
+    }
 }
 
 const createVideo = () => {
@@ -175,6 +176,10 @@ const createVideo = () => {
     }
 }
 
+const filepondInitialized = (error, file) => {
+    updateFilepaths(true);
+}
+
 const handleProcessedFile = (error, file) => {
     videoForm.filename = '';
 
@@ -183,8 +188,8 @@ const handleProcessedFile = (error, file) => {
         return;
     }
     
-    videoUpdated = true;
     videoForm.filename = file.serverId;
+    updateFilepaths();
 }
 
 const handleRemoveFile = (error, file) => {
@@ -192,7 +197,8 @@ const handleRemoveFile = (error, file) => {
         console.error('Filepond Remove File', error);
         return;
     }
-    videoUpdated = false;
+    
     videoForm.filename = null;
+    updateFilepaths();
 }
 </script>

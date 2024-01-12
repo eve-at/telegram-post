@@ -9,7 +9,7 @@
             ></h2>
         </template>
 
-        <LayoutContent :body="photoForm.body" :source="photoForm.source">
+        <LayoutContent :body="photoForm.body" :source="photoForm.source" :medias="filepaths">
             <template #form>
                 <form @submit.prevent="createPhoto">
                     <div class="mb-3">
@@ -19,7 +19,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <InputLabel for="title">Photo</InputLabel>
+                        <InputLabel for="title">Photo (one JPG image)</InputLabel>
                         <input type="hidden" name="filename" v-model="photoForm.filename"/>
                         <file-pond 
                             name="filename"
@@ -58,12 +58,6 @@
                         <SecondaryButtonLink :href="route('photos.index')">Cancel</SecondaryButtonLink>
                     </div>
                 </form>
-            </template>
-            <template #media>
-                <img v-if="photoForm.filename" 
-                    :src="imagePath()" 
-                    class="w-full"
-                />
             </template>
         </LayoutContent>
     </AuthenticatedLayout>
@@ -106,12 +100,11 @@ export default {
     components: {
         FilePond
     },
-    methods: {
-        filepondInitialized() {
-            console.log('Filepond is ready');
-        }
-        
-    }
+    // methods: {
+    //     filepondInitialized() {
+    //         console.log('Filepond is ready');
+    //     }        
+    // }
 }
 </script>
 
@@ -125,6 +118,7 @@ import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import LayoutContent from '@/Components/LayoutContent.vue';
+import { ref } from 'vue';
 
 let photoUpdated = false;
 
@@ -148,6 +142,9 @@ const props = defineProps({
     }
 });
 
+let filepathInitial = null;
+let filepaths = ref([]);
+
 const photoForm = useForm({
     title: props.photo.title,
     body: props.photo.body,
@@ -156,11 +153,17 @@ const photoForm = useForm({
     filepaths: props.photo.filepaths ?? [],
 })
 
-const imagePath = () => {
-    if (!photoUpdated && props.photo.id) {
-        return '/storage/medias/' + photoForm.filename;
+const updateFilepaths = (init = false) => {
+    if (init) {
+        filepathInitial = photoForm.filename;
+        filepaths.value.push('/storage/medias/' + photoForm.filename);
+        return;
     }
-    return '/storage/tmp/' + photoForm.filename;
+    
+    filepaths.value = [];
+    if (photoForm.filename) {
+        filepaths.value.push((filepathInitial.indexOf(photoForm.filename) >=0 ? '/storage/medias/' : '/storage/tmp/') + photoForm.filename);
+    }
 }
 
 const createPhoto = () => {
@@ -177,6 +180,10 @@ const createPhoto = () => {
     }
 }
 
+const filepondInitialized = (error, file) => {
+    updateFilepaths(true);
+}
+
 const handleProcessedFile = (error, file) => {
     photoForm.filename = '';
 
@@ -187,6 +194,7 @@ const handleProcessedFile = (error, file) => {
     
     photoUpdated = true;
     photoForm.filename = file.serverId;
+    updateFilepaths();
 }
 
 const handleRemoveFile = (error, file) => {
@@ -196,5 +204,6 @@ const handleRemoveFile = (error, file) => {
     }
     photoUpdated = false;
     photoForm.filename = null;
+    updateFilepaths();
 }
 </script>
