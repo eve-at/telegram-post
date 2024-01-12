@@ -4,7 +4,7 @@
     <AuthenticatedLayout>
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Polls</h2>
-            <PrimaryButtonLink :href="route('photos.create')">Add new</PrimaryButtonLink>
+            <PrimaryButtonLink :href="route('polls.create')">Add new</PrimaryButtonLink>
         </template>
 
         <div class="mx-auto w-10/12 flex overflow-hidden flex-col">
@@ -25,7 +25,7 @@
                         class="w-1/12 px-2 py-2"
                         v-text="poll.type"                        
                     ></div>
-                    <div class="w-8/12 ">
+                    <div class="w-8/12">
                         <Link 
                             :href="`/polls/${poll.id}/edit`" 
                             v-text="poll.title"

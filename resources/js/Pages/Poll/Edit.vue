@@ -1,112 +1,61 @@
 <template>
-    <Head :title="'Photo - ' + $props.title" />
+    <Head :title="'Poll - ' + (props.id ? 'Edit' : 'Create')" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2 
                 class="font-semibold text-xl text-gray-800 leading-tight" 
-                v-html="'Photo - ' + $props.title"
+                v-html="'Poll - ' + (props.id ? 'Edit' : 'Create')"
             ></h2>
         </template>
 
-        <LayoutContent :body="photoForm.body" :source="photoForm.source" :medias="filepaths">
+        <LayoutContent body="">
             <template #form>
-                <form @submit.prevent="createPhoto">
+                <form @submit.prevent="createPoll">
                     <div class="mb-3">
-                        <InputLabel for="title">Title</InputLabel>
-                        <TextInput id="title" v-model="photoForm.title"/>
-                        <InputError :message="photoForm.errors.title" />
+                        <InputLabel for="title">Title*</InputLabel>
+                        <TextInput id="title" v-model="pollForm.title"/>
+                        <InputError :message="pollForm.errors.title" />
                     </div>
 
                     <div class="mb-3">
-                        <InputLabel for="title">Photo (one JPG image)</InputLabel>
-                        <input type="hidden" name="filename" v-model="photoForm.filename"/>
-                        <file-pond 
-                            name="filename"
-                            ref="pond"
-                            label-idle="Click to choose image, or drag here..."
-                            accepted-file-types="image/jpeg"
-                            @init="filepondInitialized"
-                            @processfile="handleProcessedFile"
-                            @removefile="handleRemoveFile"
-                            allow-multiple="false" 
-                            max-files="1" 
-                            :files="photoForm.filepaths"
-                        />
-                        <InputError :message="photoForm.errors.filename" />
+                        <InputLabel for="type">Type*</InputLabel>
+                        <Select :options="props.types" v-model="pollForm.type"/>
+                        <InputError :message="pollForm.errors.type" />
                     </div>
 
                     <div class="mb-3">
-                        <InputLabel for="body">Body</InputLabel>
-                        <TextArea id="body" v-model="photoForm.body" rows="10" />
-                        <InputError :message="photoForm.errors.body" />
+                        <InputLabel for="options">Options* (2-10 options)</InputLabel>
+                        <!--  -->
+                        <InputError :message="pollForm.errors.options" />
                     </div>
 
                     <div class="mb-3">
-                        <InputLabel for="source">Source</InputLabel>
-                        <TextInput id="source" v-model="photoForm.source"/>
-                        <InputError :message="photoForm.errors.source" />
+                        <InputLabel for="answer">Correct option*</InputLabel>
+                        <!--  -->
+                        <InputError :message="pollForm.errors.answer" />
+                    </div>
+
+                    <div class="mb-3">
+                        <InputLabel for="explanation">Explanation</InputLabel>
+                        <TextInput id="explanation" v-model="pollForm.explanation"/>
+                        <InputError :message="pollForm.errors.explanation" />
                     </div>
 
                     <div class="mb-3 flex justify-end space-x-3">
                         <PrimaryButton 
                             type="submit" 
-                            :disable="photoForm.processing"
+                            :disable="pollForm.processing"
                         >
                             Submit
                         </PrimaryButton>
-                        <SecondaryButtonLink :href="route('photos.index')">Cancel</SecondaryButtonLink>
+                        <SecondaryButtonLink :href="route('polls.index')">Cancel</SecondaryButtonLink>
                     </div>
                 </form>
             </template>
         </LayoutContent>
     </AuthenticatedLayout>
 </template>
-
-<script>
-import vueFilePond, { setOptions } from 'vue-filepond';
-import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
-import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
-import 'filepond/dist/filepond.min.css';
-import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
-
-let serverMessage = {};
-
-setOptions({
-    server: {
-        process: {
-            url: '/photos/upload',
-            onerror: (response) => {
-                serverMessage = JSON.parse(response);
-            },
-            headers: {
-                'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
-            }
-        },
-        revert: {
-            url: '/photos/upload-undo',
-            headers: {
-                'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
-            }
-        }
-    },
-    labelFileProcessingError: () => {
-        return serverMessage.error;
-    }
-});
-
-const FilePond = vueFilePond(FilePondPluginFileValidateType, FilePondPluginImagePreview);
-export default {
-    components: {
-        FilePond
-    },
-    // methods: {
-    //     filepondInitialized() {
-    //         console.log('Filepond is ready');
-    //     }        
-    // }
-}
-</script>
 
 <script setup>
 import InputError from '@/Components/InputError.vue';
@@ -115,95 +64,66 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButtonLink from '@/Components/SecondaryButtonLink.vue';
 import TextArea from '@/Components/TextArea.vue';
 import TextInput from '@/Components/TextInput.vue';
+import Select from '@/Components/Select.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import LayoutContent from '@/Components/LayoutContent.vue';
-import { ref } from 'vue';
-
-let photoUpdated = false;
+import { ref, onMounted } from 'vue';
 
 const props = defineProps({
+    id: {
+        type: Number,
+        default: null
+    },
     title: {
         type: String,
         required: true
     },
-    toRoute: {
+    types: {
+        type: Object,
+        required: true
+    },
+    type: {
         type: String,
         required: true
     },
-    photo: {
-        type: Object,
-        default: null,
+    options: {
+        type: Array,
+        required: true
+    },
+    answer: {
+        type: Number,
+        default: 0
+    },
+    explanation: {
+        type: String,
         required: false
     },
-    filename: {
+    toRoute: {
         type: String,
-        default: '',
+        required: true
     }
 });
 
-let filepathInitial = null;
-let filepaths = ref([]);
-
-const photoForm = useForm({
-    title: props.photo.title,
-    body: props.photo.body,
-    source: props.photo.source ?? '',
-    filename: props.photo.filename,
-    filepaths: props.photo.filepaths ?? [],
+const pollForm = useForm({
+    title: props.title,
+    type: props.type,
+    options: props.options,
+    answer: props.answer,
+    explanation: props.explanation,
 })
 
-const updateFilepaths = (init = false) => {
-    if (init) {
-        filepathInitial = photoForm.filename;
-        filepaths.value.push('/storage/medias/' + photoForm.filename);
-        return;
-    }
-    
-    filepaths.value = [];
-    if (photoForm.filename) {
-        filepaths.value.push((filepathInitial.indexOf(photoForm.filename) >=0 ? '/storage/medias/' : '/storage/tmp/') + photoForm.filename);
-    }
-}
-
-const createPhoto = () => {
-    if (props.photo.id) { //update
-        photoForm.patch(route(props.toRoute, props.photo.id), {
+const createPoll = () => {
+    if (props.id) { //update
+        pollForm.patch(route(props.toRoute, props.id), {
             preserveScroll: true,
-            onSuccess: () => photoForm.reset(),
+            onSuccess: () => pollForm.reset(),
         })
     } else { //create
-        photoForm.post(route(props.toRoute), {
+        pollForm.post(route(props.toRoute), {
             preserveScroll: true,
-            onSuccess: () => photoForm.reset(),
+            onSuccess: () => pollForm.reset(),
         })
     }
-}
-
-const filepondInitialized = (error, file) => {
-    updateFilepaths(true);
-}
-
-const handleProcessedFile = (error, file) => {
-    photoForm.filename = '';
-
-    if (error) {
-        console.error('Filepond Processed File', error);
-        return;
-    }
-    
-    photoUpdated = true;
-    photoForm.filename = file.serverId;
-    updateFilepaths();
-}
-
-const handleRemoveFile = (error, file) => {
-    if (error) {
-        console.error('Filepond Remove File', error);
-        return;
-    }
-    photoUpdated = false;
-    photoForm.filename = null;
-    updateFilepaths();
 }
 </script>

@@ -24,7 +24,19 @@ class PollController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Poll/Edit', [
+            'toRoute' => 'polls.store',
+            'title' => '',
+            'type' => 'quiz',
+            'options' => [],
+            'answer' => 0,
+            'explanation' => '',
+
+            'types' => [
+                'quiz' => 'Quiz', 
+                'regular' => 'Regular',
+            ],
+        ]);
     }
 
     /**
@@ -32,15 +44,7 @@ class PollController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        return $request->all();
     }
 
     /**
