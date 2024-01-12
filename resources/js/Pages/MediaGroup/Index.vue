@@ -16,7 +16,6 @@
                 </div>
                 <div v-if="!medias.data" class="p-3">There is no media so far</div>
                 <div 
-                    v-if="medias.data"
                     v-for="media in medias.data"
                     :key="media.id"
                     class="flex w-full hover:bg-gray-100"

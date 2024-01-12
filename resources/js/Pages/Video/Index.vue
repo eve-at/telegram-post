@@ -16,7 +16,6 @@
                 </div>
                 <div v-if="!videos.data" class="p-3">There is no videos so far</div>
                 <div 
-                    v-if="videos.data"
                     v-for="video in videos.data"
                     :key="video.id"
                     class="flex w-full hover:bg-gray-100"

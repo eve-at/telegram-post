@@ -117,7 +117,7 @@ class PhotoController extends Controller
         return to_route('photos.index')->with('success', 'The photo was updated');
     }
 
-    public function destroy(Request $request, Photo $photo)
+    public function destroy(Photo $photo)
     {
         Storage::delete('public/medias/' . $photo->filename);
         $photo->delete();

@@ -35,6 +35,9 @@
                                 <NavLink :href="route('medias.index')" :active="route().current().startsWith('medias')">
                                     Media Groups
                                 </NavLink>
+                                <NavLink :href="route('polls.index')" :active="route().current().startsWith('polls')">
+                                    Polls
+                                </NavLink>
                             </div>
                         </div>
 

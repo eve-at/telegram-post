@@ -162,7 +162,7 @@ class MediaGroupController extends Controller
         return to_route('medias.index')->with('success', 'The media group was updated');
     }
 
-    public function destroy(Request $request, MediaGroup $media)
+    public function destroy(MediaGroup $media)
     {
         $files = $media->filenames->pluck('filename');
 

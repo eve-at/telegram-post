@@ -16,7 +16,6 @@
                 </div>
                 <div v-if="!posts.data" class="p-3">There is no posts so far</div>
                 <div 
-                    v-if="posts.data"
                     v-for="post in posts.data"
                     :key="post.id"
                     class="flex w-full hover:bg-gray-100"

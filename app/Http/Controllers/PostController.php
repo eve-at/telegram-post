@@ -71,7 +71,7 @@ class PostController extends Controller
         return to_route('posts.index')->with('success', 'The post was updated');
     }
 
-    public function destroy(Request $request, Post $post) 
+    public function destroy(Post $post) 
     {
         $post->delete();
 

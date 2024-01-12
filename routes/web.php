@@ -4,6 +4,7 @@ use App\Http\Controllers\ChannelController;
 use App\Http\Controllers\MediaGroupController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PhotoController;
+use App\Http\Controllers\PollController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VideoController;
@@ -57,6 +58,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'media' => 'media_group' //type-hinted variable for model biding
     ]])->except(['show']);
     
+    Route::resource('polls', PollController::class)->except(['show']);
+
     Route::get('/channel/edit', [ChannelController::class, 'edit'])->name('channels.edit');
 });
 
