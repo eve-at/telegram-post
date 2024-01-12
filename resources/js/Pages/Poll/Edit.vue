@@ -27,12 +27,51 @@
                     <div class="mb-3">
                         <InputLabel for="options">Options* (2-10 options)</InputLabel>
                         <!--  -->
+                        <draggable v-model="pollForm.options" item-key="id" @end="onDragEnd">
+                            <template #header>
+                                <div class="flex border-t border-l border-r rounded-t-md bg-gray-300">
+                                    <div class="hidden"></div>
+                                    <div v-if="pollForm.type==='quiz'" class="w-2/12 text-center p-2">
+                                        Answer
+                                    </div>
+                                    <div class="p-2"
+                                        :class="{
+                                            'w-9/12': pollForm.type==='quiz',
+                                            'w-10/12': pollForm.type!=='quiz',
+                                        }"
+                                    >
+                                        Option
+                                    </div>
+                                    <div class="w-2/12 text-center pt-2">
+                                        <span v-if="pollForm.options.length>2">Options</span>
+                                    </div>
+                                </div>
+                            </template>
+                            <template #item="{ element, index }">
+                                <div class="flex divide-y border-x last-of-type:border-b border-gray-300 hover:bg-gray-100 last-of-type:rounded-b-md cursor-move">
+                                    <div class="hidden"></div>
+                                    <div v-if="pollForm.type==='quiz'" class="w-2/12 text-center p-2">
+                                        <input type="radio" v-model="pollForm.answer" :value="index" /> 
+                                    </div>
+                                    <div class="p-2"
+                                        :class="{
+                                            'w-9/12': pollForm.type==='quiz',
+                                            'w-10/12': pollForm.type!=='quiz',
+                                        }"
+                                    >
+                                        {{ element }}
+                                    </div>
+                                    <div class="w-2/12 text-center">
+                                        <span 
+                                            v-if="pollForm.options.length>2"
+                                            @click="deleteOption(index)"
+                                            class="cursor-pointer hover:underline text-blue-500 block pt-2"
+                                        >Delete</span>
+                                    </div>
+                                </div>
+                            </template>
+                        </draggable>
                         <InputError :message="pollForm.errors.options" />
-                    </div>
-
-                    <div class="mb-3">
-                        <InputLabel for="answer">Correct option*</InputLabel>
-                        <!--  -->
                         <InputError :message="pollForm.errors.answer" />
                     </div>
 
@@ -68,6 +107,8 @@ import Select from '@/Components/Select.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import LayoutContent from '@/Components/LayoutContent.vue';
+//https://sortablejs.github.io/vue.draggable.next/#/simple
+import draggable from 'vuedraggable';
 import { ref, onMounted } from 'vue';
 
 const props = defineProps({
@@ -124,6 +165,33 @@ const createPoll = () => {
             preserveScroll: true,
             onSuccess: () => pollForm.reset(),
         })
+    }
+}
+
+const deleteOption = (index) => {
+    if(!confirm('Are you sure?')) {
+        return;
+    }
+
+    pollForm.options.splice(index, 1);
+
+    if (pollForm.options.length < 2 || pollForm.answer === index) {
+        pollForm.answer = 0;
+    } else if (index < pollForm.answer) {
+        pollForm.answer -= 1;
+    }
+}
+
+const onDragEnd = (e) => {
+    const oldIndex = e.oldDraggableIndex;
+    const newIndex = e.newDraggableIndex;
+
+    if (oldIndex === pollForm.answer) {
+        pollForm.answer = newIndex;
+    } else if (oldIndex < pollForm.answer && newIndex >= pollForm.answer) {
+        pollForm.answer -= 1;
+    } else if (oldIndex > pollForm.answer && newIndex <= pollForm.answer) {
+        pollForm.answer += 1;
     }
 }
 </script>
