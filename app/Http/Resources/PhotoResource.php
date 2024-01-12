@@ -22,7 +22,13 @@ class PhotoResource extends JsonResource
             'source' => $this->source,
             'created_at' => $this->created_at,
             //'file' => FileResource::make($this->file),
-            'user' => UserResource::make($this->user)
+            'user' => UserResource::make($this->user),
+
+            //URI of files for PQINA file plugin
+            'filepaths' => [[
+                'source' => $this->filename,
+                'options' => ['type' => 'local'], //local => existing server file
+            ]],  
         ];
     }
 }

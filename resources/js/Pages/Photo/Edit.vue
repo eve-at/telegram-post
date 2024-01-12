@@ -9,77 +9,63 @@
             ></h2>
         </template>
 
-        <div class="mx-auto w-10/12 flex overflow-hidden flex-col">
-            <div class="flex p-3 bg-white border-gray-300 rounded-xl m-2 overflow-hidden">
-                <div class="w-7/12 border-r border-dotted pr-2 mr-2">
-                    <form @submit.prevent="createPhoto">
-                        <div class="mb-3">
-                            <InputLabel for="title">Title</InputLabel>
-                            <TextInput id="title" v-model="photoForm.title"/>
-                            <InputError :message="photoForm.errors.title" />
-                        </div>
-
-                        <div class="mb-3">
-                            <InputLabel for="title">Photo</InputLabel>
-                            <input type="hidden" name="filename" v-model="photoForm.filename"/>
-                            <file-pond 
-                                name="filename"
-                                ref="pond"
-                                label-idle="Click to choose image, or drag here..."
-                                accepted-file-types="image/jpeg"
-                                @init="filepondInitialized"
-                                @processfile="handleProcessedFile"
-                                @removefile="handleRemoveFile"
-                                allow-multiple="false" 
-                                max-files="1" 
-                            />
-                            <InputError :message="photoForm.errors.filename" />
-                        </div>
-
-                        <div class="mb-3">
-                            <InputLabel for="body">Body</InputLabel>
-                            <TextArea id="body" v-model="photoForm.body" rows="10" />
-                            <InputError :message="photoForm.errors.body" />
-                        </div>
-
-                        <div class="mb-3">
-                            <InputLabel for="source">Source</InputLabel>
-                            <TextInput id="source" v-model="photoForm.source"/>
-                            <InputError :message="photoForm.errors.source" />
-                        </div>
-
-                        <div class="mb-3 flex justify-end space-x-3">
-                            <PrimaryButton 
-                                type="submit" 
-                                :disable="photoForm.processing"
-                            >
-                                Submit
-                            </PrimaryButton>
-                            <SecondaryButtonLink :href="route('photos.index')">Cancel</SecondaryButtonLink>
-                        </div>
-                    </form>
-                </div>
-                <div class="w-5/12">
-                    <div class="w-72 mx-auto mt-5 border-2 border-gray-500 rounded-xl overflow-hidden shadow-lg">
-                        <div class="block w-full h-2/5 bg-gray-900">
-                            <img v-if="photoForm.filename" 
-                                :src="imagePath()" 
-                                class="w-full"
-                            />
-                        </div>
-                        <div class="flex flex-col space-y-2 p-2">
-                            <div v-html="photoForm.body" class="text-xs"></div>
-                            <div v-if="photoForm.source.length" 
-                                v-html="photoForm.source" 
-                                class="text-xs font-mono">
-                            </div>
-                            <div class="text-sm text-blue-500 italic font-semibold">Channel link</div>
-                            <img src="/images/post-footer.jpg" />
-                        </div>
+        <LayoutContent :body="photoForm.body" :source="photoForm.source">
+            <template #form>
+                <form @submit.prevent="createPhoto">
+                    <div class="mb-3">
+                        <InputLabel for="title">Title</InputLabel>
+                        <TextInput id="title" v-model="photoForm.title"/>
+                        <InputError :message="photoForm.errors.title" />
                     </div>
-                </div>
-            </div>
-        </div>
+
+                    <div class="mb-3">
+                        <InputLabel for="title">Photo</InputLabel>
+                        <input type="hidden" name="filename" v-model="photoForm.filename"/>
+                        <file-pond 
+                            name="filename"
+                            ref="pond"
+                            label-idle="Click to choose image, or drag here..."
+                            accepted-file-types="image/jpeg"
+                            @init="filepondInitialized"
+                            @processfile="handleProcessedFile"
+                            @removefile="handleRemoveFile"
+                            allow-multiple="false" 
+                            max-files="1" 
+                            :files="photoForm.filepaths"
+                        />
+                        <InputError :message="photoForm.errors.filename" />
+                    </div>
+
+                    <div class="mb-3">
+                        <InputLabel for="body">Body</InputLabel>
+                        <TextArea id="body" v-model="photoForm.body" rows="10" />
+                        <InputError :message="photoForm.errors.body" />
+                    </div>
+
+                    <div class="mb-3">
+                        <InputLabel for="source">Source</InputLabel>
+                        <TextInput id="source" v-model="photoForm.source"/>
+                        <InputError :message="photoForm.errors.source" />
+                    </div>
+
+                    <div class="mb-3 flex justify-end space-x-3">
+                        <PrimaryButton 
+                            type="submit" 
+                            :disable="photoForm.processing"
+                        >
+                            Submit
+                        </PrimaryButton>
+                        <SecondaryButtonLink :href="route('photos.index')">Cancel</SecondaryButtonLink>
+                    </div>
+                </form>
+            </template>
+            <template #media>
+                <img v-if="photoForm.filename" 
+                    :src="imagePath()" 
+                    class="w-full"
+                />
+            </template>
+        </LayoutContent>
     </AuthenticatedLayout>
 </template>
 
@@ -138,6 +124,7 @@ import TextArea from '@/Components/TextArea.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
+import LayoutContent from '@/Components/LayoutContent.vue';
 
 let photoUpdated = false;
 
@@ -163,9 +150,10 @@ const props = defineProps({
 
 const photoForm = useForm({
     title: props.photo.title,
-    filename: props.photo.filename,
     body: props.photo.body,
     source: props.photo.source ?? '',
+    filename: props.photo.filename,
+    filepaths: props.photo.filepaths ?? [],
 })
 
 const imagePath = () => {
@@ -207,6 +195,6 @@ const handleRemoveFile = (error, file) => {
         return;
     }
     photoUpdated = false;
-    photoForm.filename = props.filename;
+    photoForm.filename = null;
 }
 </script>

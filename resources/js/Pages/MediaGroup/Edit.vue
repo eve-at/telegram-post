@@ -9,9 +9,9 @@
             ></h2>
         </template>
 
-        <div class="mx-auto w-10/12 flex overflow-hidden flex-col">
-            <div class="p-3 border bg-white border-gray-300 rounded-xl m-2 divide-y divide-solid overflow-hidden">
-                <form @submit.prevent="createGroup" class="w-6/12">
+        <LayoutContent :body="groupForm.body" :source="groupForm.source">
+            <template #form>
+                <form @submit.prevent="createGroup">
                     <div class="mb-3">
                         <InputLabel for="title">Title</InputLabel>
                         <TextInput id="title" v-model="groupForm.title"/>
@@ -60,8 +60,23 @@
                         <SecondaryButtonLink :href="route('medias.index')">Cancel</SecondaryButtonLink>
                     </div>
                 </form>
-            </div>
-        </div>
+            </template>
+            <template #media>
+                <div v-if="filepondIsReady">
+                    <div v-for="filepath in filepaths">
+                        <img v-if="!isVideo(filepath)" 
+                            :src="filepath" 
+                            class="w-full"
+                        />
+                        <div v-if="isVideo(filepath)">
+                            <video :src="filepath" controls muted>
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </LayoutContent>
     </AuthenticatedLayout>
 </template>
 
@@ -71,6 +86,7 @@ import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import 'filepond/dist/filepond.min.css';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
+import { watch } from 'vue';
 
 let serverMessage = {};
 
@@ -110,11 +126,6 @@ export default {
     components: {
         FilePond
     },
-    methods: {
-        filepondInitialized() {
-            console.log('Filepond is ready');
-        }
-    }
 }
 </script>
 
@@ -126,9 +137,9 @@ import SecondaryButtonLink from '@/Components/SecondaryButtonLink.vue';
 import TextArea from '@/Components/TextArea.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import LayoutContent from '@/Components/LayoutContent.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-
-let mediaUpdated = false;
+import { ref, onMounted } from 'vue';
 
 const props = defineProps({
     title: {
@@ -144,11 +155,11 @@ const props = defineProps({
         default: null,
         required: false
     },
-    filenames: {
-        type: Array,
-        default: [],
-    }
 });
+
+let filepondIsReady = false;
+let filepathsInitial = [];
+let filepaths = ref([]);
 
 const groupForm = useForm({
     title: props.group.title,
@@ -158,17 +169,29 @@ const groupForm = useForm({
     filepaths: props.group.filepaths ?? [],
 })
 
-// const filepondInitialized = () => {
-//     console.log('Filepond is ready!');
-//     this.$refs.pond.addFiles(props.group.filenames)
-// }
-
-const mediaPath = (filename) => {
-    if (props.group.id) {
-        return '/storage/medias/' + filename;
+const updateFilepaths = (init = false) => {
+    
+    if (init) {
+        groupForm.filenames.forEach(filename => {
+            filepathsInitial.push(filename);
+            filepaths.value.push('/storage/medias/' + filename);
+        });
+        return;
     }
-    return '/storage/tmp/' + filename;
+
+    filepaths.value = [];
+    groupForm.filenames.forEach(filename => {
+        let path = filepathsInitial.indexOf(filename) >=0 ? '/storage/medias/' : '/storage/tmp/';
+        filepaths.value.push(path + filename);
+    });
 }
+
+const filepondInitialized = () => {
+    updateFilepaths(true);
+    filepondIsReady = true;
+}
+
+const isVideo = (filename) => filename.endsWith('.mp4');
 
 const createGroup = () => {
     if (props.group.id) { //update
@@ -190,10 +213,9 @@ const handleProcessedFile = (error, file) => {
         return;
     }
     
-    mediaUpdated = true;
-
     // prepend the new file
     groupForm.filenames.unshift(file.serverId);
+    updateFilepaths();
 }
 
 const handleRemoveFile = (error, removedFile) => {
@@ -203,12 +225,12 @@ const handleRemoveFile = (error, removedFile) => {
     }
 
     groupForm.filenames = groupForm.filenames.filter((file) => file !== removedFile.serverId);
+    updateFilepaths();
 }
 
 const handleReorderFiles = (files) => {
     groupForm.filenames = files.map((file) => file.serverId);
+    updateFilepaths();
 }
-
-const isVideo = (filename) => filename.endsWith('.mp4');
 
 </script>

@@ -88,6 +88,7 @@ class VideoController extends Controller
             'title' => 'Edit',
             'video' => $pr,
             'filename' => $pr->filename,
+            'filepaths' => $pr->filepaths,
             'toRoute' => 'videos.update',
         ]);
     }

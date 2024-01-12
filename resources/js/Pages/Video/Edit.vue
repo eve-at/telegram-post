@@ -9,9 +9,9 @@
             ></h2>
         </template>
 
-        <div class="mx-auto w-10/12 flex overflow-hidden flex-col">
-            <div class="p-3 border bg-white border-gray-300 rounded-xl m-2 divide-y divide-solid overflow-hidden">
-                <form @submit.prevent="createVideo" class="w-6/12">
+        <LayoutContent :body="videoForm.body" :source="videoForm.source">
+            <template #form>
+                <form @submit.prevent="createVideo">
                     <div class="mb-3">
                         <InputLabel for="title">Title</InputLabel>
                         <TextInput id="title" v-model="videoForm.title"/>
@@ -31,14 +31,8 @@
                             @removefile="handleRemoveFile"
                             allow-multiple="false" 
                             max-files="1" 
-                        />
-                        <div v-if="videoForm.filename"
-                            class="py-3 flex"
-                        >
-                            <video :src="videoPath()" width="320" height="240" controls muted>
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
+                            :files="videoForm.filepaths"
+                        />                        
                         <InputError :message="videoForm.errors.filename" />
                     </div>
 
@@ -64,8 +58,15 @@
                         <SecondaryButtonLink :href="route('videos.index')">Cancel</SecondaryButtonLink>
                     </div>
                 </form>
-            </div>
-        </div>
+            </template>
+            <template #media>
+                <div v-if="videoForm.filename">
+                    <video :src="videoPath()" controls muted>
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </template>
+        </LayoutContent>
     </AuthenticatedLayout>
 </template>
 
@@ -120,6 +121,7 @@ import SecondaryButtonLink from '@/Components/SecondaryButtonLink.vue';
 import TextArea from '@/Components/TextArea.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import LayoutContent from '@/Components/LayoutContent.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 
 let videoUpdated = false;
@@ -146,9 +148,10 @@ const props = defineProps({
 
 const videoForm = useForm({
     title: props.video.title,
-    filename: props.video.filename,
     body: props.video.body,
     source: props.video.source ?? '',
+    filename: props.video.filename,
+    filepaths: props.video.filepaths ?? [],
 })
 
 const videoPath = () => {
@@ -190,6 +193,6 @@ const handleRemoveFile = (error, file) => {
         return;
     }
     videoUpdated = false;
-    videoForm.filename = props.filename;
+    videoForm.filename = null;
 }
 </script>

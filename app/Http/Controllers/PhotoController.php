@@ -27,6 +27,7 @@ class PhotoController extends Controller
             'photo' => Photo::make([
                 'title' => '',
                 'filename' => '',
+                'filepaths' => [],
                 'body' => '',
                 'source' => '',
             ])
@@ -91,6 +92,7 @@ class PhotoController extends Controller
             'title' => 'Edit',
             'photo' => $pr,
             'filename' => $pr->filename,
+            'filepaths' => $pr->filepaths,
             'toRoute' => 'photos.update',
         ]);
     }
