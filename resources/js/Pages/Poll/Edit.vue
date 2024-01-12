@@ -9,7 +9,7 @@
             ></h2>
         </template>
 
-        <LayoutContent body="">
+        <LayoutContent :body="postBody" :medias="false">
             <template #form>
                 <form @submit.prevent="createPoll">
                     <div class="mb-3">
@@ -145,6 +145,9 @@ const props = defineProps({
         required: true
     }
 });
+
+//TODO
+let postBody = ref('POST BODY HERE');
 
 const pollForm = useForm({
     title: props.title,

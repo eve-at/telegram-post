@@ -6,7 +6,8 @@
             </div>
             <div class="lg:w-5/12">
                 <div class="w-72 mx-auto mt-5 border-2 border-gray-500 rounded-xl overflow-hidden shadow-lg">
-                    <div class="min-h-28 bg-gray-200"
+                    <div v-if="medias !== false" 
+                        class="min-h-28 bg-gray-200"
                         :class="{
                             'flex flex-wrap items-center justify-center': medias.length > 1
                         }"
