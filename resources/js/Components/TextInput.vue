@@ -20,9 +20,15 @@ onMounted(() => {
     if (input.value.hasAttribute('autofocus')) {
         input.value.focus();
     }
+    if (input.value.hasAttribute('autoselect') && input.value.value.length) {
+        input.value.select();
+    }
 });
 
-defineExpose({ focus: () => input.value.focus() });
+defineExpose({ 
+    focus: () => input.value.focus(),
+    select: () => input.value.select(),
+});
 </script>
 
 <template>

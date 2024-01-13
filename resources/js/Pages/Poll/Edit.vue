@@ -26,7 +26,6 @@
 
                     <div class="mb-3">
                         <InputLabel for="options">Options* (2-10 options)</InputLabel>
-                        <!--  -->
                         <draggable v-model="pollForm.options" item-key="id" @end="onDragEnd">
                             <template #header>
                                 <div class="flex border-t border-l border-r rounded-t-md bg-gray-300">
@@ -58,6 +57,7 @@
                                             'w-9/12': pollForm.type==='quiz',
                                             'w-10/12': pollForm.type!=='quiz',
                                         }"
+                                        @dblclick="editOption(index)"
                                     >
                                         {{ element }}
                                     </div>
@@ -109,11 +109,15 @@
             </template>
         </LayoutContent>
     </AuthenticatedLayout>
-    <Modal :show="showModal" @close="closeModal()" @onEnterKey="saveOption">
+    <Modal 
+        :show="showModal" 
+        @close="closeModal" 
+        @onEnterKey="saveOption"
+    >
         <div class="flex py-2 px-4 space-x-2">
-            <TextInput v-model="modalInputText" placeholder="Tap your option..."/>
-            <PrimaryButton @click="saveOption">Add</PrimaryButton>
-            <PrimaryButton @click="closeModal()">Cancel</PrimaryButton>
+            <TextInput v-model="modalInputText" autofocus autoselect placeholder="Tap your option..."/>
+            <PrimaryButton @click="saveOption">{{ modalEditOption >= 0 ? 'Modify' : 'Add' }}</PrimaryButton>
+            <SecondaryButton @click="closeModal">Cancel</SecondaryButton>
         </div>
     </Modal>
 </template>
@@ -122,6 +126,7 @@
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 import SecondaryButtonLink from '@/Components/SecondaryButtonLink.vue';
 import TextArea from '@/Components/TextArea.vue';
 import TextInput from '@/Components/TextInput.vue';
@@ -132,7 +137,7 @@ import LayoutContent from '@/Components/LayoutContent.vue';
 //https://sortablejs.github.io/vue.draggable.next/#/simple
 import draggable from 'vuedraggable';
 import Modal from '@/Components/Modal.vue'
-import { ref, onMounted } from 'vue';
+import { ref, nextTick  } from 'vue';
 
 const props = defineProps({
     id: {
@@ -176,6 +181,7 @@ const props = defineProps({
 //TODO
 let postBody = ref('POST BODY HERE');
 let showModal = ref(false);
+let modalEditOption = ref(-1);
 let modalInputText = ref('');
 
 const pollForm = useForm({
@@ -227,22 +233,33 @@ const onDragEnd = (e) => {
     }
 }
 
-const openModal = () => {
+const openModal = async () => {
     showModal.value = true;
-    console.log('open');
 }
 
 const closeModal = () => {
     showModal.value = false;
+    modalEditOption.value = -1;
     modalInputText.value = '';
+    //document.activeElement.blur();
 }
 
 const saveOption = () => {
-    if (pollForm.options.length >= props.maxOptions) {
-        return;
+    if (modalEditOption.value < 0) {
+        if (pollForm.options.length >= props.maxOptions) {
+            return;
+        }
+        pollForm.options.push(modalInputText.value);
+    } else {
+        pollForm.options[modalEditOption.value] = modalInputText.value;
     }
-    pollForm.options.push(modalInputText.value);
     closeModal();
+}
+
+const editOption = (index) => {
+    modalEditOption.value = index;
+    modalInputText.value = pollForm.options[index];
+    openModal();
 }
 
 </script>
