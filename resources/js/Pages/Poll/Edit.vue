@@ -9,7 +9,7 @@
             ></h2>
         </template>
 
-        <LayoutContent :body="postBody" :medias="false">
+        <LayoutContent :body="postBody" :has-medias="false">
             <template #form>
                 <form @submit.prevent="createPoll">
                     <div class="mb-3">
@@ -48,7 +48,7 @@
                                 </div>
                             </template>
                             <template #item="{ element, index }">
-                                <div class="flex divide-y border-x last-of-type:border-b border-gray-300 hover:bg-gray-100 last-of-type:rounded-b-md cursor-move">
+                                <div class="flex divide-y border-x border-gray-300 hover:bg-gray-100 cursor-move">
                                     <div class="hidden"></div>
                                     <div v-if="pollForm.type==='quiz'" class="w-2/12 text-center p-2">
                                         <input type="radio" v-model="pollForm.answer" :value="index" /> 
@@ -70,6 +70,21 @@
                                     </div>
                                 </div>
                             </template>
+                            <template #footer>
+                                <div
+                                    class="border-t border-l border-r rounded-b-md bg-gray-300"
+                                    role="group"
+                                    key="footer"
+                                >
+                                    <PrimaryButton 
+                                        class="ml-4 my-2" 
+                                        @click.prevent="openModal()"
+                                        :disabled="pollForm.processing || pollForm.options.length >= props.maxOptions"
+                                    >
+                                        Add option
+                                    </PrimaryButton>
+                                </div>
+                            </template>
                         </draggable>
                         <InputError :message="pollForm.errors.options" />
                         <InputError :message="pollForm.errors.answer" />
@@ -84,7 +99,7 @@
                     <div class="mb-3 flex justify-end space-x-3">
                         <PrimaryButton 
                             type="submit" 
-                            :disable="pollForm.processing"
+                            :disabled="pollForm.processing"
                         >
                             Submit
                         </PrimaryButton>
@@ -94,6 +109,13 @@
             </template>
         </LayoutContent>
     </AuthenticatedLayout>
+    <Modal :show="showModal" @close="closeModal()" @onEnterKey="saveOption">
+        <div class="flex py-2 px-4 space-x-2">
+            <TextInput v-model="modalInputText" placeholder="Tap your option..."/>
+            <PrimaryButton @click="saveOption">Add</PrimaryButton>
+            <PrimaryButton @click="closeModal()">Cancel</PrimaryButton>
+        </div>
+    </Modal>
 </template>
 
 <script setup>
@@ -109,6 +131,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 import LayoutContent from '@/Components/LayoutContent.vue';
 //https://sortablejs.github.io/vue.draggable.next/#/simple
 import draggable from 'vuedraggable';
+import Modal from '@/Components/Modal.vue'
 import { ref, onMounted } from 'vue';
 
 const props = defineProps({
@@ -140,6 +163,10 @@ const props = defineProps({
         type: String,
         required: false
     },
+    maxOptions: {
+        type: Number,
+        default: 10,
+    },
     toRoute: {
         type: String,
         required: true
@@ -148,6 +175,8 @@ const props = defineProps({
 
 //TODO
 let postBody = ref('POST BODY HERE');
+let showModal = ref(false);
+let modalInputText = ref('');
 
 const pollForm = useForm({
     title: props.title,
@@ -197,4 +226,23 @@ const onDragEnd = (e) => {
         pollForm.answer += 1;
     }
 }
+
+const openModal = () => {
+    showModal.value = true;
+    console.log('open');
+}
+
+const closeModal = () => {
+    showModal.value = false;
+    modalInputText.value = '';
+}
+
+const saveOption = () => {
+    if (pollForm.options.length >= props.maxOptions) {
+        return;
+    }
+    pollForm.options.push(modalInputText.value);
+    closeModal();
+}
+
 </script>

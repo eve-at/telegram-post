@@ -6,7 +6,7 @@
             </div>
             <div class="lg:w-5/12">
                 <div class="w-72 mx-auto mt-5 border-2 border-gray-500 rounded-xl overflow-hidden shadow-lg">
-                    <div v-if="medias !== false" 
+                    <div v-if="hasMedias" 
                         class="min-h-28 bg-gray-200"
                         :class="{
                             'flex flex-wrap items-center justify-center': medias.length > 1
@@ -56,6 +56,10 @@ defineProps({
     source: {
         type: String,
         default: ''
+    },
+    hasMedias: {
+        type: Boolean,
+        default: true
     },
     medias: {
         type: Array,
