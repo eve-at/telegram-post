@@ -10,9 +10,9 @@
         <div class="mx-auto w-10/12 flex overflow-hidden flex-col">
             <div class="border bg-white border-gray-300 rounded-xl m-2 divide-y divide-solid overflow-hidden">
                 <div class="flex w-full bg-gray-100">
-                    <div class="w-9/12 py-3 px-2">Title</div>
+                    <div class="w-8/12 py-3 px-2">Title</div>
                     <div class="w-2/12 py-2 px-2">Created at</div>
-                    <div class="w-1/12 py-2 px-2">Options</div>
+                    <div class="w-2/12 py-2 px-2">Options</div>
                 </div>
                 <div v-if="!posts.data" class="p-3">There is no posts so far</div>
                 <div 
@@ -20,7 +20,7 @@
                     :key="post.id"
                     class="flex w-full hover:bg-gray-100"
                 >
-                    <div class="w-9/12 ">
+                    <div class="w-8/12 ">
                         <Link 
                             :href="`/posts/${post.id}/edit`" 
                             v-text="post.title"
@@ -31,7 +31,7 @@
                         class="w-2/12 px-2 py-2"
                         v-text="formateDate(post.created_at)"                        
                     ></div>
-                    <div class="w-1/12 px-2 py-2 space-x-2">
+                    <div class="w-2/12 px-2 py-2 space-x-2">
                         <Link 
                             class="hover:underline hover:text-blue-600"
                             :href="`/posts/${post.id}/edit`" 

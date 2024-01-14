@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ChannelController;
+use App\Http\Controllers\ConceptController;
 use App\Http\Controllers\MediaGroupController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PhotoController;
@@ -56,6 +57,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     ]])->except(['show']);
     
     Route::resource('polls', PollController::class)->except(['show']);
+    
+    Route::post('/concepts/store', [ConceptController::class, 'store'])->name('concepts.post');
 
     Route::get('/channel/edit', [ChannelController::class, 'edit'])->name('channels.edit');
 });

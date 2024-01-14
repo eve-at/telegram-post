@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PostResource;
+use App\Http\Services\TelegramService;
 use App\Models\Channel;
 use App\Models\Post;
 use Illuminate\Http\Request;
@@ -18,23 +19,25 @@ class PostController extends Controller
         ]);
     }
 
-    public function create() 
+    public function create()
     {
         return Inertia::render('Post/Edit', [
             'title' => 'Create',
             'toRoute' => 'posts.store',
             'post' => Post::make([
                 'title' => '',
+                'show_title' => true,
                 'body' => '',
                 'source' => '',
             ])
         ]);
     }
 
-    public function store(Request $request) 
+    public function store(Request $request)
     {
         $data = $request->validate([
             'title' => ['required', 'unique:posts', 'max:190'],
+            'show_title' => ['boolean'],
             'body' => ['required', 'max:4096'],
             'source' => ['max:190'],
         ]);
@@ -49,7 +52,7 @@ class PostController extends Controller
         return to_route('posts.index')->with('success', 'The post was created');
     }
 
-    public function edit(Post $post) 
+    public function edit(Post $post)
     {
         return Inertia::render('Post/Edit', [
             'post' => PostResource::make($post),
@@ -58,24 +61,31 @@ class PostController extends Controller
         ]);
     }
 
-    public function update(Request $request, Post $post) 
+    public function update(Request $request, Post $post)
     {
         $data = $request->validate([
             'title' => ['required', 'max:190', Rule::unique('posts')->ignore($post->id)],
             'body' => ['required', 'max:4096'],
             'source' => ['max:190'],
+            'concept' => ['boolean']
         ]);
 
+        $concept = $data['concept'] ?? false;
+
         $post->update($data);
+
+        if ($concept) {
+            TelegramService::publish($post, concept: true);
+            return back()->with('success', 'The post was updated');
+        }
 
         return to_route('posts.index')->with('success', 'The post was updated');
     }
 
-    public function destroy(Post $post) 
+    public function destroy(Post $post)
     {
         $post->delete();
 
         return to_route('posts.index')->with('success', 'The post was deleted');
     }
-    
 }

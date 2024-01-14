@@ -9,12 +9,18 @@
             ></h2>
         </template>
 
-        <div class="mx-auto w-10/12 flex overflow-hidden flex-col">
-            <div class="p-3 border bg-white border-gray-300 rounded-xl m-2 divide-y divide-solid overflow-hidden">
-                <form @submit.prevent="createPost" class="w-6/12">
+        <LayoutContent :body="postPreview" :has-medias="false">
+            <template #form>
+                <form @submit.prevent="createPost">
                     <div class="mb-3">
                         <InputLabel for="title">Title</InputLabel>
-                        <TextInput id="title" v-model="postForm.title"/>
+                        <div class="flex space-x-2">
+                            <TextInput id="title" v-model="postForm.title"/>
+                            <div class="whitespace-nowrap flex items-center">
+                                <Checkbox id="show_title" :checked="postForm.show_title" @update:checked="updateShowTitle"/>
+                                <InputLabel class="ml-2 cursor-pointer" for="show_title">Show</InputLabel>
+                            </div>
+                        </div>
                         <InputError :message="postForm.errors.title" />
                     </div>
 
@@ -30,18 +36,29 @@
                         <InputError :message="postForm.errors.source" />
                     </div>
 
-                    <div class="mb-3 flex justify-end space-x-3">
-                        <PrimaryButton 
-                            type="submit" 
-                            :disable="postForm.processing"
-                        >
-                            Submit
-                        </PrimaryButton>
-                        <SecondaryButtonLink :href="route('posts.index')">Cancel</SecondaryButtonLink>
+                    <div class="mb-3 flex justify-between">
+                        <div class="space-x-3">
+                            <PrimaryButton 
+                                type="submit" 
+                                :disable="postForm.processing"
+                            >
+                                Submit
+                            </PrimaryButton>
+                            <SecondaryButtonLink :href="route('posts.index')">Cancel</SecondaryButtonLink>
+                        </div>
+                        <div class="">
+                            <PrimaryButton 
+                                type="button" 
+                                @click.prevent="saveAndTest"
+                                :disable="postForm.processing"
+                            >
+                                Submit & Test
+                            </PrimaryButton>
+                        </div>
                     </div>
                 </form>
-            </div>
-        </div>
+            </template>
+        </LayoutContent>
     </AuthenticatedLayout>
 </template>
 
@@ -52,8 +69,13 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButtonLink from '@/Components/SecondaryButtonLink.vue';
 import TextArea from '@/Components/TextArea.vue';
 import TextInput from '@/Components/TextInput.vue';
+import Checkbox from '@/Components/Checkbox.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import LayoutContent from '@/Components/LayoutContent.vue';
 import { Head, useForm } from '@inertiajs/vue3';
+import { ref, onMounted, watch } from 'vue';
+
+let postPreview = ref('');
 
 const props = defineProps({
     title: {
@@ -73,29 +95,51 @@ const props = defineProps({
 
 const postForm = useForm({
     title: props.post.title,
+    show_title: props.post.show_title,
     body: props.post.body,
     source: props.post.source,
+    concept: false,    
 })
 
-// onMounted(() => {
-//     if (props.post) {
-//         postForm.title = props.post.title;
-//         postForm.body = props.post.body;
-//         postForm.source = props.post.source;
-//     }
-// })
+const updateShowTitle = (val) => postForm.show_title = val;
+
+const updatePostPreview = () => {
+    const title = postForm.show_title 
+        ? `<span class="text-base text-bold leading-4 block mr-8">${postForm.title}</span><br />`
+        : '';
+
+    postPreview.value = 
+        `<div class="relative">
+            ${title}
+            ${postForm.body}<br />
+        </div>`;
+}
+
+onMounted(updatePostPreview);
+
+watch(    
+    postForm,
+    updatePostPreview,
+    { deep: true }
+);
 
 const createPost = () => {
     if (props.post.id) { //update
         postForm.patch(route(props.toRoute, props.post.id), {
             preserveScroll: true,
-            onSuccess: () => postForm.reset(),
+            //onSuccess: () => postForm.reset(),
         })
     } else { //create
         postForm.post(route(props.toRoute), {
             preserveScroll: true,
-            onSuccess: () => postForm.reset(),
+            //onSuccess: () => postForm.reset(),
         })
     }
+}
+
+const saveAndTest = async () => {
+    postForm.concept = true;
+    createPost();
+    postForm.concept = false;
 }
 </script>

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignIdFor(Channel::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->string('title');
+            $table->boolean('show_title')->default(true);
             $table->longText('body'); // max 4096 characters
             $table->string('source')->nullable();
             $table->timestamps();

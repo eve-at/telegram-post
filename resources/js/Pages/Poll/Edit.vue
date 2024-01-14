@@ -137,7 +137,7 @@ import LayoutContent from '@/Components/LayoutContent.vue';
 //https://sortablejs.github.io/vue.draggable.next/#/simple
 import draggable from 'vuedraggable';
 import Modal from '@/Components/Modal.vue'
-import { ref, onMounted, watch  } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 
 const props = defineProps({
     id: {
@@ -179,7 +179,7 @@ const props = defineProps({
 });
 
 //TODO
-let postPreview = ref('POST BODY HERE');
+let postPreview = ref('');
 let showModal = ref(false);
 let modalEditOption = ref(-1);
 let modalInputText = ref('');
