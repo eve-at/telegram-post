@@ -9,7 +9,7 @@
             ></h2>
         </template>
 
-        <LayoutContent :body="postBody" :has-medias="false">
+        <LayoutContent :body="postPreview" :has-medias="false">
             <template #form>
                 <form @submit.prevent="createPoll">
                     <div class="mb-3">
@@ -137,7 +137,7 @@ import LayoutContent from '@/Components/LayoutContent.vue';
 //https://sortablejs.github.io/vue.draggable.next/#/simple
 import draggable from 'vuedraggable';
 import Modal from '@/Components/Modal.vue'
-import { ref, nextTick  } from 'vue';
+import { ref, onMounted, watch  } from 'vue';
 
 const props = defineProps({
     id: {
@@ -179,7 +179,7 @@ const props = defineProps({
 });
 
 //TODO
-let postBody = ref('POST BODY HERE');
+let postPreview = ref('POST BODY HERE');
 let showModal = ref(false);
 let modalEditOption = ref(-1);
 let modalInputText = ref('');
@@ -191,6 +191,29 @@ const pollForm = useForm({
     answer: props.answer,
     explanation: props.explanation,
 })
+
+const updatePostPreview = () => {
+    const explantion = pollForm.explanation.length 
+        ? `<img title="${pollForm.explanation}" class="absolute top-1 right-1 cursor-help" src="/images/bulb.svg" width="20" height="20" alt="Explanation" />`
+        : '';
+    const poll = '<ul class="space-y-1 text-sm pl-2"><li><input class="mr-2" type="radio" name="previewOption" />' + pollForm.options.join('</li><li><input class="mr-2" type="radio" name="previewOption" />') + '</li></ul>';
+    postPreview.value = 
+        `<div class="relative">
+            <span class="text-base text-bold block mr-8">${pollForm.title}</span>
+            ${explantion}
+            <span class="text-gray-600">Anonymous Poll</span><br />
+            <br />
+            ${poll}<br />
+        </div>`;
+}
+
+onMounted(updatePostPreview);
+
+watch(
+    pollForm,
+    updatePostPreview,
+    { deep: true }
+);
 
 const createPoll = () => {
     if (props.id) { //update
@@ -218,6 +241,8 @@ const deleteOption = (index) => {
     } else if (index < pollForm.answer) {
         pollForm.answer -= 1;
     }
+
+    updatePostPreview();
 }
 
 const onDragEnd = (e) => {
@@ -261,5 +286,7 @@ const editOption = (index) => {
     modalInputText.value = pollForm.options[index];
     openModal();
 }
+
+
 
 </script>

@@ -1,11 +1,11 @@
 <template>
-    <div class="mx-auto w-10/12 flex overflow-hidden flex-col">
-        <div class="flex flex-col lg:flex-row p-3 bg-white border-gray-300 rounded-xl m-2 overflow-hidden">
+    <div class="mx-auto w-10/12 flex flex-col">
+        <div class="flex flex-col lg:flex-row p-3 bg-white border-gray-300 rounded-xl m-2">
             <div class="lg:w-7/12 lg:border-r lg:border-dotted pr-2 mr-2">
                 <slot name="form" />
             </div>
-            <div class="lg:w-5/12">
-                <div class="w-72 mx-auto mt-5 border-2 border-gray-500 rounded-xl overflow-hidden shadow-lg">
+            <div class="lg:w-5/12 relative">
+                <div class="lg:sticky top-1 w-72 mx-auto mt-5 border-2 border-gray-500 rounded-xl shadow-lg overflow-hidden">
                     <div v-if="hasMedias" 
                         class="min-h-28 bg-gray-200"
                         :class="{
