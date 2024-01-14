@@ -48,6 +48,7 @@
 </template>
 
 <script setup>
+
 defineProps({
     body: {
         type: String,
