@@ -26,17 +26,19 @@ class PollController extends Controller
     public function create()
     {
         return Inertia::render('Poll/Edit', [
+            'title' => 'Create',
             'toRoute' => 'polls.store',
-            'title' => '',
-            'type' => 'quiz',
-            'options' => [],
-            'answer' => 0,
-            'explanation' => '',
-
+            'cancelRoute' => 'polls.index',
+            'poll' => PollResource::make(new Poll),
             'types' => [
                 'quiz' => 'Quiz', 
                 'regular' => 'Regular',
             ],
+            // 'title' => '',
+            // 'type' => 'quiz',
+            // 'options' => [],
+            // 'answer' => 0,
+            // 'explanation' => '',
         ]);
     }
 
@@ -45,6 +47,7 @@ class PollController extends Controller
      */
     public function store(Request $request)
     {
+        // TODO
         return $request->all();
     }
 
@@ -54,18 +57,20 @@ class PollController extends Controller
     public function edit(Poll $poll)
     {
         return Inertia::render('Poll/Edit', [
+            'title' => 'Update',
             'toRoute' => 'polls.update',
-            'id' => $poll->id,
-            'title' => $poll->title,
-            'type' => $poll->type,
-            'options' => $poll->options,
-            'answer' => $poll->correct_option_id,
-            'explanation' => $poll->explanation ?? '',
-
+            'cancelRoute' => 'polls.index',
+            'poll' => PollResource::make($poll),
             'types' => [
                 'quiz' => 'Quiz', 
                 'regular' => 'Regular',
             ],
+            // 'id' => $poll->id,
+            // 'title' => $poll->title,
+            // 'type' => $poll->type,
+            // 'options' => $poll->options,
+            // 'answer' => $poll->correct_option_id,
+            // 'explanation' => $poll->explanation ?? '',
         ]);
     }
 
@@ -87,6 +92,7 @@ class PollController extends Controller
             'options.*' => ['required', 'max:50'], // max 50 symbols per option
             'answer' => ['required', 'min:0', "max:$maxAnswerIndex"],
             'explanation' => ['max:190'],
+            'show_signature' => ['boolean'],
         ]);
 
         $data['correct_option_id'] = $data['answer'];

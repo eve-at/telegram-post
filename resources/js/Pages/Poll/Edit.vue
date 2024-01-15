@@ -1,15 +1,22 @@
 <template>
-    <Head :title="'Poll - ' + (props.id ? 'Edit' : 'Create')" />
+    <Head :title="'Poll - ' + $props.title" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2 
                 class="font-semibold text-xl text-gray-800 leading-tight" 
-                v-html="'Poll - ' + (props.id ? 'Edit' : 'Create')"
+                v-html="'Poll - ' + $props.title"
             ></h2>
         </template>
 
-        <LayoutContent :body="postPreview" :has-medias="false">
+        <LayoutContent 
+            :body="preview" 
+            :has-medias="false"
+            :show-signature="pollForm.show_signature"
+            @form:submit="onFormSubmit"
+            @form:cancel="onFormCancel"
+            @form:concept="onFormConcept"
+        >
             <template #form>
                 <form @submit.prevent="createPoll">
                     <div class="mb-3">
@@ -96,14 +103,9 @@
                         <InputError :message="pollForm.errors.explanation" />
                     </div>
 
-                    <div class="mb-3 flex justify-end space-x-3">
-                        <PrimaryButton 
-                            type="submit" 
-                            :disabled="pollForm.processing"
-                        >
-                            Submit
-                        </PrimaryButton>
-                        <SecondaryButtonLink :href="route('polls.index')">Cancel</SecondaryButtonLink>
+                    <div class="mb-3 flex space-x-2">
+                        <Checkbox id="show_signature" :checked="pollForm.show_signature" @update:checked="updateShowSignature"/>
+                        <InputLabel class="ml-2 cursor-pointer" for="show_signature">Show Channel signature</InputLabel>
                     </div>
                 </form>
             </template>
@@ -127,22 +129,22 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
-import SecondaryButtonLink from '@/Components/SecondaryButtonLink.vue';
-import TextArea from '@/Components/TextArea.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Select from '@/Components/Select.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
 import LayoutContent from '@/Components/LayoutContent.vue';
 //https://sortablejs.github.io/vue.draggable.next/#/simple
 import draggable from 'vuedraggable';
 import Modal from '@/Components/Modal.vue'
+import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, onMounted, watch } from 'vue';
+import Checkbox from '@/Components/Checkbox.vue';
 
 const props = defineProps({
-    id: {
-        type: Number,
-        default: null
+    poll: {
+        type: Object,
+        default: null,
+        required: true
     },
     title: {
         type: String,
@@ -152,52 +154,58 @@ const props = defineProps({
         type: Object,
         required: true
     },
-    type: {
-        type: String,
-        required: true
-    },
-    options: {
-        type: Array,
-        required: true
-    },
-    answer: {
-        type: Number,
-        default: 0
-    },
-    explanation: {
-        type: String,
-        required: false
-    },
-    maxOptions: {
-        type: Number,
-        default: 10,
-    },
+    // type: {
+    //     type: String,
+    //     required: true
+    // },
+    // options: {
+    //     type: Array,
+    //     required: true
+    // },
+    // answer: {
+    //     type: Number,
+    //     default: 0
+    // },
+    // explanation: {
+    //     type: String,
+    //     required: false
+    // },
+    // maxOptions: {
+    //     type: Number,
+    //     default: 10,
+    // },
     toRoute: {
+        type: String,
+        required: true
+    },
+    cancelRoute: {
         type: String,
         required: true
     }
 });
 
-//TODO
-let postPreview = ref('');
+let preview = ref('');
 let showModal = ref(false);
 let modalEditOption = ref(-1);
 let modalInputText = ref('');
 
 const pollForm = useForm({
-    title: props.title,
-    type: props.type,
-    options: props.options,
-    answer: props.answer,
-    explanation: props.explanation,
+    title: props.poll.title,
+    type: props.poll.type,
+    options: props.poll.options,
+    answer: props.poll.answer,
+    explanation: props.poll.explanation,
+    show_signature: props.poll.show_signature,
 })
 
-const updatePostPreview = () => {
+const updateShowSignature = (val) => pollForm.show_signature = val;
+
+const updatePreview = () => {
     const explantion = pollForm.explanation.length 
         ? `<img title="${pollForm.explanation}" class="absolute top-1 right-1 cursor-help" src="/images/bulb.svg" width="20" height="20" alt="Explanation" />`
         : '';
     const poll = '<ul class="space-y-1 text-sm pl-2"><li><input class="mr-2" type="radio" name="previewOption" />' + pollForm.options.join('</li><li><input class="mr-2" type="radio" name="previewOption" />') + '</li></ul>';
-    postPreview.value = 
+    preview.value = 
         `<div class="relative">
             <span class="text-base text-bold block mr-8">${pollForm.title}</span>
             ${explantion}
@@ -207,24 +215,22 @@ const updatePostPreview = () => {
         </div>`;
 }
 
-onMounted(updatePostPreview);
+onMounted(updatePreview);
 
 watch(
     pollForm,
-    updatePostPreview,
+    updatePreview,
     { deep: true }
 );
 
 const createPoll = () => {
-    if (props.id) { //update
-        pollForm.patch(route(props.toRoute, props.id), {
-            preserveScroll: true,
-            onSuccess: () => pollForm.reset(),
+    if (props.poll.id) { //update
+        pollForm.patch(route(props.toRoute, props.poll.id), {
+            preserveScroll: true
         })
     } else { //create
         pollForm.post(route(props.toRoute), {
-            preserveScroll: true,
-            onSuccess: () => pollForm.reset(),
+            preserveScroll: true
         })
     }
 }
@@ -242,7 +248,7 @@ const deleteOption = (index) => {
         pollForm.answer -= 1;
     }
 
-    updatePostPreview();
+    updatePreview();
 }
 
 const onDragEnd = (e) => {
@@ -287,6 +293,28 @@ const editOption = (index) => {
     openModal();
 }
 
+const onFormSubmit = () => {
+    if (pollForm.processing) {
+        return;
+    }
+    pollForm.concept = false;
+    createPoll();
+}
 
+const onFormCancel = () => {
+    if (pollForm.processing) {
+        return;
+    }
+    router.visit(route(props.cancelRoute));
+}
+
+const onFormConcept = () => {
+    if (pollForm.processing) {
+        return;
+    }
+    pollForm.concept = true;
+    createPoll();
+    pollForm.concept = false;
+}
 
 </script>
