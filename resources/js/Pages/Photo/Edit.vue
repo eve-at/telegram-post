@@ -11,7 +11,6 @@
 
         <LayoutContent 
             :body="preview" 
-            :source="photoForm.source" 
             :medias="filepaths" 
             :show-signature="photoForm.show_signature"
             @form:submit="onFormSubmit"
@@ -166,7 +165,7 @@ const updatePreview = () => {
         : '';
 
     const source = photoForm.source.length 
-        ? `<span class="block italic mt-2">${photoForm.source}</span><br />`
+        ? `<span class="block font-mono mt-3">${photoForm.source}</span><br />`
         : '';
 
     preview.value = 

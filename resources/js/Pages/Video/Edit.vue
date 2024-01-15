@@ -11,7 +11,6 @@
 
         <LayoutContent 
             :body="preview" 
-            :source="videoForm.source" 
             :medias="filepaths"
             :show-signature="videoForm.show_signature"
             @form:submit="onFormSubmit"

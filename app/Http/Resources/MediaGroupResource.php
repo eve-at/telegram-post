@@ -34,7 +34,7 @@ class MediaGroupResource extends JsonResource
                     'source' => $filename,
                     'options' => ['type' => 'local'], //local => existing server file
                 ];          
-            }),            
+            }),        
         ];
     }
 }

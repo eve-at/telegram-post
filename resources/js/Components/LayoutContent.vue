@@ -48,10 +48,6 @@
                     </div>
                     <div class="flex flex-col space-y-2 p-2">
                         <div v-if="body.length" v-html="body" class="text-xs"></div>
-                        <div v-if="source.length" 
-                            v-html="source" 
-                            class="text-xs font-mono">
-                        </div>
                         <div v-if="showSignature" class="text-sm text-blue-500 italic font-semibold">Channel link</div>
                         <img src="/images/post-footer.jpg" />
                     </div>
@@ -67,10 +63,6 @@ import SecondaryButton from './SecondaryButton.vue';
 
 defineProps({
     body: {
-        type: String,
-        default: ''
-    },
-    source: {
         type: String,
         default: ''
     },

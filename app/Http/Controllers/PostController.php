@@ -68,7 +68,7 @@ class PostController extends Controller
             'body' => ['required', 'max:4096'],
             'show_signature' => ['boolean'],
             'source' => ['max:190'],
-            'concept' => ['boolean']
+            'concept' => ['boolean'],
         ]);
 
         $concept = $data['concept'] ?? false;

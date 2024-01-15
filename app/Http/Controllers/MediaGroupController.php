@@ -26,12 +26,8 @@ class MediaGroupController extends Controller
         return Inertia::render('MediaGroup/Edit', [
             'title' => 'Create',
             'toRoute' => 'medias.store',
-            'group' => MediaGroup::make([
-                'title' => '',
-                'filenames' => [],
-                'body' => '',
-                'source' => '',
-            ])
+            'cancelRoute' => 'photos.index',
+            'group' => MediaGroupResource::make(new MediaGroup),
         ]);
     }
 
@@ -42,6 +38,8 @@ class MediaGroupController extends Controller
             'filenames' => ['required', 'min:2', 'max:10'], // 2-10 files
             'filenames.*' => ['max:190'], // 190 max filename length
             'body' => ['max:1024'],
+            'show_title' => ['boolean'],
+            'show_signature' => ['boolean'],
             'source' => ['max:190'],
         ]);
 
@@ -108,6 +106,7 @@ class MediaGroupController extends Controller
             'title' => 'Edit',
             'group' => MediaGroupResource::make($media),
             'toRoute' => 'medias.update',
+            'cancelRoute' => 'photos.index',
         ]);
     }
 
@@ -119,6 +118,8 @@ class MediaGroupController extends Controller
             'filenames' => ['required', 'min:2', 'max:10'], // 2-10 files
             'filenames.*' => ['max:190'], // 190 max filename length
             'body' => ['max:1024'],
+            'show_title' => ['boolean'],
+            'show_signature' => ['boolean'],
             'source' => ['max:190'],
         ]);
 
