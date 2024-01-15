@@ -24,13 +24,15 @@ class PhotoController extends Controller
         return Inertia::render('Photo/Edit', [
             'title' => 'Create',
             'toRoute' => 'photos.store',
-            'photo' => Photo::make([
-                'title' => '',
-                'filename' => '',
-                'filepaths' => [],
-                'body' => '',
-                'source' => '',
-            ])
+            'cancelRoute' => 'photos.index',
+            'photo' => PhotoResource::make(new Photo),
+            // 'photo' => Photo::make([
+            //     'title' => '',
+            //     'filename' => '',
+            //     'filepaths' => [],
+            //     'body' => '',
+            //     'source' => '',
+            // ])
         ]);
     }
 
@@ -39,6 +41,8 @@ class PhotoController extends Controller
         $data = $request->validate([
             'title' => ['required', 'max:190'],
             'filename' => ['required', 'max:190'],
+            'show_title' => ['boolean'],
+            'show_signature' => ['boolean'],
             'body' => ['max:1024'],
             'source' => ['max:190'],
         ]);
@@ -91,9 +95,12 @@ class PhotoController extends Controller
         return Inertia::render('Photo/Edit', [
             'title' => 'Edit',
             'photo' => $pr,
+            'show_title' => $pr->show_title,
+            'show_signature' => $pr->show_signature,
             'filename' => $pr->filename,
             'filepaths' => $pr->filepaths,
             'toRoute' => 'photos.update',
+            'cancelRoute' => 'photos.index',
         ]);
     }
 
@@ -102,6 +109,8 @@ class PhotoController extends Controller
         $data = $request->validate([
             'title' => ['required', 'max:190'],
             'filename' => ['required', 'max:190'],
+            'show_title' => ['boolean'],
+            'show_signature' => ['boolean'],
             'body' => ['required', 'max:1024'],
             'source' => ['max:190'],
         ]);

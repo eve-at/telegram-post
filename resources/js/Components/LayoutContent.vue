@@ -3,6 +3,20 @@
         <div class="flex flex-col lg:flex-row p-3 bg-white border-gray-300 rounded-xl m-2">
             <div class="lg:w-7/12 lg:border-r lg:border-dotted pr-2 mr-2">
                 <slot name="form" />
+
+                <div class="pt-6 mb-3 flex justify-between">
+                    <div class="space-x-3">
+                        <PrimaryButton @click.prevent="$emit('form:submit')">
+                            Submit
+                        </PrimaryButton>
+                        <SecondaryButton @click.prevent="$emit('form:cancel')">Cancel</SecondaryButton>
+                    </div>
+                    <div class="">
+                        <PrimaryButton @click.prevent="$emit('form:concept')">
+                            Submit & Test
+                        </PrimaryButton>
+                    </div>
+                </div>
             </div>
             <div class="lg:w-5/12 relative">
                 <div class="lg:sticky top-1 w-72 mx-auto mt-5 border-2 border-gray-500 rounded-xl shadow-lg overflow-hidden">
@@ -48,6 +62,8 @@
 </template>
 
 <script setup>
+import PrimaryButton from './PrimaryButton.vue';
+import SecondaryButton from './SecondaryButton.vue';
 
 defineProps({
     body: {

@@ -16,11 +16,12 @@ class PollResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'title' => $this->title,
-            'type' => $this->type,
-            'options' => $this->options,
-            'answer' => $this->correct_option_id,
-            'created_at' => $this->created_at,
+            'title' => $this->title ?? '',
+            'type' => $this->type ?? 'quiz',
+            'options' => $this->options, // ?? ''
+            'answer' => $this->correct_option_id ?? 0,
+            'show_signature' => $this->show_signature ?? false,
+            'created_at' => $this->created_at ?? now(),
             'user' => UserResource::make($this->user),
         ];
     }

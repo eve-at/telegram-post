@@ -16,12 +16,12 @@ class PostResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'title' => $this->title,
-            'show_title' => $this->show_title,
-            'body' => $this->body,
-            'show_signature' => $this->show_signature,
-            'source' => $this->source,
-            'created_at' => $this->created_at,
+            'title' => $this->title ?? '',
+            'body' => $this->body ?? '',
+            'show_title' => $this->show_title ?? true,
+            'show_signature' => $this->show_signature ?? true,
+            'source' => $this->source ?? '',
+            'created_at' => $this->created_at ?? now(),
             'user' => UserResource::make($this->user)
         ];
     }

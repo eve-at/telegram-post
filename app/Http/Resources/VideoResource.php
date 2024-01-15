@@ -16,11 +16,13 @@ class VideoResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'title' => $this->title,
-            'body' => $this->body,
-            'filename' => $this->filename,
-            'source' => $this->source,
-            'created_at' => $this->created_at,
+            'title' => $this->title ?? '',
+            'body' => $this->body ?? '',
+            'show_title' => $this->show_title ?? true,
+            'show_signature' => $this->show_signature ?? true,
+            'filename' => $this->filename ?? '',
+            'source' => $this->source ?? '',
+            'created_at' => $this->created_at ?? now(),
             //'file' => FileResource::make($this->file),
             'user' => UserResource::make($this->user),
 

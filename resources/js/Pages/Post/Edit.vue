@@ -9,7 +9,14 @@
             ></h2>
         </template>
 
-        <LayoutContent :body="postPreview" :has-medias="false" :show-signature="postForm.show_signature">
+        <LayoutContent 
+            :body="postPreview" 
+            :has-medias="false" 
+            :show-signature="postForm.show_signature"
+            @form:submit="onFormSubmit"
+            @form:cancel="onFormCancel"
+            @form:concept="onFormConcept"
+        >
             <template #form>
                 <form @submit.prevent="createPost">
                     <div class="mb-3">
@@ -41,7 +48,7 @@
                         <InputLabel class="ml-2 cursor-pointer" for="show_signature">Show Channel signature</InputLabel>
                     </div>
 
-                    <div class="pt-6 mb-3 flex justify-between">
+                    <!-- <div class="pt-6 mb-3 flex justify-between">
                         <div class="space-x-3">
                             <PrimaryButton 
                                 type="submit" 
@@ -60,7 +67,7 @@
                                 Submit & Test
                             </PrimaryButton>
                         </div>
-                    </div>
+                    </div> -->
                 </form>
             </template>
         </LayoutContent>
@@ -77,7 +84,7 @@ import TextInput from '@/Components/TextInput.vue';
 import Checkbox from '@/Components/Checkbox.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import LayoutContent from '@/Components/LayoutContent.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, onMounted, watch } from 'vue';
 
 let postPreview = ref('');
@@ -88,6 +95,10 @@ const props = defineProps({
         required: true
     },
     toRoute: {
+        type: String,
+        required: true
+    },
+    cancelRoute: {
         type: String,
         required: true
     },
@@ -115,10 +126,15 @@ const updatePostPreview = () => {
         ? `<span class="text-base text-bold leading-4 block mr-8">${postForm.title}</span><br />`
         : '';
 
+    const source = postForm.source.length 
+        ? `<span class="block italic mt-2">${postForm.source}</span><br />`
+        : '';
+
     postPreview.value = 
         `<div class="relative">
             ${title}
             ${postForm.body}<br />
+            ${source}
         </div>`;
 }
 
@@ -144,7 +160,16 @@ const createPost = () => {
     }
 }
 
-const saveAndTest = async () => {
+const onFormSubmit = () => {
+    postForm.concept = false;
+    createPost();
+}
+
+const onFormCancel = () => {
+    router.visit(route(props.cancelRoute));
+}
+
+const onFormConcept = () => {
     postForm.concept = true;
     createPost();
     postForm.concept = false;

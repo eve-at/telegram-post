@@ -9,12 +9,26 @@
             ></h2>
         </template>
 
-        <LayoutContent :body="photoForm.body" :source="photoForm.source" :medias="filepaths">
+        <LayoutContent 
+            :body="preview" 
+            :source="photoForm.source" 
+            :medias="filepaths" 
+            :show-signature="photoForm.show_signature"
+            @form:submit="onFormSubmit"
+            @form:cancel="onFormCancel"
+            @form:concept="onFormConcept"
+        >
             <template #form>
                 <form @submit.prevent="createPhoto">
                     <div class="mb-3">
                         <InputLabel for="title">Title</InputLabel>
-                        <TextInput id="title" v-model="photoForm.title"/>
+                        <div class="flex space-x-2">
+                            <TextInput id="title" v-model="photoForm.title"/>
+                            <div class="whitespace-nowrap flex items-center">
+                                <Checkbox id="show_title" :checked="photoForm.show_title" @update:checked="updateShowTitle"/>
+                                <InputLabel class="ml-2 cursor-pointer" for="show_title">Show</InputLabel>
+                            </div>
+                        </div>
                         <InputError :message="photoForm.errors.title" />
                     </div>
 
@@ -48,15 +62,10 @@
                         <InputError :message="photoForm.errors.source" />
                     </div>
 
-                    <div class="mb-3 flex justify-end space-x-3">
-                        <PrimaryButton 
-                            type="submit" 
-                            :disable="photoForm.processing"
-                        >
-                            Submit
-                        </PrimaryButton>
-                        <SecondaryButtonLink :href="route('photos.index')">Cancel</SecondaryButtonLink>
-                    </div>
+                    <div class="mb-3 flex space-x-2">
+                        <Checkbox id="show_signature" :checked="photoForm.show_signature" @update:checked="updateShowSignature"/>
+                        <InputLabel class="ml-2 cursor-pointer" for="show_signature">Show Channel signature</InputLabel>
+                    </div>                    
                 </form>
             </template>
         </LayoutContent>
@@ -69,6 +78,7 @@ import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import 'filepond/dist/filepond.min.css';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
+import Checkbox from '@/Components/Checkbox.vue';
 
 let serverMessage = {};
 
@@ -116,11 +126,9 @@ import SecondaryButtonLink from '@/Components/SecondaryButtonLink.vue';
 import TextArea from '@/Components/TextArea.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
 import LayoutContent from '@/Components/LayoutContent.vue';
-import { ref } from 'vue';
-
-let photoUpdated = false;
+import { Head, useForm, router } from '@inertiajs/vue3';
+import { ref, onMounted, watch } from 'vue';
 
 const props = defineProps({
     title: {
@@ -131,10 +139,14 @@ const props = defineProps({
         type: String,
         required: true
     },
+    cancelRoute: {
+        type: String,
+        required: true
+    },
     photo: {
         type: Object,
         default: null,
-        required: false
+        required: true
     },
     filename: {
         type: String,
@@ -142,21 +154,53 @@ const props = defineProps({
     }
 });
 
-let filepathInitial = null;
-let filepaths = ref([]);
-
 const photoForm = useForm({
     title: props.photo.title,
+    show_title: props.photo.show_title,
     body: props.photo.body,
-    source: props.photo.source ?? '',
+    show_signature: props.photo.show_signature,
+    source: props.photo.source,
     filename: props.photo.filename,
-    filepaths: props.photo.filepaths ?? [],
+    filepaths: props.photo.filepaths,
+    concept: false,    
 })
+
+let photoUpdated = false;
+let filepathInitial = null;
+let filepaths = ref([]);
+let preview = ref('');
+const updateShowTitle = (val) => photoForm.show_title = val;
+const updateShowSignature = (val) => photoForm.show_signature = val;
+
+const updatePreview = () => {
+    const title = photoForm.show_title 
+        ? `<span class="text-base text-bold leading-4 block mr-8">${photoForm.title}</span><br />`
+        : '';
+
+    const source = photoForm.source.length 
+        ? `<span class="block italic mt-2">${photoForm.source}</span><br />`
+        : '';
+
+    preview.value = 
+        `<div class="relative">
+            ${title}
+            ${photoForm.body}<br />
+            ${source}
+        </div>`;
+}
+
+onMounted(updatePreview);
+
+watch(    
+    photoForm,
+    updatePreview,
+    { deep: true }
+);
 
 const updateFilepaths = (init = false) => {
     if (init) {
         filepathInitial = photoForm.filename;
-        filepaths.value.push('/storage/medias/' + photoForm.filename);
+        filepathInitial && filepaths.value.push('/storage/medias/' + photoForm.filename);
         return;
     }
     
@@ -205,5 +249,20 @@ const handleRemoveFile = (error, file) => {
     photoUpdated = false;
     photoForm.filename = null;
     updateFilepaths();
+}
+
+const onFormSubmit = () => {
+    photoForm.concept = false;
+    createPhoto();
+}
+
+const onFormCancel = () => {
+    router.visit(route(props.cancelRoute));
+}
+
+const onFormConcept = () => {
+    photoForm.concept = true;
+    createPhoto();
+    photoForm.concept = false;
 }
 </script>

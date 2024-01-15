@@ -23,17 +23,17 @@ class PollFactory extends Factory
             'user_id' => User::factory(),
             'type'=> ['quiz', 'regular'][rand(0, 1)],
             'title' => str(fake()->sentence)->beforeLast('.') . '?', //question
-            'options' => $this->optionsJson(count: rand(3, 10)),
+            'options' => $this->options(count: rand(3, 10)),
             'correct_option_id' => 0,
             'explanation' => [null, null, str(fake()->sentence)->beforeLast('.')][rand(0, 2)],
         ];
     }
 
-    protected function optionsJson($count = 5) 
+    protected function options($count = 5) 
     {
         return collect(range(1, $count))
                 ->map(fn($el) => str(fake()->sentence(rand(1, 3), variableNbWords: false))->beforeLast('.'))
-                ->toJson();
+                ->toArray();
     }
     
 }
