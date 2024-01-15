@@ -29,7 +29,7 @@ class Poll extends Model
     public function options(): Attribute
     {
         return Attribute::make(
-            get: fn (string $value) => json_decode($value),
+            get: fn (?string $value) => json_decode($value),
             set: fn (array $value) => json_encode($value),
         );
     }

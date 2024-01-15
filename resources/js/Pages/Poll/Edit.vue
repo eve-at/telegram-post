@@ -52,6 +52,11 @@
                                         <span v-if="pollForm.options.length>2">Options</span>
                                     </div>
                                 </div>
+                                <div 
+                                    v-if="!pollForm.options.length" 
+                                    class="flex divide-y border-x border-gray-300 hover:bg-gray-100 italic text-gray-400 p-2 justify-center">
+                                    There is no options so far
+                                </div>
                             </template>
                             <template #item="{ element, index }">
                                 <div class="flex divide-y border-x border-gray-300 hover:bg-gray-100 cursor-move">
@@ -154,26 +159,6 @@ const props = defineProps({
         type: Object,
         required: true
     },
-    // type: {
-    //     type: String,
-    //     required: true
-    // },
-    // options: {
-    //     type: Array,
-    //     required: true
-    // },
-    // answer: {
-    //     type: Number,
-    //     default: 0
-    // },
-    // explanation: {
-    //     type: String,
-    //     required: false
-    // },
-    // maxOptions: {
-    //     type: Number,
-    //     default: 10,
-    // },
     toRoute: {
         type: String,
         required: true
@@ -196,7 +181,7 @@ const pollForm = useForm({
     answer: props.poll.answer,
     explanation: props.poll.explanation,
     show_signature: props.poll.show_signature,
-})
+});
 
 const updateShowSignature = (val) => pollForm.show_signature = val;
 
@@ -204,7 +189,10 @@ const updatePreview = () => {
     const explantion = pollForm.explanation.length 
         ? `<img title="${pollForm.explanation}" class="absolute top-1 right-1 cursor-help" src="/images/bulb.svg" width="20" height="20" alt="Explanation" />`
         : '';
-    const poll = '<ul class="space-y-1 text-sm pl-2"><li><input class="mr-2" type="radio" name="previewOption" />' + pollForm.options.join('</li><li><input class="mr-2" type="radio" name="previewOption" />') + '</li></ul>';
+    const poll = pollForm.options.length > 0
+        ? '<ul class="space-y-1 text-sm pl-2"><li><input class="mr-2" type="radio" name="previewOption" />' + pollForm.options.join('</li><li><input class="mr-2" type="radio" name="previewOption" />') + '</li></ul>' 
+        : '<span class="italic text-gray-400 p-2">< There is no options so far ><span>';
+
     preview.value = 
         `<div class="relative">
             <span class="text-base text-bold block mr-8">${pollForm.title}</span>
@@ -272,7 +260,6 @@ const closeModal = () => {
     showModal.value = false;
     modalEditOption.value = -1;
     modalInputText.value = '';
-    //document.activeElement.blur();
 }
 
 const saveOption = () => {

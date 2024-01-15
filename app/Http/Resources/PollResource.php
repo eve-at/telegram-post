@@ -18,7 +18,7 @@ class PollResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title ?? '',
             'type' => $this->type ?? 'quiz',
-            'options' => $this->options, // ?? ''
+            'options' => $this->options ?? [],
             'explanation' => $this->explanation ?? '',
             'answer' => $this->correct_option_id ?? 0,
             'show_signature' => $this->show_signature ?? false,
