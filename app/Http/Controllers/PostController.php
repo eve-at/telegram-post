@@ -22,18 +22,11 @@ class PostController extends Controller
 
     public function create()
     {
-        //return PostResource::make(new Post);
         return Inertia::render('Post/Edit', [
             'title' => 'Create',
             'toRoute' => 'posts.store',
             'cancelRoute' => 'posts.index',
             'post' => PostResource::make(new Post),
-            // 'post' => Post::make([
-            //     'title' => '',
-            //     'show_title' => true,
-            //     'body' => '',
-            //     'source' => '',
-            // ])
         ]);
     }
 

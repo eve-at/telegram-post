@@ -24,12 +24,8 @@ class VideoController extends Controller
         return Inertia::render('Video/Edit', [
             'title' => 'Create',
             'toRoute' => 'videos.store',
-            'video' => Video::make([
-                'title' => '',
-                'filename' => '',
-                'body' => '',
-                'source' => '',
-            ])
+            'cancelRoute' => 'videos.index',
+            'video' => VideoResource::make(new Video),
         ]);
     }
 
@@ -38,6 +34,8 @@ class VideoController extends Controller
         $data = $request->validate([
             'title' => ['required', 'max:190'],
             'filename' => ['required', 'max:190'],
+            'show_title' => ['boolean'],
+            'show_signature' => ['boolean'],
             'body' => ['max:1024'],
             'source' => ['max:190'],
         ]);
@@ -83,13 +81,11 @@ class VideoController extends Controller
 
     public function edit(Video $video)
     {
-        $pr = VideoResource::make($video);
         return Inertia::render('Video/Edit', [
             'title' => 'Edit',
-            'video' => $pr,
-            'filename' => $pr->filename,
-            'filepaths' => $pr->filepaths,
+            'video' => VideoResource::make($video),
             'toRoute' => 'videos.update',
+            'cancelRoute' => 'videos.index',
         ]);
     }
 
@@ -98,6 +94,8 @@ class VideoController extends Controller
         $data = $request->validate([
             'title' => ['required', 'max:190'],
             'filename' => ['required', 'max:190'],
+            'show_title' => ['boolean'],
+            'show_signature' => ['boolean'],
             'body' => ['required', 'max:1024'],
             'source' => ['max:190'],
         ]);

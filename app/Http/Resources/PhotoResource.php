@@ -30,7 +30,7 @@ class PhotoResource extends JsonResource
             //URI of files for PQINA file plugin
             'filepaths' => $filename 
                 ? [[
-                    'source' => $this->filename,
+                    'source' => $filename,
                     'options' => ['type' => 'local'], //local => existing server file
                 ]]
                 :[],

@@ -9,12 +9,26 @@
             ></h2>
         </template>
 
-        <LayoutContent :body="videoForm.body" :source="videoForm.source" :medias="filepaths">
+        <LayoutContent 
+            :body="preview" 
+            :source="videoForm.source" 
+            :medias="filepaths"
+            :show-signature="videoForm.show_signature"
+            @form:submit="onFormSubmit"
+            @form:cancel="onFormCancel"
+            @form:concept="onFormConcept"
+        >
             <template #form>
                 <form @submit.prevent="createVideo">
                     <div class="mb-3">
                         <InputLabel for="title">Title</InputLabel>
-                        <TextInput id="title" v-model="videoForm.title"/>
+                        <div class="flex space-x-2">
+                            <TextInput id="title" v-model="videoForm.title"/>
+                            <div class="whitespace-nowrap flex items-center">
+                                <Checkbox id="show_title" :checked="videoForm.show_title" @update:checked="updateShowTitle"/>
+                                <InputLabel class="ml-2 cursor-pointer" for="show_title">Show</InputLabel>
+                            </div>
+                        </div>
                         <InputError :message="videoForm.errors.title" />
                     </div>
 
@@ -48,14 +62,9 @@
                         <InputError :message="videoForm.errors.source" />
                     </div>
 
-                    <div class="mb-3 flex justify-end space-x-3">
-                        <PrimaryButton 
-                            type="submit" 
-                            :disable="videoForm.processing"
-                        >
-                            Submit
-                        </PrimaryButton>
-                        <SecondaryButtonLink :href="route('videos.index')">Cancel</SecondaryButtonLink>
+                    <div class="mb-3 flex space-x-2">
+                        <Checkbox id="show_signature" :checked="videoForm.show_signature" @update:checked="updateShowSignature"/>
+                        <InputLabel class="ml-2 cursor-pointer" for="show_signature">Show Channel signature</InputLabel>
                     </div>
                 </form>
             </template>            
@@ -67,6 +76,7 @@
 import vueFilePond, { setOptions } from 'vue-filepond';
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import 'filepond/dist/filepond.min.css';
+import Checkbox from '@/Components/Checkbox.vue';
 
 let serverMessage = {};
 
@@ -97,26 +107,19 @@ const FilePond = vueFilePond(FilePondPluginFileValidateType);
 export default {
     components: {
         FilePond
-    },
-    // methods: {
-    //     filepondInitialized() {
-    //         console.log('Filepond is ready');
-    //     }        
-    // }
+    }
 }
 </script>
 
 <script setup>
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SecondaryButtonLink from '@/Components/SecondaryButtonLink.vue';
 import TextArea from '@/Components/TextArea.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import LayoutContent from '@/Components/LayoutContent.vue';
-import { Head, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, useForm, router } from '@inertiajs/vue3';
+import { ref, onMounted, watch } from 'vue';
 
 const props = defineProps({
     title: {
@@ -127,32 +130,63 @@ const props = defineProps({
         type: String,
         required: true
     },
+    cancelRoute: {
+        type: String,
+        required: true
+    },
     video: {
         type: Object,
         default: null,
         required: false
-    },
-    filename: {
-        type: String,
-        default: '',
     }
 });
-
-let filepathInitial = null;
-let filepaths = ref([]);
 
 const videoForm = useForm({
     title: props.video.title,
     body: props.video.body,
-    source: props.video.source ?? '',
+    source: props.video.source,
+    show_title: props.video.show_title,
+    show_signature: props.video.show_signature,
     filename: props.video.filename,
-    filepaths: props.video.filepaths ?? [],
+    filepaths: props.video.filepaths,
+    concept: false,  
 })
+
+let filepathInitial = null;
+let filepaths = ref([]);
+let preview = ref('');
+const updateShowTitle = (val) => videoForm.show_title = val;
+const updateShowSignature = (val) => videoForm.show_signature = val;
+
+const updatePreview = () => {
+    const title = videoForm.show_title 
+        ? `<span class="text-base text-bold leading-4 block mr-8">${videoForm.title}</span><br />`
+        : '';
+
+    const source = videoForm.source.length 
+        ? `<span class="block italic mt-2">${videoForm.source}</span><br />`
+        : '';
+
+    preview.value = 
+        `<div class="relative">
+            ${title}
+            ${videoForm.body}<br />
+            ${source}
+        </div>`;
+}
+
+onMounted(updatePreview);
+
+watch(    
+    videoForm,
+    updatePreview,
+    { deep: true }
+);
 
 const updateFilepaths = (init = false) => {
     if (init) {
         filepathInitial = videoForm.filename;
-        filepaths.value.push('/storage/medias/' + videoForm.filename);
+        filepathInitial && filepaths.value.push('/storage/medias/' + videoForm.filename);
         return;
     }
     
@@ -200,5 +234,29 @@ const handleRemoveFile = (error, file) => {
     
     videoForm.filename = null;
     updateFilepaths();
+}
+
+const onFormSubmit = () => {
+    if (videoForm.processing) {
+        return;
+    }
+    videoForm.concept = false;
+    createVideo();
+}
+
+const onFormCancel = () => {
+    if (videoForm.processing) {
+        return;
+    }
+    router.visit(route(props.cancelRoute));
+}
+
+const onFormConcept = () => {
+    if (videoForm.processing) {
+        return;
+    }
+    videoForm.concept = true;
+    createPhoto();
+    videoForm.concept = false;
 }
 </script>

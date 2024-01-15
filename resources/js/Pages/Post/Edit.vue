@@ -161,15 +161,24 @@ const createPost = () => {
 }
 
 const onFormSubmit = () => {
+    if (postForm.processing) {
+        return;
+    }
     postForm.concept = false;
     createPost();
 }
 
 const onFormCancel = () => {
+    if (postForm.processing) {
+        return;
+    }
     router.visit(route(props.cancelRoute));
 }
 
 const onFormConcept = () => {
+    if (postForm.processing) {
+        return;
+    }
     postForm.concept = true;
     createPost();
     postForm.concept = false;

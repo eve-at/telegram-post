@@ -109,20 +109,13 @@ const FilePond = vueFilePond(FilePondPluginFileValidateType, FilePondPluginImage
 export default {
     components: {
         FilePond
-    },
-    // methods: {
-    //     filepondInitialized() {
-    //         console.log('Filepond is ready');
-    //     }        
-    // }
+    }
 }
 </script>
 
 <script setup>
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SecondaryButtonLink from '@/Components/SecondaryButtonLink.vue';
 import TextArea from '@/Components/TextArea.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
@@ -147,17 +140,13 @@ const props = defineProps({
         type: Object,
         default: null,
         required: true
-    },
-    filename: {
-        type: String,
-        default: '',
     }
 });
 
 const photoForm = useForm({
     title: props.photo.title,
-    show_title: props.photo.show_title,
     body: props.photo.body,
+    show_title: props.photo.show_title,
     show_signature: props.photo.show_signature,
     source: props.photo.source,
     filename: props.photo.filename,
@@ -165,7 +154,6 @@ const photoForm = useForm({
     concept: false,    
 })
 
-let photoUpdated = false;
 let filepathInitial = null;
 let filepaths = ref([]);
 let preview = ref('');
@@ -252,15 +240,24 @@ const handleRemoveFile = (error, file) => {
 }
 
 const onFormSubmit = () => {
+    if (photoForm.processing) {
+        return;
+    }
     photoForm.concept = false;
     createPhoto();
 }
 
 const onFormCancel = () => {
+    if (photoForm.processing) {
+        return;
+    }
     router.visit(route(props.cancelRoute));
 }
 
 const onFormConcept = () => {
+    if (photoForm.processing) {
+        return;
+    }
     photoForm.concept = true;
     createPhoto();
     photoForm.concept = false;

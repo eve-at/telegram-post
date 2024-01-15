@@ -26,13 +26,6 @@ class PhotoController extends Controller
             'toRoute' => 'photos.store',
             'cancelRoute' => 'photos.index',
             'photo' => PhotoResource::make(new Photo),
-            // 'photo' => Photo::make([
-            //     'title' => '',
-            //     'filename' => '',
-            //     'filepaths' => [],
-            //     'body' => '',
-            //     'source' => '',
-            // ])
         ]);
     }
 
@@ -91,14 +84,9 @@ class PhotoController extends Controller
 
     public function edit(Photo $photo)
     {
-        $pr = PhotoResource::make($photo);
         return Inertia::render('Photo/Edit', [
             'title' => 'Edit',
-            'photo' => $pr,
-            'show_title' => $pr->show_title,
-            'show_signature' => $pr->show_signature,
-            'filename' => $pr->filename,
-            'filepaths' => $pr->filepaths,
+            'photo' => PhotoResource::make($photo),
             'toRoute' => 'photos.update',
             'cancelRoute' => 'photos.index',
         ]);
