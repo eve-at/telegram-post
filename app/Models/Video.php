@@ -11,6 +11,11 @@ class Video extends Model
 
     public $guarded = ['id'];
 
+    protected $casts = [
+        'show_title' => 'boolean',
+        'show_signature' => 'boolean',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);    

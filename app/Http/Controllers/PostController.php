@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PostResource;
+use App\Http\Services\MessagablePost;
 use App\Http\Services\TelegramService;
 use App\Models\Channel;
 use App\Models\Post;
@@ -39,6 +40,7 @@ class PostController extends Controller
             'title' => ['required', 'unique:posts', 'max:190'],
             'show_title' => ['boolean'],
             'body' => ['required', 'max:4096'],
+            'show_signature' => ['boolean'],
             'source' => ['max:190'],
         ]);
 
@@ -65,7 +67,9 @@ class PostController extends Controller
     {
         $data = $request->validate([
             'title' => ['required', 'max:190', Rule::unique('posts')->ignore($post->id)],
+            'show_title' => ['boolean'],
             'body' => ['required', 'max:4096'],
+            'show_signature' => ['boolean'],
             'source' => ['max:190'],
             'concept' => ['boolean']
         ]);
@@ -75,7 +79,7 @@ class PostController extends Controller
         $post->update($data);
 
         if ($concept) {
-            TelegramService::publish($post, concept: true);
+            TelegramService::publish(MessagablePost::make($post), concept: true);
             return back()->with('success', 'The post was updated');
         }
 

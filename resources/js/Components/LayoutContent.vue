@@ -38,7 +38,7 @@
                             v-html="source" 
                             class="text-xs font-mono">
                         </div>
-                        <div class="text-sm text-blue-500 italic font-semibold">Channel link</div>
+                        <div v-if="showSignature" class="text-sm text-blue-500 italic font-semibold">Channel link</div>
                         <img src="/images/post-footer.jpg" />
                     </div>
                 </div>
@@ -59,6 +59,10 @@ defineProps({
         default: ''
     },
     hasMedias: {
+        type: Boolean,
+        default: true
+    },
+    showSignature: {
         type: Boolean,
         default: true
     },

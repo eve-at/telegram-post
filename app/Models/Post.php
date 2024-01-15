@@ -12,6 +12,11 @@ class Post extends Model
 
     public $guarded = ['id'];
 
+    protected $casts = [
+        'show_title' => 'boolean',
+        'show_signature' => 'boolean',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);    
@@ -20,13 +25,5 @@ class Post extends Model
     public function channel()
     {
         return $this->belongsTo(Channel::class);    
-    }
-
-    public function show_title(): Attribute
-    {
-        return Attribute::make(
-            get: fn (int $value) => (bool)$value,
-            set: fn (bool $value) => $value ? 1 : 0,
-        );
-    }
+    }    
 }

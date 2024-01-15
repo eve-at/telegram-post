@@ -13,6 +13,11 @@ class MediaGroup extends Model
     public $guarded = ['id'];
     public $with = ['filenames'];
     
+    protected $casts = [
+        'show_title' => 'boolean',
+        'show_signature' => 'boolean',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);    

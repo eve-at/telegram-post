@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('title');
             $table->boolean('show_title')->default(true);
             $table->longText('body'); // max 4096 characters
+            $table->boolean('show_signature')->default(true);
             $table->string('source')->nullable();
             $table->timestamps();
         });

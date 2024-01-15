@@ -20,6 +20,7 @@ return new class extends Migration
             $table->set('type', ['quiz', 'regular'])->default('quiz');
             $table->string('title'); //question
             $table->text('options');
+            $table->boolean('show_signature')->default(false);
             $table->integer('correct_option_id')->deafult(0);
             $table->string('explanation')->nullable();
             $table->timestamps();

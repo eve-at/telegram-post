@@ -9,7 +9,7 @@
             ></h2>
         </template>
 
-        <LayoutContent :body="postPreview" :has-medias="false">
+        <LayoutContent :body="postPreview" :has-medias="false" :show-signature="postForm.show_signature">
             <template #form>
                 <form @submit.prevent="createPost">
                     <div class="mb-3">
@@ -36,7 +36,12 @@
                         <InputError :message="postForm.errors.source" />
                     </div>
 
-                    <div class="mb-3 flex justify-between">
+                    <div class="mb-3 flex space-x-2">
+                        <Checkbox id="show_signature" :checked="postForm.show_signature" @update:checked="updateShowSignature"/>
+                        <InputLabel class="ml-2 cursor-pointer" for="show_signature">Show Channel signature</InputLabel>
+                    </div>
+
+                    <div class="pt-6 mb-3 flex justify-between">
                         <div class="space-x-3">
                             <PrimaryButton 
                                 type="submit" 
@@ -97,11 +102,13 @@ const postForm = useForm({
     title: props.post.title,
     show_title: props.post.show_title,
     body: props.post.body,
+    show_signature: props.post.show_signature,
     source: props.post.source,
     concept: false,    
 })
 
 const updateShowTitle = (val) => postForm.show_title = val;
+const updateShowSignature = (val) => postForm.show_signature = val;
 
 const updatePostPreview = () => {
     const title = postForm.show_title 

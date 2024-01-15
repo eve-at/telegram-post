@@ -12,6 +12,10 @@ class Poll extends Model
 
     public $guarded = ['id'];
     
+    protected $casts = [
+        'show_signature' => 'boolean',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);    

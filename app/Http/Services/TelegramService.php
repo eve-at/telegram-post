@@ -2,8 +2,8 @@
 
 namespace App\Http\Services;
 
+use App\Http\Contracts\TelegramMessagable;
 use App\Models\Channel;
-use App\Models\Post;
 use Exception;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
@@ -16,47 +16,36 @@ class TelegramService
         $this->channelId = $concept ? env('TELEGRAM_CONCEPT_CHANNEL_ID') : env('TELEGRAM_CHANNEL_ID');
     }
 
-    public function sendMessage(Post $post) 
+    public function sendMessage(TelegramMessagable $messagable) 
     {
         $channel = Channel::first();
         if (! $channel) {
             throw new Exception('No channel found');
         }
-        $message = '';
-        
-        if ($post->show_title) {
-            $message .= "<b>$post->title</b>
-            
-";
-        }
-        
-        $message .= $post->body;
 
-        if ($post->source) {
-        $message .= "
-        
-<i>" . $post->source . "</i>";
-        }
-
-        $message .= "
-        
-" . $channel->signature;
-        
-        return Telegram::sendMessage([
-            'chat_id' => $this->channelId, //env('TELEGRAM_CHANNEL_ID'),
-            //'protect_content' => true,
-            //'disable_notification' => true,
+        //'protect_content' => true,
+        //'disable_notification' => true,
+        $message = [
             'parse_mode' => 'HTML',
-            'text' => $message,
-        ]);
+            'text' => '',
+            ...$messagable->message(),
+            'chat_id' => $this->channelId, //env('TELEGRAM_CHANNEL_ID'),
+        ];
+        
+        if ($messagable->showSignature()) {
+            $message['text'] .= (strlen($message['text']) > 0 ? PHP_EOL . PHP_EOL : '')
+                             . $channel->signature;
+        }
+        
+        return Telegram::sendMessage($message);
     }
 
-    public static function publish(Post $postable, $concept = false)
+    public static function publish(TelegramMessagable $messagable, $concept = false)
     {
-        //TODO: $postable must have an interface and have a common method to retrieve the $message body
-        $message = $postable;
-        
-        return (new self($concept))->sendMessage($message);
+        return match($messagable->type()) {
+            'Post' => (new self($concept))->sendMessage($messagable),
+            default => throw new Exception('Unsupported messagable class')
+        };
     }
     
 }
