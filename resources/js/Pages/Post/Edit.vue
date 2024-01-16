@@ -149,13 +149,11 @@ watch(
 const createPost = () => {
     if (props.post.id) { //update
         postForm.patch(route(props.toRoute, props.post.id), {
-            preserveScroll: true,
-            //onSuccess: () => postForm.reset(),
+            preserveScroll: true
         })
     } else { //create
         postForm.post(route(props.toRoute), {
-            preserveScroll: true,
-            //onSuccess: () => postForm.reset(),
+            preserveScroll: true
         })
     }
 }

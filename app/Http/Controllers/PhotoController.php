@@ -54,7 +54,7 @@ class PhotoController extends Controller
 
         if ($concept) {
             TelegramPhoto::make($photo, concept: true)->publish();
-            return to_route('photos.edit', $photo)
+            return to_route('photos.edit', $photo->id)
                         ->with('success', 'The photo was created and tested');
         }
 

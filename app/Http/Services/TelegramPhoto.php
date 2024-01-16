@@ -39,7 +39,7 @@ class TelegramPhoto implements TelegramPublishable
         return $response->message_id;
     }
 
-    protected function send()
+    protected function send(): TelegramMessage
     {
         return Telegram::sendPhoto([
             'chat_id' => $this->chat_id,
