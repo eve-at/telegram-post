@@ -11,7 +11,7 @@ use Telegram\Bot\Laravel\Facades\Telegram;
 use Telegram\Bot\Objects\InputMedia\InputMediaPhoto;
 use Telegram\Bot\Objects\InputMedia\InputMediaVideo;
 
-class TelegramMediaGroup //implements TelegramPublishable
+class TelegramMediaGroup implements TelegramPublishable
 {
     protected static $publishable;
     protected $chat_id;
@@ -34,16 +34,16 @@ class TelegramMediaGroup //implements TelegramPublishable
         return (new self($group, $concept));
     }
 
-    public function publish()//: int
+    public function publish(): array
     {
         $response = $this->send();
         
-        //$this->updateFiles($response);
+        $this->updateFiles($response);
 
-        return $response->message_id;
+        return $response->pluck('message_id')->toArray();
     }
 
-    protected function send()//: TelegramMessage
+    protected function send(): TelegramMessage
     {
         $this->filesToUpload = [];
 
@@ -125,17 +125,17 @@ class TelegramMediaGroup //implements TelegramPublishable
         return "attach://$media->filename";
     }
 
-    // response for MediaGroup Telegram\Bot\Objects\Message
+    // response for MediaGroup [Telegram\Bot\Objects\Message]
     // [
     //     {
     //         "message_id":75,
     //         "sender_chat":{
-    //             "id":-1002096298088,
+    //             "id":-100XXX,
     //             "title":"Concept testing",
     //             "type":"channel"
     //         },
     //         "chat":{
-    //             "id":-1002096298088,
+    //             "id":-100XXX,
     //             "title":"Concept testing",
     //             "type":"channel"
     //         },
@@ -170,12 +170,12 @@ class TelegramMediaGroup //implements TelegramPublishable
     //     {
     //         "message_id":76,
     //         "sender_chat":{
-    //             "id":-1002096298088,
+    //             "id":-100XXX,
     //             "title":"Concept testing",
     //             "type":"channel"
     //         },
     //         "chat":{
-    //             "id":-1002096298088,
+    //             "id":-100XXX,
     //             "title":"Concept testing",
     //             "type":"channel"
     //         },
@@ -205,12 +205,12 @@ class TelegramMediaGroup //implements TelegramPublishable
     //     },{
     //         "message_id":77,
     //         "sender_chat":{
-    //             "id":-1002096298088,
+    //             "id":-100XXX,
     //             "title":"Concept testing",
     //             "type":"channel"
     //         },
     //         "chat":{
-    //             "id":-1002096298088,
+    //             "id":-100XXX,
     //             "title":"Concept testing",
     //             "type":"channel"
     //         },
@@ -244,12 +244,12 @@ class TelegramMediaGroup //implements TelegramPublishable
     //     {
     //         "message_id":78,
     //         "sender_chat":{
-    //             "id":-1002096298088,
+    //             "id":-100XXX,
     //             "title":"Concept testing",
     //             "type":"channel"
     //         },
     //         "chat":{
-    //             "id":-1002096298088,
+    //             "id":-100XXX,
     //             "title":"Concept testing",
     //             "type":"channel"
     //         },
@@ -282,25 +282,30 @@ class TelegramMediaGroup //implements TelegramPublishable
     //     }
     // ]
 
-    protected function updateFiles(TelegramMessage $message)
+    protected function updateFiles(TelegramMessage $messages)
     {
-        // if ($this->reuse_file) {
-        //     return;
-        // }
-
-        // $this->group->file_id = $message->group->file_id;
-        // $this->group->file_unique_id = $message->group->file_unique_id;
-        // return $this->group->save();
+        $messages->each(
+            fn (array $message, int $index) => $this->updateFile($message, $this->group->filenames[$index])
+        );
     }
 
-    protected function updateFile(TelegramMessage $message)
+    protected function updateFile(array $message, MediaGroupFile $media)
     {
-        // if ($this->reuse_file) {
-        //     return;
-        // }
+        if ($media->file_id) {
+            return $media;
+        }
 
-        // $this->group->file_id = $message->group->file_id;
-        // $this->group->file_unique_id = $message->group->file_unique_id;
-        // return $this->group->save();
+        if ($media->type === 'video') {
+            $media->file_id = $message['video']['file_id'];
+            $media->file_unique_id = $message['video']['file_unique_id'];
+        } else if ($media->type === 'photo') {
+            $telegramPhoto = collect($message['photo'])->pop();
+            $media->file_id = $telegramPhoto['file_id'];
+            $media->file_unique_id = $telegramPhoto['file_unique_id'];
+        } else {
+            throw new Exception('Invalid type of Telegram Media');
+        }
+        
+        return $media->save();
     }
 }

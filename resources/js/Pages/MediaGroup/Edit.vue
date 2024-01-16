@@ -218,13 +218,11 @@ const filepondInitialized = () => {
 const createGroup = () => {
     if (props.group.id) { //update
         groupForm.patch(route(props.toRoute, props.group.id), {
-            preserveScroll: true,
-            onSuccess: () => groupForm.reset(),
+            preserveScroll: true
         })
     } else { //create
         groupForm.post(route(props.toRoute), {
-            preserveScroll: true,
-            onSuccess: () => groupForm.reset(),
+            preserveScroll: true
         })
     }
 }

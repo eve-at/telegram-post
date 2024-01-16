@@ -30,13 +30,13 @@ class TelegramPhoto implements TelegramPublishable
         return (new self($photo, $concept));
     }
 
-    public function publish(): int
+    public function publish(): array
     {
         $response = $this->send();
         
         $this->updateFile($response);
 
-        return $response->message_id;
+        return [$response->message_id];
     }
 
     protected function send(): TelegramMessage
@@ -111,7 +111,7 @@ class TelegramPhoto implements TelegramPublishable
     protected function updateFile(TelegramMessage $message)
     {
         if ($this->reuse_file) {
-            return;
+            return $this->photo;
         }
 
         $telegramPhoto = collect($message->photo)->pop();

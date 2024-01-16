@@ -30,13 +30,13 @@ class TelegramVideo implements TelegramPublishable
         return (new self($video, $concept));
     }
 
-    public function publish(): int
+    public function publish(): array
     {
         $response = $this->send();
         
         $this->updateFile($response);
 
-        return $response->message_id;
+        return [$response->message_id];
     }
 
     protected function send(): TelegramMessage

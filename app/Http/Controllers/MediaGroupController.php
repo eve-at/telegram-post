@@ -64,7 +64,8 @@ class MediaGroupController extends Controller
 
         if ($concept) {
             TelegramMediaGroup::make($media, concept: true)->publish();
-            return back()->with('success', 'The Media Group was updated and tested');
+            return to_route('medias.edit', $media->id)
+                        ->with('success', 'The Media Group was created and tested');
         }
 
         return to_route('medias.index')->with('success', 'The Media Group was created');
@@ -172,7 +173,7 @@ class MediaGroupController extends Controller
             });
 
         if ($concept) {
-            return TelegramMediaGroup::make($media, concept: true)->publish();
+            TelegramMediaGroup::make(MediaGroup::find($media->id), concept: true)->publish();
             return back()->with('success', 'The Media Group was updated and tested');
         }
 

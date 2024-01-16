@@ -13,5 +13,5 @@ interface TelegramPublishable
     // Type declaration for interfaces is supported from PHP 8.3
     // @see https://www.php.net/manual/en/language.types.declarations.php#language.types.declarations.union
     // public static function make(Post|Poll|Photo|Video|MediaGroup $object): TelegramMessagable;    
-    public function publish(): int;  
+    public function publish(): array;  
 }

@@ -30,9 +30,9 @@ class TelegramPost implements TelegramPublishable
         return (new self($post, $concept));
     }
 
-    public function publish(): int
+    public function publish(): array
     {
-        return $this->send()->message_id;
+        return [$this->send()->message_id];
     }
 
     protected function send(): TelegramMessage
