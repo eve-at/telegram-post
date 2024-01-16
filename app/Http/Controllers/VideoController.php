@@ -114,6 +114,12 @@ class VideoController extends Controller
         $concept = $data['concept'] ?? false;
 
         $oldFilename = $video->filename;
+
+        if ($data['filename'] !== $oldFilename) {
+            $data['file_id'] = null;
+            $data['file_unique_id'] = null;
+        }
+
         $video->update($data);
 
         if ($data['filename'] !== $oldFilename) {

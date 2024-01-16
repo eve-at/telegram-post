@@ -41,7 +41,7 @@ class TelegramVideo implements TelegramPublishable
 
     protected function send(): TelegramMessage
     {
-        return Telegram::sendvideo([
+        return Telegram::sendVideo([
             'chat_id' => $this->chat_id,
             'caption' => $this->caption(),
             'parse_mode' => 'HTML',
