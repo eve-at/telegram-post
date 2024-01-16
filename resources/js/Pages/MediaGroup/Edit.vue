@@ -161,6 +161,7 @@ const groupForm = useForm({
     show_signature: props.group.show_signature,
     filenames: props.group.filenames,
     filepaths: props.group.filepaths,
+    concept: false,    
 })
 
 let filepathsInitial = [];

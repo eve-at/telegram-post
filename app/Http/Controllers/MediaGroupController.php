@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\MediaGroupResource;
+use App\Http\Services\TelegramMediaGroup;
 use App\Models\Channel;
 use App\Models\MediaGroup;
 use App\Models\MediaGroupFile;
@@ -10,7 +11,6 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
-use PhpParser\Node\Expr\FuncCall;
 
 class MediaGroupController extends Controller
 {
@@ -41,12 +41,15 @@ class MediaGroupController extends Controller
             'show_title' => ['boolean'],
             'show_signature' => ['boolean'],
             'source' => ['max:190'],
+            'concept' => ['boolean'],
         ]);
 
-        $group = MediaGroup::make($data);
-        $group->user()->associate($request->user());
-        $group->channel()->associate(Channel::first());
-        $group->save();
+        $concept = $data['concept'] ?? false;
+
+        $media = MediaGroup::make($data);
+        $media->user()->associate($request->user());
+        $media->channel()->associate(Channel::first());
+        $media->save();
 
         foreach($data['filenames'] as $index=>$filename) {
             Storage::move('public/tmp/' . $filename, 'public/medias/' . $filename);
@@ -55,11 +58,16 @@ class MediaGroupController extends Controller
             $file->filename = $filename;
             $file->order = $index;
             $file->type = str_ends_with($filename, '.mp4') ? 'video' : 'photo';
-            $file->media_group_id = $group->id;
+            $file->media_group_id = $media->id;
             $file->save();
         }
 
-        return to_route('medias.index')->with('success', 'The media group was created');
+        if ($concept) {
+            TelegramMediaGroup::make($media, concept: true)->publish();
+            return back()->with('success', 'The Media Group was updated and tested');
+        }
+
+        return to_route('medias.index')->with('success', 'The Media Group was created');
     }
 
     public function upload(Request $request)
@@ -121,10 +129,13 @@ class MediaGroupController extends Controller
             'show_title' => ['boolean'],
             'show_signature' => ['boolean'],
             'source' => ['max:190'],
+            'concept' => ['boolean'],
         ]);
 
-        $media->update(collect($data)->except('filenames')->toArray());
+        $concept = $data['concept'] ?? false;
 
+        $media->update(collect($data)->except('filenames')->toArray());
+        
         $filesBefore = $media->filenames->pluck('filename');
         $filesAfter = collect($data['filenames']);
 
@@ -159,6 +170,11 @@ class MediaGroupController extends Controller
                     ->where('media_group_id', $media->id)
                     ->update(['order' => $order]);
             });
+
+        if ($concept) {
+            return TelegramMediaGroup::make($media, concept: true)->publish();
+            return back()->with('success', 'The Media Group was updated and tested');
+        }
 
         return to_route('medias.index')->with('success', 'The media group was updated');
     }
