@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PhotoResource;
+use App\Http\Services\TelegramPhoto;
 use App\Models\Channel;
 use App\Models\Photo;
 use Exception;
@@ -38,7 +39,10 @@ class PhotoController extends Controller
             'show_signature' => ['boolean'],
             'body' => ['max:1024'],
             'source' => ['max:190'],
+            'concept' => ['boolean'],
         ]);
+
+        $concept = $data['concept'] ?? false;
 
         Storage::move('public/tmp/' . $data['filename'], 'public/medias/' . $data['filename']);
 
@@ -47,6 +51,12 @@ class PhotoController extends Controller
         $photo->channel()->associate(Channel::first());
 
         $photo->save();
+
+        if ($concept) {
+            TelegramPhoto::make($photo, concept: true)->publish();
+            return to_route('photos.edit', $photo)
+                        ->with('success', 'The photo was created and tested');
+        }
 
         return to_route('photos.index')->with('success', 'The photo was created');
     }
@@ -101,14 +111,28 @@ class PhotoController extends Controller
             'show_signature' => ['boolean'],
             'body' => ['required', 'max:1024'],
             'source' => ['max:190'],
+            'concept' => ['boolean'],
         ]);
 
+        $concept = $data['concept'] ?? false;
+
         $oldFilename = $photo->filename;
+
+        if ($data['filename'] !== $oldFilename) {
+            $data['file_id'] = null;
+            $data['file_unique_id'] = null;
+        }
+
         $photo->update($data);
 
         if ($data['filename'] !== $oldFilename) {
             Storage::delete('public/medias/' . $oldFilename);
             Storage::move('public/tmp/' . $data['filename'], 'public/medias/' . $data['filename']);
+        }
+
+        if ($concept) {
+            TelegramPhoto::make($photo, concept: true)->publish();
+            return back()->with('success', 'The photo was updated and tested');
         }
 
         return to_route('photos.index')->with('success', 'The photo was updated');

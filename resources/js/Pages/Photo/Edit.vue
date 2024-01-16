@@ -200,13 +200,11 @@ const updateFilepaths = (init = false) => {
 const createPhoto = () => {
     if (props.photo.id) { //update
         photoForm.patch(route(props.toRoute, props.photo.id), {
-            preserveScroll: true,
-            onSuccess: () => photoForm.reset(),
+            preserveScroll: true
         })
     } else { //create
         photoForm.post(route(props.toRoute), {
-            preserveScroll: true,
-            onSuccess: () => photoForm.reset(),
+            preserveScroll: true
         })
     }
 }
@@ -223,7 +221,6 @@ const handleProcessedFile = (error, file) => {
         return;
     }
     
-    photoUpdated = true;
     photoForm.filename = file.serverId;
     updateFilepaths();
 }
@@ -233,7 +230,7 @@ const handleRemoveFile = (error, file) => {
         console.error('Filepond Remove File', error);
         return;
     }
-    photoUpdated = false;
+    
     photoForm.filename = null;
     updateFilepaths();
 }
