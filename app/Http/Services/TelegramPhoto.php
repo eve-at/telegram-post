@@ -78,18 +78,21 @@ class TelegramPhoto implements TelegramPublishable
             return $this->photo->file_id;
         }
 
-        return InputFile::create(storage_path('app\\public\\medias\\' . $this->photo->filename), $this->photo->filename);
+        return InputFile::create(
+            storage_path('app\\public\\medias\\' . $this->photo->filename), 
+            $this->photo->filename
+        );
     }
     // response for Photo Telegram\Bot\Objects\Message
     // {
     //     "message_id":51,
     //     "sender_chat":{
-    //         "id":-1002096298088,
+    //         "id":-100XXX,
     //         "title":"Concept testing",
     //         "type":"channel"
     //     },
     //     "chat":{
-    //         "id":-1002096298088,
+    //         "id":-100XXX,
     //         "title":"Concept testing",
     //         "type":"channel"
     //     },

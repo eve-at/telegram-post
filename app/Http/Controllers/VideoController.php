@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\VideoResource;
+use App\Http\Services\TelegramVideo;
 use App\Models\Channel;
 use App\Models\Video;
 use Exception;
@@ -38,7 +39,10 @@ class VideoController extends Controller
             'show_signature' => ['boolean'],
             'body' => ['max:1024'],
             'source' => ['max:190'],
+            'concept' => ['boolean'],
         ]);
+
+        $concept = $data['concept'] ?? false;
 
         Storage::move('public/tmp/' . $data['filename'], 'public/medias/' . $data['filename']);
 
@@ -47,6 +51,12 @@ class VideoController extends Controller
         $video->channel()->associate(Channel::first());
 
         $video->save();
+
+        if ($concept) {
+            TelegramVideo::make($video, concept: true)->publish();
+            return to_route('videos.edit', $video->id)
+                        ->with('success', 'The video was created and tested');
+        }
 
         return to_route('videos.index')->with('success', 'The video was created');
     }
@@ -98,7 +108,10 @@ class VideoController extends Controller
             'show_signature' => ['boolean'],
             'body' => ['required', 'max:1024'],
             'source' => ['max:190'],
+            'concept' => ['boolean'],
         ]);
+
+        $concept = $data['concept'] ?? false;
 
         $oldFilename = $video->filename;
         $video->update($data);
@@ -106,6 +119,12 @@ class VideoController extends Controller
         if ($data['filename'] !== $oldFilename) {
             Storage::delete('public/medias/' . $oldFilename);
             Storage::move('public/tmp/' . $data['filename'], 'public/medias/' . $data['filename']);
+        }
+
+        if ($concept) {
+            TelegramVideo::make($video, concept: true)->publish();
+            return to_route('videos.edit', $video->id)
+                        ->with('success', 'The video was updated and tested');
         }
 
         return to_route('videos.index')->with('success', 'The video was updated');

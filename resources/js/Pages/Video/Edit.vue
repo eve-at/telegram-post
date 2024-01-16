@@ -198,13 +198,11 @@ const updateFilepaths = (init = false) => {
 const createVideo = () => {
     if (props.video.id) { //update
         videoForm.patch(route(props.toRoute, props.video.id), {
-            preserveScroll: true,
-            onSuccess: () => videoForm.reset(),
+            preserveScroll: true
         })
     } else { //create
         videoForm.post(route(props.toRoute), {
-            preserveScroll: true,
-            onSuccess: () => videoForm.reset(),
+            preserveScroll: true
         })
     }
 }
@@ -255,7 +253,7 @@ const onFormConcept = () => {
         return;
     }
     videoForm.concept = true;
-    createPhoto();
+    createVideo();
     videoForm.concept = false;
 }
 </script>
