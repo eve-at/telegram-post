@@ -21,7 +21,8 @@ class PollResource extends JsonResource
             'options' => $this->options ?? [],
             'explanation' => $this->explanation ?? '',
             'answer' => $this->correct_option_id ?? 0,
-            'show_signature' => $this->show_signature ?? false,
+            //'show_signature' => $this->show_signature ?? false,
+            'is_anonymous' => $this->is_anonymous ?? true,
             'created_at' => $this->created_at ?? now(),
             'user' => UserResource::make($this->user),
         ];

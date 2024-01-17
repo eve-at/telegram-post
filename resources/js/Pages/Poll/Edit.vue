@@ -31,6 +31,11 @@
                         <InputError :message="pollForm.errors.type" />
                     </div>
 
+                    <!-- <div class="mb-3 flex space-x-2">
+                        <Checkbox id="is_anonymous" :checked="pollForm.is_anonymous" @update:checked="updateIsAnonymous"/>
+                        <InputLabel class="ml-2 cursor-pointer" for="is_anonymous">Anonymous</InputLabel>
+                    </div> -->
+
                     <div class="mb-3">
                         <InputLabel for="options">Options* (2-10 options)</InputLabel>
                         <draggable v-model="pollForm.options" item-key="id" @end="onDragEnd">
@@ -143,7 +148,7 @@ import draggable from 'vuedraggable';
 import Modal from '@/Components/Modal.vue'
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, onMounted, watch } from 'vue';
-import Checkbox from '@/Components/Checkbox.vue';
+//import Checkbox from '@/Components/Checkbox.vue';
 
 const props = defineProps({
     poll: {
@@ -180,11 +185,13 @@ const pollForm = useForm({
     options: props.poll.options,
     answer: props.poll.answer,
     explanation: props.poll.explanation,
-    show_signature: false, //props.poll.show_signature,
+    //show_signature: props.poll.show_signature,
+    is_anonymous: props.poll.is_anonymous, // non-anonymous polls can't be sent to channel chats
     concept: false,  
 });
 
-const updateShowSignature = (val) => pollForm.show_signature = val;
+//const updateShowSignature = (val) => pollForm.show_signature = val;
+//const updateIsAnonymous = (val) => pollForm.is_anonymous = val;
 
 const updatePreview = () => {
     const explantion = pollForm.explanation.length 
@@ -194,11 +201,13 @@ const updatePreview = () => {
         ? '<ul class="space-y-1 text-sm pl-2"><li><input class="mr-2" type="radio" name="previewOption" />' + pollForm.options.join('</li><li><input class="mr-2" type="radio" name="previewOption" />') + '</li></ul>' 
         : '<span class="italic text-gray-400 p-2">< There is no options so far ><span>';
 
+    const anonymous = pollForm.is_anonymous ? '<span class="text-gray-600">Anonymous Poll</span><br />' : '';
+
     preview.value = 
         `<div class="relative">
             <span class="text-base text-bold block mr-8">${pollForm.title}</span>
             ${explantion}
-            <span class="text-gray-600">Anonymous Poll</span><br />
+            ${anonymous}
             <br />
             ${poll}<br />
         </div>`;

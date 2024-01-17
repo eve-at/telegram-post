@@ -13,7 +13,8 @@ class Poll extends Model
     public $guarded = ['id'];
     
     protected $casts = [
-        'show_signature' => 'boolean',
+        //'show_signature' => 'boolean',
+        'is_anonymous' => 'boolean',
     ];
 
     public function user()

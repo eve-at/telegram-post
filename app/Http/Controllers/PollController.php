@@ -57,7 +57,8 @@ class PollController extends Controller
             'options.*' => ['required', 'max:50'], // max 50 symbols per option
             'answer' => ['required', 'min:0', "max:$maxAnswerIndex"],
             'explanation' => ['max:190'],
-            'show_signature' => ['boolean'],
+            //'show_signature' => ['boolean'],
+            //'show_signature' => ['boolean'], // non-anonymous polls can't be sent to channel chats
             'concept' => ['boolean'],
         ]);
 
@@ -66,7 +67,9 @@ class PollController extends Controller
         $data['correct_option_id'] = $data['answer'];
         unset($data['answer']);
         
+        $data['is_anonymous'] = true; //
         $poll = Poll::make($data);
+        
         $poll->user()->associate($request->user());
         $poll->channel()->associate(Channel::first());
         $poll->save();
@@ -115,7 +118,8 @@ class PollController extends Controller
             'options.*' => ['required', 'max:50'], // max 50 symbols per option
             'answer' => ['required', 'min:0', "max:$maxAnswerIndex"],
             'explanation' => ['max:190'],
-            'show_signature' => ['boolean'],
+            //'show_signature' => ['boolean'], // non-anonymous polls can't be sent to channel chats
+            'is_anonymous' => ['boolean'],
             'concept' => ['boolean'],
         ]);
 
@@ -123,6 +127,8 @@ class PollController extends Controller
 
         $data['correct_option_id'] = $data['answer'];
         unset($data['answer']);
+
+        $data['is_anonymous'] = true;
         $poll->update($data);
 
         if ($concept) {

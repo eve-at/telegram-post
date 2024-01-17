@@ -48,7 +48,7 @@ class TelegramPoll// implements TelegramPublishable
             'options' => $this->poll->options,
             'explanation' => $this->poll->explanation,
             'correct_option_id' => $this->poll->correct_option_id,
-            'is_anonymous' => true,
+            'is_anonymous' => $this->poll->is_anonymous,
         ]);
     }
 

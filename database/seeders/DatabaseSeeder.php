@@ -59,5 +59,7 @@ class DatabaseSeeder extends Seeder
                 ]);
             });
         });
+
+        Channel::factory(9)->create();
     }
 }
