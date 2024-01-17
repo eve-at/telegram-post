@@ -108,10 +108,10 @@
                         <InputError :message="pollForm.errors.explanation" />
                     </div>
 
-                    <div class="mb-3 flex space-x-2">
+                    <!-- <div class="mb-3 flex space-x-2">
                         <Checkbox id="show_signature" :checked="pollForm.show_signature" @update:checked="updateShowSignature"/>
                         <InputLabel class="ml-2 cursor-pointer" for="show_signature">Show Channel signature</InputLabel>
-                    </div>
+                    </div> -->
                 </form>
             </template>
         </LayoutContent>
@@ -180,7 +180,8 @@ const pollForm = useForm({
     options: props.poll.options,
     answer: props.poll.answer,
     explanation: props.poll.explanation,
-    show_signature: props.poll.show_signature,
+    show_signature: false, //props.poll.show_signature,
+    concept: false,  
 });
 
 const updateShowSignature = (val) => pollForm.show_signature = val;

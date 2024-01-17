@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PollResource;
+use App\Http\Services\TelegramPoll;
 use App\Models\Channel;
 use App\Models\Poll;
 use Illuminate\Http\Request;
@@ -57,7 +58,10 @@ class PollController extends Controller
             'answer' => ['required', 'min:0', "max:$maxAnswerIndex"],
             'explanation' => ['max:190'],
             'show_signature' => ['boolean'],
+            'concept' => ['boolean'],
         ]);
+
+        $concept = $data['concept'] ?? false;
 
         $data['correct_option_id'] = $data['answer'];
         unset($data['answer']);
@@ -67,7 +71,13 @@ class PollController extends Controller
         $poll->channel()->associate(Channel::first());
         $poll->save();
 
-        return to_route('polls.index')->with('success', 'The poll was updated');
+        if ($concept) {
+            TelegramPoll::make($poll, concept: true)->publish();
+            return to_route('polls.edit', $poll->id)
+                        ->with('success', 'The poll was created and tested');
+        }
+
+        return to_route('polls.index')->with('success', 'The poll was created');
     }
 
     /**
@@ -106,11 +116,20 @@ class PollController extends Controller
             'answer' => ['required', 'min:0', "max:$maxAnswerIndex"],
             'explanation' => ['max:190'],
             'show_signature' => ['boolean'],
+            'concept' => ['boolean'],
         ]);
+
+        $concept = $data['concept'] ?? false;
 
         $data['correct_option_id'] = $data['answer'];
         unset($data['answer']);
         $poll->update($data);
+
+        if ($concept) {
+            return TelegramPoll::make($poll, concept: true)->publish();
+            return to_route('polls.edit', $poll->id)
+                        ->with('success', 'The poll was updated and tested');
+        }
 
         return to_route('polls.index')->with('success', 'The poll was updated');
     }
