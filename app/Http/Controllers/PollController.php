@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\PollResource;
 use App\Http\Services\TelegramPoll;
-use App\Models\Channel;
 use App\Models\Poll;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -18,7 +17,11 @@ class PollController extends Controller
     public function index()
     {
         return Inertia::render('Poll/Index', [
-            'polls' => PollResource::collection(Poll::orderBy('created_at', 'DESC')->paginate())
+            'polls' => PollResource::collection(
+                Poll::where('channel_id', session('channel.id'))
+                    ->orderBy('created_at', 'DESC')
+                    ->paginate()
+            )
         ]);
     }
 
@@ -69,9 +72,8 @@ class PollController extends Controller
         
         $data['is_anonymous'] = true; //
         $poll = Poll::make($data);
-        
         $poll->user()->associate($request->user());
-        $poll->channel()->associate(Channel::first());
+        $poll->channel()->associate(session('channel.id'));
         $poll->save();
 
         if ($concept) {
@@ -132,7 +134,7 @@ class PollController extends Controller
         $poll->update($data);
 
         if ($concept) {
-            return TelegramPoll::make($poll, concept: true)->publish();
+            TelegramPoll::make($poll, concept: true)->publish();
             return to_route('polls.edit', $poll->id)
                         ->with('success', 'The poll was updated and tested');
         }

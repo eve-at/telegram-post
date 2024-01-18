@@ -8,6 +8,7 @@ use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\PollController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SessionChannelController;
 use App\Http\Controllers\VideoController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -41,7 +42,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
 
     Route::resource('channels', ChannelController::class)->except(['show']);
-
+    Route::patch('/session_channel/{channel}/update', [SessionChannelController::class, 'update'])->name('session_channel.update');
+    
     Route::resource('posts', PostController::class)->except(['show']);
     
     Route::post('/photos/upload', [PhotoController::class, 'upload'])->name('photos.upload');

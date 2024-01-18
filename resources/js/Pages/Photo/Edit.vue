@@ -119,7 +119,7 @@ import TextArea from '@/Components/TextArea.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import LayoutContent from '@/Components/LayoutContent.vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
+import { Head, useForm, router, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, watch } from 'vue';
 
 const props = defineProps({
@@ -187,13 +187,13 @@ watch(
 const updateFilepaths = (init = false) => {
     if (init) {
         filepathInitial = photoForm.filename;
-        filepathInitial && filepaths.value.push('/storage/medias/' + photoForm.filename);
+        filepathInitial && filepaths.value.push('/storage/medias/' + usePage().props.channel.id + '/' + photoForm.filename);
         return;
     }
     
     filepaths.value = [];
     if (photoForm.filename) {
-        filepaths.value.push((filepathInitial.indexOf(photoForm.filename) >=0 ? '/storage/medias/' : '/storage/tmp/') + photoForm.filename);
+        filepaths.value.push((filepathInitial.indexOf(photoForm.filename) >=0 ? '/storage/medias/' + usePage().props.channel.id + '/' : '/storage/tmp/') + photoForm.filename);
     }
 }
 

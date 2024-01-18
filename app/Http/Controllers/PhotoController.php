@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\PhotoResource;
 use App\Http\Services\TelegramPhoto;
-use App\Models\Channel;
 use App\Models\Photo;
 use Exception;
 use Illuminate\Http\Request;
@@ -16,7 +15,11 @@ class PhotoController extends Controller
     public function index()
     {
         return Inertia::render('Photo/Index', [
-            'photos' => PhotoResource::collection(Photo::orderBy('created_at', 'DESC')->paginate())
+            'photos' => PhotoResource::collection(
+                Photo::where('channel_id', session('channel.id'))
+                    ->orderBy('created_at', 'DESC')
+                    ->paginate()
+            )
         ]);
     }
 
@@ -44,12 +47,15 @@ class PhotoController extends Controller
 
         $concept = $data['concept'] ?? false;
 
-        Storage::move('public/tmp/' . $data['filename'], 'public/medias/' . $data['filename']);
+        Storage::move(
+            'public/tmp/' . $data['filename'], 
+            'public/medias/' . session('channel.id') . '/' . $data['filename']
+        );
 
         $photo = Photo::make($data);
         $photo->user()->associate($request->user());
-        $photo->channel()->associate(Channel::first());
-
+        $photo->channel()->associate(session('channel.id'));
+        
         $photo->save();
 
         if ($concept) {
@@ -126,8 +132,11 @@ class PhotoController extends Controller
         $photo->update($data);
 
         if ($data['filename'] !== $oldFilename) {
-            Storage::delete('public/medias/' . $oldFilename);
-            Storage::move('public/tmp/' . $data['filename'], 'public/medias/' . $data['filename']);
+            Storage::delete('public/medias/' . session('channel.id') . '/' . $oldFilename);
+            Storage::move(
+                'public/tmp/' . $data['filename'], 
+                'public/medias/' . session('channel.id') . '/' . $data['filename']
+            );
         }
 
         if ($concept) {
@@ -140,7 +149,7 @@ class PhotoController extends Controller
 
     public function destroy(Photo $photo)
     {
-        Storage::delete('public/medias/' . $photo->filename);
+        Storage::delete('public/medias/' . session('channel.id') . '/' . $photo->filename);
         $photo->delete();
 
         return to_route('photos.index')->with('success', 'The photo was deleted');

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\MediaGroupResource;
 use App\Http\Services\TelegramMediaGroup;
-use App\Models\Channel;
 use App\Models\MediaGroup;
 use App\Models\MediaGroupFile;
 use Exception;
@@ -17,7 +16,11 @@ class MediaGroupController extends Controller
     public function index()
     {
         return Inertia::render('MediaGroup/Index', [
-            'medias' => MediaGroupResource::collection(MediaGroup::orderBy('created_at', 'DESC')->paginate())
+            'medias' => MediaGroupResource::collection(
+                MediaGroup::where('channel_id', session('channel.id'))
+                    ->orderBy('created_at', 'DESC')
+                    ->paginate()
+            )
         ]);
     }
 
@@ -48,11 +51,14 @@ class MediaGroupController extends Controller
 
         $media = MediaGroup::make($data);
         $media->user()->associate($request->user());
-        $media->channel()->associate(Channel::first());
+        $media->channel()->associate(session('channel.id'));
         $media->save();
 
         foreach($data['filenames'] as $index=>$filename) {
-            Storage::move('public/tmp/' . $filename, 'public/medias/' . $filename);
+            Storage::move(
+                'public/tmp/' . $filename, 
+                'public/medias/' . session('channel.id') . '/' . $filename
+            );
 
             $file = new MediaGroupFile;
             $file->filename = $filename;
@@ -146,7 +152,7 @@ class MediaGroupController extends Controller
                 ->where('media_group_id', $media->id)
                 ->delete();
 
-            Storage::delete($filesDeleted->map(fn ($filename) => 'public/medias/' . $filename)->toArray());
+            Storage::delete($filesDeleted->map(fn ($filename) => 'public/medias/' . session('channel.id') . '/' . $filename)->toArray());
         }
 
         // move new files (disk, and add into DB)
@@ -160,7 +166,10 @@ class MediaGroupController extends Controller
             $file->save();
 
             // TODO: queue it
-            Storage::move('public/tmp/' . $filename, 'public/medias/' . $filename);
+            Storage::move(
+                'public/tmp/' . $filename, 
+                'public/medias/' . session('channel.id') . '/' . $filename
+            );
         });
 
         // reorder old files in DB
@@ -186,7 +195,7 @@ class MediaGroupController extends Controller
 
         $media->delete();
 
-        Storage::delete($files->map(fn ($filename) => 'public/medias/' . $filename)->toArray());
+        Storage::delete($files->map(fn ($filename) => 'public/medias/' . session('channel.id') . '/' . $filename)->toArray());
 
         return to_route('medias.index')->with('success', 'The media group was deleted');
     }

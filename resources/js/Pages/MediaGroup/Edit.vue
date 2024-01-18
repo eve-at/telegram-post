@@ -74,13 +74,24 @@
 </template>
 
 <script>
+
+</script>
+
+<script setup>
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import TextArea from '@/Components/TextArea.vue';
+import TextInput from '@/Components/TextInput.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import LayoutContent from '@/Components/LayoutContent.vue';
+import Checkbox from '@/Components/Checkbox.vue';
 import vueFilePond, { setOptions } from 'vue-filepond';
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import 'filepond/dist/filepond.min.css';
 //import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 //import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
-import { watch } from 'vue';
-import Checkbox from '@/Components/Checkbox.vue';
+import { Head, useForm, router, usePage } from '@inertiajs/vue3';
+import { ref, onMounted, watch } from 'vue';
 
 let serverMessage = {};
 
@@ -107,7 +118,7 @@ setOptions({
         },
 
         //preload existed files
-        load: '/storage/medias/',
+        load: '/storage/medias/' + usePage().props.channel.id + '/',
     },
     labelFileProcessingError: () => {
         return serverMessage.error;
@@ -116,22 +127,6 @@ setOptions({
 
 //const FilePond = vueFilePond(FilePondPluginFileValidateType, FilePondPluginImagePreview);
 const FilePond = vueFilePond(FilePondPluginFileValidateType);
-export default {
-    components: {
-        FilePond
-    },
-}
-</script>
-
-<script setup>
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import TextArea from '@/Components/TextArea.vue';
-import TextInput from '@/Components/TextInput.vue';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import LayoutContent from '@/Components/LayoutContent.vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, onMounted, watch } from 'vue';
 
 const props = defineProps({
     title: {
@@ -199,14 +194,16 @@ const updateFilepaths = (init = false) => {
     if (init) {
         groupForm.filenames.length && groupForm.filenames.forEach(filename => {
             filepathsInitial.push(filename);
-            filepaths.value.push('/storage/medias/' + filename);
+            filepaths.value.push('/storage/medias/' + usePage().props.channel.id + '/' + filename);
         });
         return;
     }
 
     filepaths.value = [];
     groupForm.filenames.forEach(filename => {
-        let path = filepathsInitial.indexOf(filename) >=0 ? '/storage/medias/' : '/storage/tmp/';
+        let path = filepathsInitial.indexOf(filename) >=0 
+            ? '/storage/medias/' + usePage().props.channel.id + '/' 
+            : '/storage/tmp/';
         filepaths.value.push(path + filename);
     });
 }

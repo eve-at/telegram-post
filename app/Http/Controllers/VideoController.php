@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\VideoResource;
 use App\Http\Services\TelegramVideo;
-use App\Models\Channel;
 use App\Models\Video;
 use Exception;
 use Illuminate\Http\Request;
@@ -16,7 +15,11 @@ class VideoController extends Controller
     public function index()
     {
         return Inertia::render('Video/Index', [
-            'videos' => VideoResource::collection(Video::orderBy('created_at', 'DESC')->paginate())
+            'videos' => VideoResource::collection(
+                Video::where('channel_id', session('channel.id'))
+                    ->orderBy('created_at', 'DESC')
+                    ->paginate()
+            )
         ]);
     }
 
@@ -44,11 +47,14 @@ class VideoController extends Controller
 
         $concept = $data['concept'] ?? false;
 
-        Storage::move('public/tmp/' . $data['filename'], 'public/medias/' . $data['filename']);
+        Storage::move(
+            'public/tmp/' . $data['filename'],
+            'public/medias/' . session('channel.id') . '/' . $data['filename']
+        );
 
         $video = Video::make($data);
         $video->user()->associate($request->user());
-        $video->channel()->associate(Channel::first());
+        $video->channel()->associate(session('channel.id'));
 
         $video->save();
 
@@ -106,7 +112,7 @@ class VideoController extends Controller
             'filename' => ['required', 'max:190'],
             'show_title' => ['boolean'],
             'show_signature' => ['boolean'],
-            'body' => ['required', 'max:1024'],
+            'body' => ['max:1024'],
             'source' => ['max:190'],
             'concept' => ['boolean'],
         ]);
@@ -123,8 +129,11 @@ class VideoController extends Controller
         $video->update($data);
 
         if ($data['filename'] !== $oldFilename) {
-            Storage::delete('public/medias/' . $oldFilename);
-            Storage::move('public/tmp/' . $data['filename'], 'public/medias/' . $data['filename']);
+            Storage::delete('public/medias/' . session('channel.id') . '/' . $oldFilename);
+            Storage::move(
+                'public/tmp/' . $data['filename'], 
+                'public/medias/' . session('channel.id') . '/' . $data['filename']
+            );
         }
 
         if ($concept) {
@@ -138,7 +147,7 @@ class VideoController extends Controller
 
     public function destroy(Video $video)
     {
-        Storage::delete('public/medias/' . $video->filename);
+        Storage::delete('public/medias/' . session('channel.id') . '/' . $video->filename);
         $video->delete();
 
         return to_route('videos.index')->with('success', 'The video was deleted');

@@ -79,7 +79,7 @@ class TelegramPhoto implements TelegramPublishable
         }
 
         return InputFile::create(
-            storage_path('app\\public\\medias\\' . $this->photo->filename), 
+            storage_path('app\\public\\medias\\' . session('channel.id') . '\\' . $this->photo->filename), 
             $this->photo->filename
         );
     }

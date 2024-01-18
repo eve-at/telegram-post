@@ -9,45 +9,47 @@
 
         <div class="mx-auto w-10/12 flex overflow-hidden flex-col">
             <div class="border bg-white border-gray-300 rounded-xl m-2 divide-y divide-solid overflow-hidden">
-                <div class="flex w-full bg-gray-100">
-                    <div class="w-8/12 py-3 px-2">Title</div>
-                    <div class="w-2/12 py-2 px-2">Created at</div>
-                    <div class="w-2/12 py-2 px-2">Options</div>
-                </div>
-                <div v-if="!posts.data" class="p-3">There is no posts so far</div>
-                <div 
-                    v-for="post in posts.data"
-                    :key="post.id"
-                    class="flex w-full hover:bg-gray-100"
-                >
-                    <div class="w-8/12 ">
-                        <Link 
-                            :href="`/posts/${post.id}/edit`" 
-                            v-text="post.title"
-                            class="block hover:underline hover:text-blue-600 px-3 py-2"
-                        ></Link>
+                <div v-if="!posts.data.length" class="p-3 italic">There is no posts so far</div>
+                <div v-if="posts.data.length">
+                    <div class="flex w-full bg-gray-100">
+                        <div class="w-8/12 py-3 px-2">Title</div>
+                        <div class="w-2/12 py-2 px-2">Created at</div>
+                        <div class="w-2/12 py-2 px-2">Options</div>
                     </div>
+                    <div v-if="!posts.data" class="p-3">There is no posts so far</div>
                     <div 
-                        class="w-2/12 px-2 py-2"
-                        v-text="formateDate(post.created_at)"                        
-                    ></div>
-                    <div class="w-2/12 px-2 py-2 space-x-2">
-                        <Link 
-                            class="hover:underline hover:text-blue-600"
-                            :href="`/posts/${post.id}/edit`" 
-                            text="Edit"
-                        ></Link>
-                        <Link 
-                            :href="route('posts.destroy', post.id)" 
-                            method="delete"
-                            as="button"
-                            :onBefore="() => confirm('Are you sure?')"
-                            class="hover:underline hover:text-blue-600"
-                        >Delete</Link>
+                        v-for="post in posts.data"
+                        :key="post.id"
+                        class="flex w-full hover:bg-gray-100"
+                    >
+                        <div class="w-8/12 ">
+                            <Link 
+                                :href="`/posts/${post.id}/edit`" 
+                                v-text="post.title"
+                                class="block hover:underline hover:text-blue-600 px-3 py-2"
+                            ></Link>
+                        </div>
+                        <div 
+                            class="w-2/12 px-2 py-2"
+                            v-text="formateDate(post.created_at)"                        
+                        ></div>
+                        <div class="w-2/12 px-2 py-2 space-x-2">
+                            <Link 
+                                class="hover:underline hover:text-blue-600"
+                                :href="`/posts/${post.id}/edit`" 
+                                text="Edit"
+                            ></Link>
+                            <Link 
+                                :href="route('posts.destroy', post.id)" 
+                                method="delete"
+                                as="button"
+                                :onBefore="() => confirm('Are you sure?')"
+                                class="hover:underline hover:text-blue-600"
+                            >Delete</Link>
+                        </div>
                     </div>
                 </div>
             </div>
-
             <Pagination :meta="posts.meta" />
         </div>
     </AuthenticatedLayout>

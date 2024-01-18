@@ -16,37 +16,25 @@
                             </div>
 
                             <!-- Navigation Links -->
-                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                    Dashboard
+                            <div class="hidden space-x-2 lg:space-x-8 sm:-my-px sm:ms-10 md:flex sm:items-center whitespace-nowrap">
+                                <NavLink
+                                    v-for="(link, index) in links"
+                                    :key="index"
+                                    :href="link.href" 
+                                    :active="link.active()"
+                                >
+                                    {{ link.title }}
                                 </NavLink>
-                                <NavLink :href="route('messages.index')" :active="route().current().startsWith('messages')">
-                                    Messages
-                                </NavLink>
-                                <NavLink :href="route('posts.index')" :active="route().current().startsWith('posts')">
-                                    Posts
-                                </NavLink>
-                                <NavLink :href="route('photos.index')" :active="route().current().startsWith('photos')">
-                                    Photos
-                                </NavLink>
-                                <NavLink :href="route('videos.index')" :active="route().current().startsWith('videos')">
-                                    Videos
-                                </NavLink>
-                                <NavLink :href="route('medias.index')" :active="route().current().startsWith('medias')">
-                                    Media Groups
-                                </NavLink>
-                                <NavLink :href="route('polls.index')" :active="route().current().startsWith('polls')">
-                                    Polls
-                                </NavLink>
+                                <DropdownChannels />
                             </div>
                         </div>
 
-                        <div class="hidden sm:flex sm:items-center sm:ms-6">
+                        <div class="hidden md:flex md:items-center">
                             <DropdownSettings />
                         </div>
 
                         <!-- Hamburger -->
-                        <div class="-me-2 flex items-center sm:hidden">
+                        <div class="-me-2 flex items-center md:hidden">
                             <button
                                 @click="showingNavigationDropdown = !showingNavigationDropdown"
                                 class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out"
@@ -81,12 +69,17 @@
                 <!-- Responsive Navigation Menu -->
                 <div
                     :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }"
-                    class="sm:hidden"
+                    class="md:hidden"
                 >
                     <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                            Dashboard
-                        </ResponsiveNavLink>
+                        <DropdownChannels class="mx-auto" />
+                        <ResponsiveNavLink 
+                            v-for="(link, index) in links"
+                            :key="index"
+                            :href="link.href" 
+                            :active="link.active()">
+                            {{ link.title }}
+                        </ResponsiveNavLink>                        
                     </div>
 
                     <!-- Responsive Settings Options -->
@@ -127,13 +120,12 @@
 <script setup>
 import { ref, onMounted, onUpdated } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import DropdownSettings from '@/Components/DropdownSettings.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import Flash from '@/Components/Flash.vue'
+import DropdownChannels from '@/Components/DropdownChannels.vue';
 
 const showingNavigationDropdown = ref(false);
 
@@ -142,4 +134,43 @@ const page = usePage();
 onUpdated(() => {
     setTimeout(() => page.props.flash = null, 4000);
 });
+
+const links = ref([
+    { 
+        title: 'Dashboard', 
+        href: route('dashboard'), 
+        active: () => route().current('dashboard') 
+    },
+    { 
+        title: 'Messages', 
+        href: route('messages.index'), 
+        active: () => route().current().startsWith('messages') 
+    },
+    { 
+        title: 'Posts', 
+        href: route('posts.index'), 
+        active: () => route().current().startsWith('posts') 
+    },
+    { 
+        title: 'Photos', 
+        href: route('photos.index'), 
+        active: () => route().current().startsWith('photos') 
+    },
+    { 
+        title: 'Videos', 
+        href: route('videos.index'), 
+        active: () => route().current().startsWith('videos') 
+    },
+    { 
+        title: 'Groups', //Media 
+        href: route('medias.index'), 
+        active: () => route().current().startsWith('medias') 
+    },
+    { 
+        title: 'Polls', 
+        href: route('polls.index'), 
+        active: () => route().current().startsWith('polls') 
+    },
+]);
+
 </script>

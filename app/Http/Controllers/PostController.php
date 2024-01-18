@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\PostResource;
 use App\Http\Services\TelegramPost;
-use App\Models\Channel;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -15,7 +14,11 @@ class PostController extends Controller
     public function index()
     {
         return Inertia::render('Post/Index', [
-            'posts' => PostResource::collection(Post::orderBy('created_at', 'DESC')->paginate())
+            'posts' => PostResource::collection(
+                Post::where('channel_id', session('channel.id'))
+                    ->orderBy('created_at', 'DESC')
+                    ->paginate()
+            )
         ]);
     }
 
@@ -45,7 +48,7 @@ class PostController extends Controller
         $post = Post::make($data);
 
         $post->user()->associate($request->user());
-        $post->channel()->associate(Channel::first());
+        $post->channel()->associate(session('channel.id'));
 
         $post->save();
 

@@ -34,6 +34,11 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'channel' => [
+                'id' => session('channel.id'),
+                'name' => session('channel.name'),
+                'list' => json_decode(session('channel.list')),
+            ],
             'flash' => [
                 'message' => session('message'),
                 'success' => session('success'),
