@@ -11,15 +11,15 @@
                         </PrimaryButton>
                         <SecondaryButton @click.prevent="$emit('form:cancel')">Cancel</SecondaryButton>
                     </div>
-                    <div class="">
-                        <PrimaryButton @click.prevent="$emit('form:concept')">
+                    <div>
+                        <PrimaryButton v-if="conceptable" @click.prevent="$emit('form:concept')">
                             Submit & Test
                         </PrimaryButton>
                     </div>
                 </div>
             </div>
             <div class="lg:w-5/12 relative">
-                <div class="lg:sticky top-1 w-72 mx-auto mt-5 border-2 border-gray-500 rounded-xl shadow-lg overflow-hidden">
+                <div class="lg:sticky top-1 w-72 mx-auto my-5 border-2 border-gray-500 rounded-xl shadow-lg overflow-hidden">
                     <div v-if="hasMedias" 
                         class="min-h-28 bg-gray-200"
                         :class="{
@@ -48,7 +48,7 @@
                     </div>
                     <div class="flex flex-col space-y-2 p-2">
                         <div v-if="body.length" v-html="body" class="text-xs"></div>
-                        <div v-if="showSignature" class="text-sm text-blue-500 italic font-semibold">Channel link</div>
+                        <div v-if="showSignature" class="text-sm text-blue-500 italic font-semibold" v-html="signature"></div>
                         <img src="/images/post-footer.jpg" />
                     </div>
                 </div>
@@ -74,9 +74,17 @@ defineProps({
         type: Boolean,
         default: true
     },
+    signature: {
+        type: String,
+        default: 'Channel link'
+    },
     medias: {
         type: Array,
         default: []
+    },
+    conceptable: {
+        type: Boolean,
+        default: true
     },
 })
 

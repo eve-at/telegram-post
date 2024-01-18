@@ -40,8 +40,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
 
-    Route::resource('posts', PostController::class)->except(['show']);
+    Route::resource('channels', ChannelController::class)->except(['show']);
 
+    Route::resource('posts', PostController::class)->except(['show']);
+    
     Route::post('/photos/upload', [PhotoController::class, 'upload'])->name('photos.upload');
     Route::delete('/photos/upload-undo', [PhotoController::class, 'uploadUndo'])->name('photos.upload.undo');
     Route::resource('photos', PhotoController::class)->except(['show']);
@@ -59,8 +61,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('polls', PollController::class)->except(['show']);
     
     Route::post('/concepts/store', [ConceptController::class, 'store'])->name('concepts.post');
-
-    Route::get('/channel/edit', [ChannelController::class, 'edit'])->name('channels.edit');
 });
 
 Route::middleware('auth')->group(function () {

@@ -70,7 +70,14 @@
                                     </template>
 
                                     <template #content>
-                                        <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink>
+                                        <DropdownLink 
+                                            :href="route('channels.index')"
+                                            :active="route().current().startsWith('channels')"
+                                        > Channels </DropdownLink>
+                                        <DropdownLink 
+                                            :href="route('profile.edit')"
+                                            :active="route().current().startsWith('profile')"
+                                        > Profile </DropdownLink>
                                         <DropdownLink :href="route('logout')" method="post" as="button">
                                             Log Out
                                         </DropdownLink>

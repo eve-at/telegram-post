@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('signature')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

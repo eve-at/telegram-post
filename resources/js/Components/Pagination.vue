@@ -1,5 +1,8 @@
 <template>
-  <div class="flex items-center justify-between px-4 py-3 sm:px-6">
+  <div 
+    v-if="meta.last_page > 1"
+    class="flex items-center justify-between px-4 py-3 sm:px-6"
+  >
     <div class="flex flex-1 justify-between sm:hidden">
       <a :href="previousUrl()" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Previous</a>
       <a :href="nextUrl()" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Next</a>

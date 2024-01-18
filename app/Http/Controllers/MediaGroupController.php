@@ -26,7 +26,7 @@ class MediaGroupController extends Controller
         return Inertia::render('MediaGroup/Edit', [
             'title' => 'Create',
             'toRoute' => 'medias.store',
-            'cancelRoute' => 'photos.index',
+            'cancelRoute' => 'medias.index',
             'group' => MediaGroupResource::make(new MediaGroup),
         ]);
     }
@@ -115,7 +115,7 @@ class MediaGroupController extends Controller
             'title' => 'Edit',
             'group' => MediaGroupResource::make($media),
             'toRoute' => 'medias.update',
-            'cancelRoute' => 'photos.index',
+            'cancelRoute' => 'medias.index',
         ]);
     }
 
