@@ -97,9 +97,19 @@ const fetchMessages = async (e) => {
 
 <style>
 /* hide Close button */
-.widget-calendar-wrapper > div:first-child > div:first-child {
+.widget-calendar-wrapper > div:first-child > div:first-child > a {
     display: none;
 } 
+/* loader */
+.widget-calendar-wrapper > div:first-child > div:first-child {
+    position: relative;
+}
+.widget-calendar-wrapper > div:first-child > div:first-child > span {
+    position: absolute;
+    top: 25px;
+    right: -20px;
+} 
+
 .widget-calendar-wrapper > div:first-child {
     padding-top: 0;
 } 
