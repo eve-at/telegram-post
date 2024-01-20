@@ -49,7 +49,7 @@ class VideoController extends Controller
 
         Storage::move(
             'public/tmp/' . $data['filename'],
-            'public/medias/' . session('channel.id') . '/' . $data['filename']
+            'public/media/' . session('channel.id') . '/' . $data['filename']
         );
 
         $video = Video::make($data);
@@ -129,10 +129,10 @@ class VideoController extends Controller
         $video->update($data);
 
         if ($data['filename'] !== $oldFilename) {
-            Storage::delete('public/medias/' . session('channel.id') . '/' . $oldFilename);
+            Storage::delete('public/media/' . session('channel.id') . '/' . $oldFilename);
             Storage::move(
                 'public/tmp/' . $data['filename'], 
-                'public/medias/' . session('channel.id') . '/' . $data['filename']
+                'public/media/' . session('channel.id') . '/' . $data['filename']
             );
         }
 
@@ -147,7 +147,7 @@ class VideoController extends Controller
 
     public function destroy(Video $video)
     {
-        Storage::delete('public/medias/' . session('channel.id') . '/' . $video->filename);
+        Storage::delete('public/media/' . session('channel.id') . '/' . $video->filename);
         $video->delete();
 
         return to_route('videos.index')->with('success', 'The video was deleted');

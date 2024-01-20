@@ -11,7 +11,7 @@
 
         <LayoutContent 
             :body="preview" 
-            :medias="filepaths" 
+            :="filepaths" 
             :show-signature="photoForm.show_signature"
             @form:submit="onFormSubmit"
             @form:cancel="onFormCancel"
@@ -187,13 +187,13 @@ watch(
 const updateFilepaths = (init = false) => {
     if (init) {
         filepathInitial = photoForm.filename;
-        filepathInitial && filepaths.value.push('/storage/medias/' + usePage().props.channel.id + '/' + photoForm.filename);
+        filepathInitial && filepaths.value.push('/storage/media/' + usePage().props.channel.id + '/' + photoForm.filename);
         return;
     }
     
     filepaths.value = [];
     if (photoForm.filename) {
-        filepaths.value.push((filepathInitial.indexOf(photoForm.filename) >=0 ? '/storage/medias/' + usePage().props.channel.id + '/' : '/storage/tmp/') + photoForm.filename);
+        filepaths.value.push((filepathInitial.indexOf(photoForm.filename) >=0 ? '/storage/media/' + usePage().props.channel.id + '/' : '/storage/tmp/') + photoForm.filename);
     }
 }
 

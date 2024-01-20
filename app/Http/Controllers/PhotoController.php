@@ -49,7 +49,7 @@ class PhotoController extends Controller
 
         Storage::move(
             'public/tmp/' . $data['filename'], 
-            'public/medias/' . session('channel.id') . '/' . $data['filename']
+            'public/media/' . session('channel.id') . '/' . $data['filename']
         );
 
         $photo = Photo::make($data);
@@ -132,10 +132,10 @@ class PhotoController extends Controller
         $photo->update($data);
 
         if ($data['filename'] !== $oldFilename) {
-            Storage::delete('public/medias/' . session('channel.id') . '/' . $oldFilename);
+            Storage::delete('public/media/' . session('channel.id') . '/' . $oldFilename);
             Storage::move(
                 'public/tmp/' . $data['filename'], 
-                'public/medias/' . session('channel.id') . '/' . $data['filename']
+                'public/media/' . session('channel.id') . '/' . $data['filename']
             );
         }
 
@@ -149,7 +149,7 @@ class PhotoController extends Controller
 
     public function destroy(Photo $photo)
     {
-        Storage::delete('public/medias/' . session('channel.id') . '/' . $photo->filename);
+        Storage::delete('public/media/' . session('channel.id') . '/' . $photo->filename);
         $photo->delete();
 
         return to_route('photos.index')->with('success', 'The photo was deleted');

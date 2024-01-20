@@ -1,3 +1,4 @@
+
 <template>
     <Head title="Posts - List" />
 
@@ -8,16 +9,14 @@
 
         <div class="mx-auto w-10/12 flex overflow-hidden flex-col">
             <div class="border bg-white border-gray-300 rounded-xl m-2 divide-y divide-solid overflow-hidden">
-                <div class="p-6 text-gray-900 italic">There is no messages so far</div>
-
                 <pro-calendar
-                    :events="evts"
-                    :loading="false"
+                    :events="messages"
+                    :loading="fetchingMessages"
                     :config="cfg"
-                    view="month"
-                    date="2022-11-10T00:00:00.000Z"
-                    @calendarClosed="void 0"
-                    @fetchEvents="void 0"
+                    view="week"
+                    :date="(new Date).toISOString()"
+                    @calendarClosed="close"
+                    @fetchEvents="fetchMessages"
                 />
             </div>
         </div>
@@ -28,33 +27,69 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import "vue-pro-calendar/style";
-import { ref, type Ref } from "vue";
-import type { Configs, Appointment } from "vue-pro-calendar";
+import { ref, onMounted, toRaw } from "vue";
+import { Configs } from "vue-pro-calendar/dist/types/stores/events.d.js";
+import { E_CustomEvents } from "vue-pro-calendar"
+import axios from 'axios';
+
+const props = defineProps({
+    messages: {
+        type: Array,
+        required: true,
+    }
+});
+
+let fetchingMessages = ref(false);
+let messages = ref(props.messages)
 
 //https://github.com/lbgm/vue-pro-calendar
 const cfg = ref<Configs>({
-  viewEvent: undefined,
-  reportEvent: {
-    icon: true,
-    text: "",
-  },
-  searchPlaceholder: "",
-  eventName: "",
-  closeText: "",
-  nativeDatepicker: true,
-  todayButton: true,
-  firstDayOfWeek: 1,
+    viewEvent: undefined,
+    reportEvent: {
+        icon: true,
+        text: "Edit",
+    },
+    searchPlaceholder: "Search...",
+    eventName: "",
+    closeText: "",
+    nativeDatepicker: false,
+    todayButton: true,
+    firstDayOfWeek: 1,
 });
 
-const evts: Ref<Appointment[]> = ref([
-  {
-    date: "2022-11-10T14:00:00.000Z",
-    comment: "Comment goes here",
-    id: "cl32rbkjk1700101o53e3e3uhn",
-    keywords: "Projet BAMBA",
-    name: "MONTCHO Kévin",
-  },
-  //...
-]);
+onMounted(() => {
+//   E_CustomEvents.VIEW.forEach((e: string) => {
+//     document.body.addEventListener(e, (event: Event | CustomEvent) => {
+//         let message = toRaw(props.messages.find((message) => message.id == event.detail.id));
+//         window.open(route(message.type + '.edit', message.type_id), '_blank');
+//     });
+//   });
+  [E_CustomEvents.REPORT].forEach((e: string) => {
+    document.body.addEventListener(e, (event: Event | CustomEvent) => {
+        let message = toRaw(messages.find((message) => message.id == event.detail.id));
+        window.open(route(message.type + '.edit', message.type_id), '_blank');
+    });
+  });
+});
+
+const close = (e) => {
+    console.log('close', e);
+}
+
+const fetchMessages = async (e) => {
+    if (fetchingMessages.value) {
+        return;
+    }
+    fetchingMessages.value = true;
+
+    const response = await axios.get(route('messages.dates', {
+        start: e.start.slice(0, 10),
+        end: e.end.slice(0, 10)
+    }));
+
+    messages.value = response.data;
+
+    fetchingMessages.value = false;
+}
 
 </script>

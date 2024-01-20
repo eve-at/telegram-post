@@ -11,7 +11,7 @@
 
         <LayoutContent 
             :body="bodyTemplate" 
-            :medias="[]"
+            :media="[]"
             :show-signature="showSignature"
             :signature="channelForm.signature"
             :conceptable="false"

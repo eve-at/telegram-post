@@ -39,8 +39,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
-    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages', [MessageController::class, 'index'])
+        ->name('messages.index');
 
+    Route::get('/messages/{start}/{end}', [MessageController::class, 'dates'])
+        ->name('messages.dates');
+    
     Route::resource('channels', ChannelController::class)->except(['show']);
     Route::patch('/session_channel/{channel}/update', [SessionChannelController::class, 'update'])->name('session_channel.update');
     
@@ -54,10 +58,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/videos/upload-undo', [VideoController::class, 'uploadUndo'])->name('videos.upload.undo');
     Route::resource('videos', VideoController::class)->except(['show']);
    
-    Route::post('/medias/upload', [MediaGroupController::class, 'upload'])->name('medias.upload');
-    Route::delete('/medias/upload-undo', [MediaGroupController::class, 'uploadUndo'])->name('medias.upload.undo');
-    Route::resource('medias', MediaGroupController::class, ['parameters' => [
-        'media' => 'media_group' //type-hinted variable for model biding
+    Route::post('/media/upload', [MediaGroupController::class, 'upload'])->name('media.upload');
+    Route::delete('/media/upload-undo', [MediaGroupController::class, 'uploadUndo'])->name('media.upload.undo');
+    Route::resource('media', MediaGroupController::class, ['parameters' => [
+        'media' => 'media' //type-hinted variable for model biding
+        //'media_group' => 'media' //type-hinted variable for model biding
     ]])->except(['show']);
     
     Route::resource('polls', PollController::class)->except(['show']);

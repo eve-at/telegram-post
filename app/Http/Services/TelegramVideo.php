@@ -80,7 +80,7 @@ class TelegramVideo implements TelegramPublishable
         }
 
         return InputFile::create(
-            storage_path('app\\public\\medias\\' . session('channel.id') . '\\' . $this->video->filename), 
+            storage_path('app\\public\\\\' . session('channel.id') . '\\' . $this->video->filename), 
             $this->video->filename
         );
     }

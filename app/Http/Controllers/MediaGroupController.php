@@ -16,7 +16,7 @@ class MediaGroupController extends Controller
     public function index()
     {
         return Inertia::render('MediaGroup/Index', [
-            'medias' => MediaGroupResource::collection(
+            'media' => MediaGroupResource::collection(
                 MediaGroup::where('channel_id', session('channel.id'))
                     ->orderBy('created_at', 'DESC')
                     ->paginate()
@@ -28,8 +28,8 @@ class MediaGroupController extends Controller
     {
         return Inertia::render('MediaGroup/Edit', [
             'title' => 'Create',
-            'toRoute' => 'medias.store',
-            'cancelRoute' => 'medias.index',
+            'toRoute' => 'media.store',
+            'cancelRoute' => 'media.index',
             'group' => MediaGroupResource::make(new MediaGroup),
         ]);
     }
@@ -57,7 +57,7 @@ class MediaGroupController extends Controller
         foreach($data['filenames'] as $index=>$filename) {
             Storage::move(
                 'public/tmp/' . $filename, 
-                'public/medias/' . session('channel.id') . '/' . $filename
+                'public/media/' . session('channel.id') . '/' . $filename
             );
 
             $file = new MediaGroupFile;
@@ -70,11 +70,11 @@ class MediaGroupController extends Controller
 
         if ($concept) {
             TelegramMediaGroup::make($media, concept: true)->publish();
-            return to_route('medias.edit', $media->id)
+            return to_route('media.edit', $media->id)
                         ->with('success', 'The Media Group was created and tested');
         }
 
-        return to_route('medias.index')->with('success', 'The Media Group was created');
+        return to_route('media.index')->with('success', 'The Media Group was created');
     }
 
     public function upload(Request $request)
@@ -120,8 +120,8 @@ class MediaGroupController extends Controller
         return Inertia::render('MediaGroup/Edit', [
             'title' => 'Edit',
             'group' => MediaGroupResource::make($media),
-            'toRoute' => 'medias.update',
-            'cancelRoute' => 'medias.index',
+            'toRoute' => 'media.update',
+            'cancelRoute' => 'media.index',
         ]);
     }
 
@@ -152,7 +152,7 @@ class MediaGroupController extends Controller
                 ->where('media_group_id', $media->id)
                 ->delete();
 
-            Storage::delete($filesDeleted->map(fn ($filename) => 'public/medias/' . session('channel.id') . '/' . $filename)->toArray());
+            Storage::delete($filesDeleted->map(fn ($filename) => 'public/media/' . session('channel.id') . '/' . $filename)->toArray());
         }
 
         // move new files (disk, and add into DB)
@@ -168,7 +168,7 @@ class MediaGroupController extends Controller
             // TODO: queue it
             Storage::move(
                 'public/tmp/' . $filename, 
-                'public/medias/' . session('channel.id') . '/' . $filename
+                'public/media/' . session('channel.id') . '/' . $filename
             );
         });
 
@@ -186,7 +186,7 @@ class MediaGroupController extends Controller
             return back()->with('success', 'The Media Group was updated and tested');
         }
 
-        return to_route('medias.index')->with('success', 'The media group was updated');
+        return to_route('media.index')->with('success', 'The media group was updated');
     }
 
     public function destroy(MediaGroup $media)
@@ -195,8 +195,8 @@ class MediaGroupController extends Controller
 
         $media->delete();
 
-        Storage::delete($files->map(fn ($filename) => 'public/medias/' . session('channel.id') . '/' . $filename)->toArray());
+        Storage::delete($files->map(fn ($filename) => 'public/media/' . session('channel.id') . '/' . $filename)->toArray());
 
-        return to_route('medias.index')->with('success', 'The media group was deleted');
+        return to_route('media.index')->with('success', 'The media group was deleted');
     }
 }

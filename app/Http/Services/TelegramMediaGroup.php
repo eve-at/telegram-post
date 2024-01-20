@@ -118,7 +118,7 @@ class TelegramMediaGroup implements TelegramPublishable
         }
 
         $this->filesToUpload[$media->filename] = InputFile::create(
-            storage_path('app\\public\\medias\\' . session('channel.id') . '\\' . $media->filename), 
+            storage_path('app\\public\\media\\' . session('channel.id') . '\\' . $media->filename), 
             $media->filename
         );
 

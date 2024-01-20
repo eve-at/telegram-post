@@ -11,7 +11,7 @@
 
         <LayoutContent 
             :body="preview" 
-            :medias="filepaths"
+            :media="filepaths"
             :show-signature="videoForm.show_signature"
             @form:submit="onFormSubmit"
             @form:cancel="onFormCancel"
@@ -185,13 +185,13 @@ watch(
 const updateFilepaths = (init = false) => {
     if (init) {
         filepathInitial = videoForm.filename;
-        filepathInitial && filepaths.value.push('/storage/medias/' + usePage().props.channel.id + '/' + videoForm.filename);
+        filepathInitial && filepaths.value.push('/storage/media/' + usePage().props.channel.id + '/' + videoForm.filename);
         return;
     }
     
     filepaths.value = [];
     if (videoForm.filename) {
-        filepaths.value.push((filepathInitial.indexOf(videoForm.filename) >=0 ? '/storage/medias/' + usePage().props.channel.id + '/' : '/storage/tmp/') + videoForm.filename);
+        filepaths.value.push((filepathInitial.indexOf(videoForm.filename) >=0 ? '/storage/media/' + usePage().props.channel.id + '/' : '/storage/tmp/') + videoForm.filename);
     }
 }
 

@@ -163,8 +163,8 @@ const links = ref([
     },
     { 
         title: 'Groups', //Media 
-        href: route('medias.index'), 
-        active: () => route().current().startsWith('medias') 
+        href: route('media.index'), 
+        active: () => route().current().startsWith('media') 
     },
     { 
         title: 'Polls', 

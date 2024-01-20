@@ -20,15 +20,15 @@
             </div>
             <div class="lg:w-5/12 relative">
                 <div class="lg:sticky top-1 w-72 mx-auto my-5 border-2 border-gray-500 rounded-xl shadow-lg overflow-hidden">
-                    <div v-if="hasMedias" 
+                    <div v-if="hasMedia" 
                         class="min-h-28 bg-gray-200"
                         :class="{
-                            'flex flex-wrap items-center justify-center': medias.length > 1
+                            'flex flex-wrap items-center justify-center': media.length > 1
                         }"
                     >
-                        <div v-for="filepath in medias" 
+                        <div v-for="filepath in media" 
                             :class="{
-                                'w-1/2': medias.length > 1
+                                'w-1/2': media.length > 1
                             }"
                         >
                             <div class="flex-1 overflow-hidden">
@@ -66,7 +66,7 @@ defineProps({
         type: String,
         default: ''
     },
-    hasMedias: {
+    hasMedia: {
         type: Boolean,
         default: true
     },
@@ -78,7 +78,7 @@ defineProps({
         type: String,
         default: 'Channel link'
     },
-    medias: {
+    media: {
         type: Array,
         default: []
     },

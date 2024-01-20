@@ -11,7 +11,7 @@
 
         <LayoutContent 
             :body="postPreview" 
-            :has-medias="false" 
+            :has-media="false" 
             :show-signature="postForm.show_signature"
             @form:submit="onFormSubmit"
             @form:cancel="onFormCancel"

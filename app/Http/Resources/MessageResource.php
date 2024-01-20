@@ -17,9 +17,12 @@ class MessageResource extends JsonResource
         return [
             'id' => $this->id,
             'channel_id' => $this->channel_id,
-            'post_id' => $this->post_id,
+            'messagable_type' => $this->messagable_type,
+            'messagable_id' => $this->messagable_id,
+            'body' => $this->body,
             'status' => $this->status,
-            'text' => $this->text,
+            'created_at' => $this->created_at,
+            'published_at' => $this->published_at,
         ];
     }
 }

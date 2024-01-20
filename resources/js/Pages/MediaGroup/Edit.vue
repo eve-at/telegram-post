@@ -11,7 +11,7 @@
 
         <LayoutContent 
             :body="preview" 
-            :medias="filepaths"
+            :media="filepaths"
             :show-signature="groupForm.show_signature"
             @form:submit="onFormSubmit"
             @form:cancel="onFormCancel"
@@ -32,7 +32,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <InputLabel for="title">Medias (from 2 to 10 JPG or MP4)</InputLabel>
+                        <InputLabel for="title">Media (from 2 to 10 JPG or MP4)</InputLabel>
                         <input type="hidden" name="filenames[]" v-model="groupForm.filenames"/>
                         <file-pond 
                             name="filename"
@@ -99,7 +99,7 @@ setOptions({
     server: {
         //upload file
         process: {
-            url: '/medias/upload',
+            url: '/media/upload',
             onerror: (response) => {
                 serverMessage = JSON.parse(response);
             },
@@ -110,7 +110,7 @@ setOptions({
 
         //delete uploaded file
         revert: {
-            url: '/medias/upload-undo',
+            url: '/media/upload-undo',
 
             headers: {
                 'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
@@ -118,7 +118,7 @@ setOptions({
         },
 
         //preload existed files
-        load: '/storage/medias/' + usePage().props.channel.id + '/',
+        load: '/storage/media/' + usePage().props.channel.id + '/',
     },
     labelFileProcessingError: () => {
         return serverMessage.error;
@@ -194,7 +194,7 @@ const updateFilepaths = (init = false) => {
     if (init) {
         groupForm.filenames.length && groupForm.filenames.forEach(filename => {
             filepathsInitial.push(filename);
-            filepaths.value.push('/storage/medias/' + usePage().props.channel.id + '/' + filename);
+            filepaths.value.push('/storage/media/' + usePage().props.channel.id + '/' + filename);
         });
         return;
     }
@@ -202,7 +202,7 @@ const updateFilepaths = (init = false) => {
     filepaths.value = [];
     groupForm.filenames.forEach(filename => {
         let path = filepathsInitial.indexOf(filename) >=0 
-            ? '/storage/medias/' + usePage().props.channel.id + '/' 
+            ? '/storage/media/' + usePage().props.channel.id + '/' 
             : '/storage/tmp/';
         filepaths.value.push(path + filename);
     });
