@@ -5,6 +5,7 @@
     <AuthenticatedLayout>
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Messages</h2>
+            <PrimaryButtonLink :href="route('messages.create')">Add new</PrimaryButtonLink>
         </template>
 
         <div class="mx-auto w-10/12 flex overflow-hidden flex-col">
@@ -18,7 +19,11 @@
                     @calendarClosed="close"
                     @fetchEvents="fetchMessages"
                     class=""
-                />
+                >
+                    <template #closeButton>
+                        <!-- replace close button with this slot -->
+                    </template>
+                </pro-calendar>
             </div>
         </div>
     </AuthenticatedLayout>
@@ -32,6 +37,7 @@ import { ref, onMounted, toRaw } from "vue";
 import { Configs } from "vue-pro-calendar/dist/types/stores/events.d.js";
 import { E_CustomEvents } from "vue-pro-calendar"
 import axios from 'axios';
+import PrimaryButtonLink from '@/Components/PrimaryButtonLink.vue';
 
 const props = defineProps({
     messages: {
@@ -45,10 +51,13 @@ let messages = ref(props.messages)
 
 //https://github.com/lbgm/vue-pro-calendar
 const cfg = ref<Configs>({
-    viewEvent: undefined,
+    viewEvent: {
+        icon: true,
+        text: "View post",
+    },
     reportEvent: {
         icon: true,
-        text: "Edit",
+        text: "Edit message",
     },
     searchPlaceholder: "Search...",
     eventName: "",
@@ -59,16 +68,15 @@ const cfg = ref<Configs>({
 });
 
 onMounted(() => {
-//   E_CustomEvents.VIEW.forEach((e: string) => {
-//     document.body.addEventListener(e, (event: Event | CustomEvent) => {
-//         let message = toRaw(props.messages.find((message) => message.id == event.detail.id));
-//         window.open(route(message.type + '.edit', message.type_id), '_blank');
-//     });
-//   });
+  [E_CustomEvents.VIEW].forEach((e: string) => {
+    document.body.addEventListener(e, (event: Event | CustomEvent) => {
+        let message = toRaw(props.messages.find((message) => message.id == event.detail.id));
+        window.open(route(message.type + '.edit', message.type_id), '_blank');
+    });
+  });
   [E_CustomEvents.REPORT].forEach((e: string) => {
     document.body.addEventListener(e, (event: Event | CustomEvent) => {
-        let message = toRaw(messages.find((message) => message.id == event.detail.id));
-        window.open(route(message.type + '.edit', message.type_id), '_blank');
+        window.open(route('messages.edit', event.detail.id), '_blank');
     });
   });
 });
@@ -96,10 +104,6 @@ const fetchMessages = async (e) => {
 </script>
 
 <style>
-/* hide Close button */
-.widget-calendar-wrapper > div:first-child > div:first-child > a {
-    display: none;
-} 
 /* loader */
 .widget-calendar-wrapper > div:first-child > div:first-child {
     position: relative;
@@ -135,6 +139,4 @@ const fetchMessages = async (e) => {
         display: block;
     }
 }
-
-
 </style>

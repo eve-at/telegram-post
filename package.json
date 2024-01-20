@@ -24,6 +24,7 @@
         "date-fns": "^3.1.0",
         "filepond": "^4.30.6",
         "filepond-plugin-image-preview": "^4.6.12",
+        "v-calendar": "^3.0.0-alpha.7",
         "vue-filepond": "^7.0.4",
         "vue-pro-calendar": "^1.1.10",
         "vue-select": "^4.0.0-beta.6",

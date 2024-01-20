@@ -10,7 +10,6 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SessionChannelController;
 use App\Http\Controllers\VideoController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -39,11 +38,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
-    Route::get('/messages', [MessageController::class, 'index'])
-        ->name('messages.index');
-
-    Route::get('/messages/{start}/{end}', [MessageController::class, 'dates'])
+    Route::get('/messages/dates/{start}/{end}', [MessageController::class, 'dates'])
         ->name('messages.dates');
+    Route::resource('messages', MessageController::class)->except(['show']);
     
     Route::resource('channels', ChannelController::class)->except(['show']);
     Route::patch('/session_channel/{channel}/update', [SessionChannelController::class, 'update'])->name('session_channel.update');
