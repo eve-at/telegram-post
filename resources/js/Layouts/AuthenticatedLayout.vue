@@ -16,7 +16,7 @@
                             </div>
 
                             <!-- Navigation Links -->
-                            <div class="hidden space-x-2 lg:space-x-8 sm:-my-px sm:ms-10 md:flex sm:items-center whitespace-nowrap">
+                            <div class="hidden sm:space-x-2 lg:space-x-8 sm:-my-px sm:ms-10 md:flex sm:items-center whitespace-nowrap">
                                 <NavLink
                                     v-for="(link, index) in links"
                                     :key="index"
@@ -34,7 +34,7 @@
                         </div>
 
                         <!-- Hamburger -->
-                        <div class="-me-2 flex items-center md:hidden">
+                        <div class="-me-2 mt-3 items-center md:hidden">
                             <button
                                 @click="showingNavigationDropdown = !showingNavigationDropdown"
                                 class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out"

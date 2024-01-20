@@ -17,6 +17,7 @@
                     :date="(new Date).toISOString()"
                     @calendarClosed="close"
                     @fetchEvents="fetchMessages"
+                    class=""
                 />
             </div>
         </div>
@@ -93,3 +94,37 @@ const fetchMessages = async (e) => {
 }
 
 </script>
+
+<style>
+/* hide Close button */
+.widget-calendar-wrapper > div:first-child > div:first-child {
+    display: none;
+} 
+.widget-calendar-wrapper > div:first-child {
+    padding-top: 0;
+} 
+.calendar-base > div:first-child > div:last-child {
+    display: none;
+}
+@media (max-width: 1150px) {
+    .widget-calendar-wrapper .time-cell.text-right {
+        display: none;
+    }
+    .widget-calendar-wrapper .calendar-base {
+        padding-left: 0;
+    }
+}
+@media (max-width: 1024px) {
+    .widget-calendar-wrapper > div:first-child {
+        display: none;
+    }
+    .widget-calendar-wrapper .calendar-base {
+        padding: 20px;
+    }
+    .widget-calendar-wrapper .time-cell.text-right {
+        display: block;
+    }
+}
+
+
+</style>
