@@ -11,7 +11,7 @@
 
         <LayoutContent 
             :body="preview" 
-            :="filepaths" 
+            :media="filepaths" 
             :show-signature="photoForm.show_signature"
             @form:submit="onFormSubmit"
             @form:cancel="onFormCancel"

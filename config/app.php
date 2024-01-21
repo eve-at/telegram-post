@@ -5,6 +5,13 @@ use Illuminate\Support\ServiceProvider;
 
 return [
 
+
+    'TELEGRAM_BOT_TOKEN' => env('TELEGRAM_BOT_TOKEN'),
+    'TELEGRAM_CONCEPT_CHANNEL_ID' => env('TELEGRAM_CONCEPT_CHANNEL_ID'),
+    'TELEGRAM_CONCEPT_CHANNEL_NAME' => env('TELEGRAM_CONCEPT_CHANNEL_NAME'),
+    'TELEGRAM_CHANNEL_ID' => env('TELEGRAM_CHANNEL_ID'),
+    'TELEGRAM_CHANNEL_NAME' => env('TELEGRAM_CHANNEL_NAME'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Name

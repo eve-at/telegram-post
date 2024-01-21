@@ -107,6 +107,7 @@ class VideoController extends Controller
 
     public function update(Request $request, Video $video)
     {
+
         $data = $request->validate([
             'title' => ['required', 'max:190'],
             'filename' => ['required', 'max:190'],
