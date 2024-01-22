@@ -38,7 +38,11 @@
 
                     <div class="mb-3">
                         <InputLabel for="options">Options* (2-10 options)</InputLabel>
-                        <draggable v-model="pollForm.options" item-key="id" @end="onDragEnd">
+                        <draggable 
+                            v-model="pollForm.options" 
+                            item-key="id" 
+                            @end="onDragEnd"
+                        >
                             <template #header>
                                 <div class="flex border-t border-l border-r rounded-t-md bg-gray-300">
                                     <div class="hidden"></div>
@@ -64,7 +68,7 @@
                                 </div>
                             </template>
                             <template #item="{ element, index }">
-                                <div class="flex divide-y border-x border-gray-300 hover:bg-gray-100 cursor-move">
+                                <div class="group flex divide-y border-x border-gray-300 hover:bg-gray-100 cursor-grab">
                                     <div class="hidden"></div>
                                     <div v-if="pollForm.type==='quiz'" class="w-2/12 text-center p-2">
                                         <input type="radio" v-model="pollForm.answer" :value="index" /> 
@@ -82,7 +86,11 @@
                                         <span 
                                             v-if="pollForm.options.length>2"
                                             @click="deleteOption(index)"
-                                            class="cursor-pointer hover:underline text-blue-500 block pt-2"
+                                            class="hidden group-hover:block cursor-pointer hover:underline text-blue-500 pt-2"
+                                        >Delete</span>
+                                        <span 
+                                            v-if="pollForm.options.length<3"
+                                            class="hidden group-hover:block cursor-not-allowed text-gray-300 pt-2"
                                         >Delete</span>
                                     </div>
                                 </div>
@@ -315,3 +323,15 @@ const onFormConcept = () => {
 }
 
 </script>
+
+<style>
+    .sortable-ghost {
+        --tw-border-opacity: .5;
+        border-top: 1px solid rgb(209 213 219 / var(--tw-border-opacity));
+        /* cursor: grabbing; */
+        opacity: 1;
+    }
+    .sortable-ghost > * {
+        opacity: 0.0;
+    }
+</style>

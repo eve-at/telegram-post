@@ -8,7 +8,7 @@
         </template>
 
         <div class="mx-auto w-10/12 flex overflow-hidden flex-col">
-            <div class="border bg-white border-gray-300 rounded-xl m-2 divide-y divide-solid overflow-hidden">
+            <div class="border bg-white border-gray-300 rounded-xl m-2 divide-y divide-solid divide-gray-300 overflow-hidden">
                 <div v-if="!polls.data.length" class="p-3 italic">There is no polls so far</div>
                 <div v-if="polls.data.length">
                     <div class="flex w-full bg-gray-100">
@@ -20,7 +20,7 @@
                     <div 
                         v-for="poll in polls.data"
                         :key="poll.id"
-                        class="flex w-full hover:bg-gray-100"
+                        class="flex w-full hover:bg-gray-100 border-t border-gray-100"
                     >
                         <div 
                             class="w-1/12 px-2 py-2"
