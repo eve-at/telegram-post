@@ -12,7 +12,8 @@
                 <div v-if="!media.data.length" class="p-3 italic">There is no media so far</div>
                 <div v-if="media.data.length">
                     <div class="flex w-full bg-gray-100">
-                        <div class="w-8/12 py-3 px-2">Title</div>
+                        <div class="w-1/12 py-3 px-2">Type</div>
+                        <div class="w-7/12 py-3 px-2">Title</div>
                         <div class="w-2/12 py-2 px-2">Created at</div>
                         <div class="w-2/12 py-2 px-2">Options</div>
                     </div>
@@ -21,7 +22,11 @@
                         :key="media.id"
                         class="flex w-full hover:bg-gray-100"
                     >
-                        <div class="w-8/12 ">
+                        <div 
+                            class="w-1/12 px-2 py-2"
+                            v-text="media.type"                        
+                        ></div>
+                        <div class="w-7/12 ">
                             <Link 
                                 :href="`/media/${media.id}/edit`" 
                                 v-text="media.title"

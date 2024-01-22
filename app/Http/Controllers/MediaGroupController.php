@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\MediaGroupResource;
 use App\Http\Services\TelegramMediaGroup;
+use App\Http\Services\TelegramPhoto;
+use App\Http\Services\TelegramPost;
+use App\Http\Services\TelegramVideo;
 use App\Models\MediaGroup;
 use App\Models\MediaGroupFile;
 use Exception;
@@ -36,20 +39,44 @@ class MediaGroupController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
+        // No files => message => `text` 4096 chars
+        // 1 photo => photo => `caption` 1024 chars
+        // 1 video => video => `caption` 1024 chars
+        // 2+ photo/video => media_group => `caption` 1024 chars
+
+        $validationRules = [
             'title' => ['required', 'max:190'],
-            'filenames' => ['required', 'min:2', 'max:10'], // 2-10 files
-            'filenames.*' => ['max:190'], // 190 max filename length
-            'body' => ['max:1024'],
+            'body' => ['required', 'max:4096'],
             'show_title' => ['boolean'],
             'show_signature' => ['boolean'],
             'source' => ['max:190'],
             'concept' => ['boolean'],
-        ]);
+            'filenames' => ['max:10'],
+        ];
+
+        $type = 'message';
+        if ($request->filenames) {
+            $validationRules['body'] = ['max:1024']; // not required
+            $validationRules['filenames.*'] = ['max:190']; // 190 max filename length
+
+            if (count($request->filenames) > 1) {
+                $type = 'media_group';
+                $validationRules['filenames.*'][] = 'ends_with:.mp4,.jpg';
+            } else if (str_ends_with($request->filenames[0], '.mp4')) {
+                $type = 'video';
+                $validationRules['filenames.*'][] = 'ends_with:.mp4';
+            } else { //}if (str_ends_with($request->filenames[0], '.jpg')) {
+                $type = 'photo';
+                $validationRules['filenames.*'][] = 'ends_with:.jpg';
+            }
+        }
+
+        $data = $request->validate($validationRules);
 
         $concept = $data['concept'] ?? false;
 
         $media = MediaGroup::make($data);
+        $media->type = $type;
         $media->user()->associate($request->user());
         $media->channel()->associate(session('channel.id'));
         $media->save();
@@ -69,7 +96,14 @@ class MediaGroupController extends Controller
         }
 
         if ($concept) {
-            TelegramMediaGroup::make($media, concept: true)->publish();
+            $telegramService = match($type) {
+                'photo' => TelegramPhoto::class,
+                'video' => TelegramVideo::class,
+                'media_group' => TelegramMediaGroup::class,
+                'default' => TelegramPost::make($media, concept: true)->publish(),
+            };
+            $telegramService::make($media, concept: true)->publish();
+
             return to_route('media.edit', $media->id)
                         ->with('success', 'The Media Group was created and tested');
         }
@@ -199,4 +233,5 @@ class MediaGroupController extends Controller
 
         return to_route('media.index')->with('success', 'The media group was deleted');
     }
+
 }

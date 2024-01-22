@@ -54,11 +54,13 @@ class TelegramMediaGroup implements TelegramPublishable
             $group[0]['parse_mode'] = 'HTML';
         }
         
-        return Telegram::sendMediaGroup([
+        $data = [
             'chat_id' => $this->chat_id,
             'media' => json_encode($group),
             ...$this->filesToUpload
-        ]);
+        ];
+
+        return Telegram::sendMediaGroup($data);
     }
 
     public function caption(): string

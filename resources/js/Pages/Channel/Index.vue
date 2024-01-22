@@ -8,7 +8,7 @@
         </template>
 
         <div class="mx-auto w-10/12 flex overflow-hidden flex-col">
-            <div class="border bg-white border-gray-300 rounded-xl m-2 divide-y divide-solid overflow-hidden">
+            <div class="border bg-white border-gray-300 rounded-xl m-2 divide-y divide-solid divide-gray-300 overflow-hidden">
                 <div class="flex w-full bg-gray-100">
                     <div class="w-8/12 py-3 px-2">Title</div>
                     <div class="w-2/12 py-2 px-2">Created at</div>

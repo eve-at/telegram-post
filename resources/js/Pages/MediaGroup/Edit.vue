@@ -11,6 +11,7 @@
 
         <LayoutContent 
             :body="preview" 
+            :hasMedia="filepaths.length > 0"
             :media="filepaths"
             :show-signature="groupForm.show_signature"
             @form:submit="onFormSubmit"
@@ -32,7 +33,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <InputLabel for="title">Media (from 2 to 10 JPG or MP4)</InputLabel>
+                        <InputLabel for="title">Media (up to 10 JPG or MP4)</InputLabel>
                         <input type="hidden" name="filenames[]" v-model="groupForm.filenames"/>
                         <file-pond 
                             name="filename"
@@ -161,6 +162,7 @@ const groupForm = useForm({
 
 let filepathsInitial = [];
 let filepaths = ref([]);
+let filenameIds = ref([]);
 let preview = ref('');
 const updateShowTitle = (val) => groupForm.show_title = val;
 const updateShowSignature = (val) => groupForm.show_signature = val;
@@ -230,7 +232,10 @@ const handleProcessedFile = (error, file) => {
         return;
     }
     
+    filenameIds.value[file.id] = file.serverId;
+
     // prepend the new file
+    console.log('uploaded', file);
     groupForm.filenames.unshift(file.serverId);
     updateFilepaths();
 }
@@ -240,8 +245,12 @@ const handleRemoveFile = (error, removedFile) => {
         console.error('Filepond Remove File', error);
         return;
     }
+    
+    const filename = removedFile.serverId ?? filenameIds.value[removedFile.id];
 
-    groupForm.filenames = groupForm.filenames.filter((file) => file !== removedFile.serverId);
+    //groupForm.filenames = groupForm.filenames.filter((file) => file !== removedFile.serverId);
+    groupForm.filenames = groupForm.filenames.filter((file) => file !== filename);
+    filenameIds.value[removedFile.id] && delete filenameIds.value[removedFile.id];
     updateFilepaths();
 }
 

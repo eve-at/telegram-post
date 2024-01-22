@@ -17,9 +17,10 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Channel::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained()->restrictOnDelete();
+            $table->set('type', ['message', 'photo', 'video', 'media_group'])->default('message');
             $table->string('title');
             $table->boolean('show_title')->default(true);
-            $table->text('body')->nullable(); // max 1024 characters
+            $table->text('body')->nullable(); // max 4096 for message, 1024 otherwise
             $table->boolean('show_signature')->default(true);
             $table->string('source')->nullable();
             $table->timestamps();

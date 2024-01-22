@@ -17,6 +17,7 @@ class MediaGroupResource extends JsonResource
         $filenames = $this->filenames->pluck('filename');
         return [
             'id' => $this->id,
+            'type' => $this->type ?? '',
             'title' => $this->title ?? '',
             'body' => $this->body ?? '',
             'source' => $this->source ?? '',
