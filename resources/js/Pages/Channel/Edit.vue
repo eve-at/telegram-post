@@ -26,22 +26,72 @@
                     Note: Before filling out this form, create the channel through the Telegram application.
                 </span>
                 <form @submit.prevent="createChannel">
-                    <div class="mb-3">
-                        <InputLabel for="name">Name*</InputLabel>
-                        <TextInput id="name" v-model="channelForm.name"/>
-                        <InputError :message="channelForm.errors.name" />
-                    </div>
+                    <div class="flex">
+                        <div class="w-9/12">
+                            <div class="mb-3">
+                                <InputLabel for="name">Name*</InputLabel>
+                                <TextInput id="name" v-model="channelForm.name"/>
+                                <InputError :message="channelForm.errors.name" />
+                            </div>
 
-                    <div class="mb-3">
-                        <InputLabel for="chat_id">Chat ID*</InputLabel>
-                        <TextInput id="chat_id" v-model="channelForm.chat_id"/>
-                        <InputError :message="channelForm.errors.chat_id" />
-                    </div>
+                            <div class="mb-3">
+                                <InputLabel for="chat_id">Chat ID*</InputLabel>
+                                <TextInput id="chat_id" v-model="channelForm.chat_id"/>
+                                <InputError :message="channelForm.errors.chat_id" />
+                            </div>
 
-                    <div class="mb-3">
-                        <InputLabel for="signature">Message signature</InputLabel>
-                        <TextInput id="signature" v-model="channelForm.signature"/>
-                        <InputError :message="channelForm.errors.signature" />
+                            <div class="mb-3">
+                                <InputLabel for="signature">Message signature</InputLabel>
+                                <TextInput id="signature" v-model="channelForm.signature"/>
+                                <InputError :message="channelForm.errors.signature" />
+                            </div>
+                        </div>
+                        <div class="w-3/12 flex flex-wrap pl-4">
+                            <div class="w-full">
+                                <InputLabel for="">Auto-posting hours</InputLabel>
+                            </div>
+                            <div class="w-1/2">
+                                <div 
+                                    v-for="hour in [...Array(12).keys()]"
+                                    class="font-mono space-x-1 whitespace-nowrap flex items-center"
+                                >
+                                    <Checkbox 
+                                        :id="'hour' + hour" 
+                                        :value="hour"
+                                        :checked="channelForm.hours.includes(hour)"
+                                        @update:checked="checkHour(hour, $event)"
+                                    />
+                                    <InputLabel 
+                                        class="ml-2 cursor-pointer" 
+                                        :for="'hour' + hour"
+                                    >
+                                        {{ ('0'+hour).slice(-2) }}
+                                    </InputLabel>
+                                </div>
+                            </div>
+                            <div class="w-1/2">
+                                <div 
+                                    v-for="hour in [...Array(12).keys()].map(i => 12 + i)"
+                                    class="font-mono space-x-1 whitespace-nowrap flex items-center"
+                                >
+                                    <Checkbox 
+                                        :id="'hour' + hour" 
+                                        :value="hour"
+                                        :checked="channelForm.hours.includes(hour)" 
+                                        @update:checked="checkHour(hour, $event)"
+                                    />
+                                    <InputLabel 
+                                        class="ml-2 cursor-pointer" 
+                                        :for="'hour' + hour"
+                                    >
+                                        {{ ('0'+hour).slice(-2) }}
+                                    </InputLabel>
+                                </div>
+                            </div>
+                            <div class="w-full pt-2">
+                                <InputError :message="channelForm.errors.hours" />
+                            </div>
+                        </div>
                     </div>
                 </form>
             </template>            
@@ -50,6 +100,7 @@
 </template>
 
 <script setup>
+import Checkbox from '@/Components/Checkbox.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import LayoutContent from '@/Components/LayoutContent.vue';
@@ -82,6 +133,7 @@ const channelForm = useForm({
     name: props.channel.name,
     chat_id: props.channel.chat_id,
     signature: props.channel.signature,    
+    hours: props.channel.hours,    
 })
 
 const showSignature = ref(true);
@@ -115,5 +167,11 @@ const createChannel = () => {
             preserveScroll: true
         })
     }
+}
+
+const checkHour = (hour, checked) => {
+    channelForm.hours = checked 
+        ? [...channelForm.hours, hour] 
+        : channelForm.hours.filter(h => h !== hour);
 }
 </script>

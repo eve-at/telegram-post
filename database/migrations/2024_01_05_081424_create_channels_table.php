@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('chat_id');
             $table->string('name');
+            $table->string('hours')->default('8,18');
             $table->string('signature')->nullable();
             $table->timestamps();
             $table->softDeletes();

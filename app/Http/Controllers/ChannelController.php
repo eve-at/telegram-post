@@ -7,7 +7,6 @@ use App\Models\Channel;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
-use Telegram\Bot\Objects\Chat;
 
 class ChannelController extends Controller
 {
@@ -30,15 +29,15 @@ class ChannelController extends Controller
 
     public function store(Request $request)
     {
-        Channel::create($request->validate([
+        $data = $request->validate([
             'name' => ['required', 'max:190'],
             'signature' => ['max:190'],
-            'chat_id' => [
-                'required', 
-                'numeric', 
-                'starts_with:-100'
-            ],
-        ]));
+            'chat_id' => ['required', 'numeric', 'starts_with:-100'],
+            'hours' => ['max:5'],
+            'hours.*' => ['integer', 'min:0', 'max:23'],
+        ]);
+
+        Channel::create($data);
 
         return to_route('channels.index')->with('success', 'The channel was updated');
     }
@@ -64,6 +63,8 @@ class ChannelController extends Controller
                 'starts_with:-100', 
                 Rule::unique('channels')->ignore($channel->id)
             ],
+            'hours' => ['max:5'],
+            'hours.*' => ['integer', 'min:0', 'max:23'],
         ]);
 
         $channel->update($data);

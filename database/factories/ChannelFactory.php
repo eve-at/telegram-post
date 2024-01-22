@@ -22,6 +22,7 @@ class ChannelFactory extends Factory
             'name' => $name,
             'chat_id' => '-100' . fake()->randomNumber(5, strict: true) . fake()->randomNumber(5, strict: true),
             'signature' => '<a href="' . config('app.TELEGRAM_CONCEPT_CHANNEL_LINK') . "\">$name</a>",
+            'hours' => [rand(0, 12), rand(13, 23)]
         ];
     }
 }
