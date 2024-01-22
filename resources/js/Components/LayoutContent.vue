@@ -48,7 +48,7 @@
                     </div>
                     <div class="flex flex-col space-y-2 p-2">
                         <div v-if="body.length" v-html="body" class="text-xs"></div>
-                        <div v-if="showSignature" class="text-sm text-blue-500 italic font-semibold" v-html="signature"></div>
+                        <div v-if="showSignature" class="text-sm text-blue-500 italic font-semibold" v-html="signature ?? $page.props.channel.name"></div>
                         <img src="/images/post-footer.jpg" />
                     </div>
                 </div>
@@ -76,7 +76,7 @@ defineProps({
     },
     signature: {
         type: String,
-        default: 'Channel link'
+        default: null,
     },
     media: {
         type: Array,

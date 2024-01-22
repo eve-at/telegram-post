@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\Conceptable;
 use App\Http\Resources\PollResource;
-use App\Http\Services\TelegramPoll;
 use App\Models\Poll;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -11,9 +11,8 @@ use Inertia\Inertia;
 
 class PollController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    use Conceptable;
+
     public function index()
     {
         return Inertia::render('Poll/Index', [
@@ -25,9 +24,6 @@ class PollController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return Inertia::render('Poll/Edit', [
@@ -42,9 +38,6 @@ class PollController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $maxAnswerIndex = 9;
@@ -77,7 +70,8 @@ class PollController extends Controller
         $poll->save();
 
         if ($concept) {
-            TelegramPoll::make($poll, concept: true)->publish();
+            $this->publishConcept($poll);
+
             return to_route('polls.edit', $poll->id)
                         ->with('success', 'The poll was created and tested');
         }
@@ -85,9 +79,6 @@ class PollController extends Controller
         return to_route('polls.index')->with('success', 'The poll was created');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Poll $poll)
     {
         return Inertia::render('Poll/Edit', [
@@ -102,9 +93,6 @@ class PollController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Poll $poll)
     {
         $maxAnswerIndex = 9;
@@ -134,7 +122,8 @@ class PollController extends Controller
         $poll->update($data);
 
         if ($concept) {
-            TelegramPoll::make($poll, concept: true)->publish();
+            $this->publishConcept(Poll::find($poll->id));
+
             return to_route('polls.edit', $poll->id)
                         ->with('success', 'The poll was updated and tested');
         }
@@ -142,9 +131,6 @@ class PollController extends Controller
         return to_route('polls.index')->with('success', 'The poll was updated');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Poll $poll)
     {
         $poll->delete();

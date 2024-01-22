@@ -1,20 +1,19 @@
 <?php
 namespace App\Http\Services;
 
-use Telegram\Bot\Objects\Message as TelegramMessage;
+use Telegram\Bot\Objects\Message;
 use App\Http\Contracts\TelegramPublishable;
-use App\Models\Post;
+use App\Models\MediaGroup;
 use Exception;
-use Telegram\Bot\FileUpload\InputFile;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
-class TelegramPost implements TelegramPublishable
+class TelegramMessage implements TelegramPublishable
 {
     protected static $publishable;
     protected $chat_id;
     protected $reuse_file = false;
 
-    protected function __construct(protected Post $post, $concept = false) 
+    protected function __construct(protected MediaGroup $post, $concept = false) 
     {
         if ($concept && ! config('app.TELEGRAM_CONCEPT_CHANNEL_ID')) {
             throw new Exception('Concept Channel ID is missing or empty. Fill out TELEGRAM_CONCEPT_CHANNEL_ID env variable');
@@ -25,7 +24,7 @@ class TelegramPost implements TelegramPublishable
             : $post->channel->chat_id;
     }
 
-    public static function make(Post $post, bool $concept = false)
+    public static function make(MediaGroup $post, bool $concept = false)
     {
         return (new self($post, $concept));
     }
@@ -35,7 +34,7 @@ class TelegramPost implements TelegramPublishable
         return [$this->send()->message_id];
     }
 
-    protected function send(): TelegramMessage
+    protected function send(): Message
     {
         //'protect_content' => true,
         //'disable_notification' => true,

@@ -5,20 +5,12 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 use App\Models\Channel;
-use App\Models\File;
-use App\Models\Media;
 use App\Models\MediaGroup;
-use App\Models\MediaGroupFile;
 use App\Models\Message;
-use App\Models\Photo;
 use App\Models\Poll;
-use App\Models\Post;
 use App\Models\User;
-use App\Models\Video;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
-
-use function Laravel\Prompts\password;
 
 class DatabaseSeeder extends Seeder
 {
@@ -36,30 +28,33 @@ class DatabaseSeeder extends Seeder
             'remember_token' => Str::random(10),
         ])];
 
-        $channel = Channel::factory()->create([
-            'chat_id' => env('TELEGRAM_CHANNEL_ID'),
-            'name' => env('TELEGRAM_CHANNEL_NAME'),
-            'signature' => '<a href="#">Subscribe</a>',
-        ]);        
+        $factories = collect([
+            MediaGroup::factory(100),
+            Poll::factory(10),
+        ]);
 
         collect([
-            Post::class,
-            Photo::class,
-            Video::class,
-            MediaGroup::class,
-            Poll::class,
-        ])->each(function ($class) use ($channel, $users) {
-            $messagable = $class::factory(50)->recycle($users)->create();
-            $messagable->each(function($messagable) use ($channel) {
-                Message::factory()->create([
+            Channel::factory()->create([
+                'chat_id' => config('app.TELEGRAM_CONCEPT_CHANNEL_ID'),
+                'name' => config('app.TELEGRAM_CONCEPT_CHANNEL_NAME'),
+                'signature' => '<a href="' . config('app.TELEGRAM_CONCEPT_CHANNEL_LINK') . '">Subscribe</a>',
+            ]),
+            ...Channel::factory(9)->create()
+        ])->each(function ($channel) use ($users, $factories) {
+            $factories->each(function ($factory) use ($channel, $users) {
+                $messagable = $factory->recycle($users)->create([
                     'channel_id' => $channel,
-                    'messagable_type' => get_class($messagable),
-                    'messagable_id' => $messagable->id,
-                    'body' => $messagable->body ? $messagable->body . '<i>Source: Lorem Ipsum</i>' . $channel->signature : null,
                 ]);
+
+                $messagable->each(function($messagable) use ($channel) {
+                    Message::factory()->create([
+                        'channel_id' => $channel,
+                        'messagable_type' => get_class($messagable),
+                        'messagable_id' => $messagable->id,
+                        'body' => $messagable->body ? $messagable->body . '<i>Source: Lorem Ipsum</i>' . $channel->signature : null,
+                    ]);
+                });
             });
         });
-
-        Channel::factory(9)->create();
     }
 }

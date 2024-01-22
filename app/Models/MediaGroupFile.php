@@ -9,4 +9,6 @@ use Illuminate\Support\Facades\Storage;
 class MediaGroupFile extends Model
 {
     use HasFactory;
+
+    public $guarded = ['id'];
 }

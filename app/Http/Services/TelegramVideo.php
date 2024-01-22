@@ -3,7 +3,8 @@ namespace App\Http\Services;
 
 use Telegram\Bot\Objects\Message as TelegramMessage;
 use App\Http\Contracts\TelegramPublishable;
-use App\Models\Video;
+use App\Models\MediaGroup;
+use App\Models\MediaGroupFile;
 use Exception;
 use Telegram\Bot\FileUpload\InputFile;
 use Telegram\Bot\Laravel\Facades\Telegram;
@@ -12,9 +13,8 @@ class TelegramVideo implements TelegramPublishable
 {
     protected static $publishable;
     protected $chat_id;
-    protected $reuse_file = false;
 
-    protected function __construct(protected Video $video, $concept = false) 
+    protected function __construct(protected MediaGroup $group, $concept = false) 
     {
         if ($concept && ! config('app.TELEGRAM_CONCEPT_CHANNEL_ID')) {
             throw new Exception('Concept Channel ID is missing or empty. Fill out TELEGRAM_CONCEPT_CHANNEL_ID env variable');
@@ -22,10 +22,10 @@ class TelegramVideo implements TelegramPublishable
 
         $this->chat_id = $concept 
             ? config('app.TELEGRAM_CONCEPT_CHANNEL_ID') 
-            : $video->channel->chat_id;
+            : $group->channel->chat_id;
     }
 
-    public static function make(Video $video, bool $concept = false)
+    public static function make(MediaGroup $video, bool $concept = false)
     {
         return (new self($video, $concept));
     }
@@ -34,55 +34,52 @@ class TelegramVideo implements TelegramPublishable
     {
         $response = $this->send();
         
-        $this->updateFile($response);
+        $this->updateFiles($response);
 
         return [$response->message_id];
     }
 
     protected function send(): TelegramMessage
     {
-        return Telegram::sendVideo([
+        $data = [
             'chat_id' => $this->chat_id,
             'caption' => $this->caption(),
             'parse_mode' => 'HTML',
-            'video' => $this->video(),
+            'video' => $this->media($this->group->filenames[0]),
             'supports_streaming' => true, //autoplay
-        ]);
+        ];
+        return Telegram::sendVideo($data);
     }
 
     public function caption(): String
     {
         $caption = '';
         
-        if ($this->video->show_title) {
-            $caption .= "<b>{$this->video->title}</b>" . PHP_EOL . PHP_EOL;
+        if ($this->group->show_title) {
+            $caption .= "<b>{$this->group->title}</b>" . PHP_EOL . PHP_EOL;
         }
         
-        $caption .= $this->video->body;
+        $caption .= $this->group->body;
 
-        if ($this->video->source) {
-            $caption .= PHP_EOL . PHP_EOL . "<i>{$this->video->source}</i>";
+        if ($this->group->source) {
+            $caption .= PHP_EOL . PHP_EOL . "<i>{$this->group->source}</i>";
         }
 
-        if ($this->video->show_signature) {
+        if ($this->group->show_signature) {
             $caption .= (strlen($caption) > 0 ? PHP_EOL . PHP_EOL : '')
-                     . $this->video->channel->signature;
+                     . $this->group->channel->signature;
         }
 
         return $caption;
     } 
 
-    protected function video() 
+    protected function media(MediaGroupFile $media): mixed
     {
-        if ($this->video->file_id) {
-            $this->reuse_file = true;
-            return $this->video->file_id;
-        }
-
-        return InputFile::create(
-            storage_path('app\\public\\media\\' . session('channel.id') . '\\' . $this->video->filename), 
-            $this->video->filename
-        );
+        return $media->file_id 
+            ?? InputFile::create(
+                storage_path('app\\public\\media\\' . session('channel.id') . '\\' . $media->filename), 
+                $media->filename
+            );
     }
 
     // response for Video Telegram\Bot\Objects\Message
@@ -130,14 +127,28 @@ class TelegramVideo implements TelegramPublishable
     //     ]
     // }
 
-    protected function updateFile(TelegramMessage $message)
+    protected function updateFiles(TelegramMessage $message)
     {
-        if ($this->reuse_file) {
-            return;
+        $this->updateFile($message, $this->group->filenames[0]);
+    }
+
+    protected function updateFile(mixed $message, MediaGroupFile $media)
+    {
+        if ($media->file_id) {
+            return $media;
         }
 
-        $this->video->file_id = $message->video->file_id;
-        $this->video->file_unique_id = $message->video->file_unique_id;
-        return $this->video->save();
+        if ($media->type === 'video') {
+            $media->file_id = $message['video']['file_id'];
+            $media->file_unique_id = $message['video']['file_unique_id'];
+        } else if ($media->type === 'photo') {
+            $telegramPhoto = collect($message['photo'])->pop();
+            $media->file_id = $telegramPhoto['file_id'];
+            $media->file_unique_id = $telegramPhoto['file_unique_id'];
+        } else {
+            throw new Exception('Invalid type of Telegram Media');
+        }
+        
+        return $media->save();
     }
 }

@@ -147,21 +147,6 @@ const links = ref([
         active: () => route().current().startsWith('messages') 
     },
     { 
-        title: 'Posts', 
-        href: route('posts.index'), 
-        active: () => route().current().startsWith('posts') 
-    },
-    { 
-        title: 'Photos', 
-        href: route('photos.index'), 
-        active: () => route().current().startsWith('photos') 
-    },
-    { 
-        title: 'Videos', 
-        href: route('videos.index'), 
-        active: () => route().current().startsWith('videos') 
-    },
-    { 
         title: 'Groups', //Media 
         href: route('media.index'), 
         active: () => route().current().startsWith('media') 

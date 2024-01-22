@@ -4,11 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Channel;
 use App\Models\MediaGroup;
-use App\Models\Photo;
 use App\Models\Poll;
-use App\Models\Post;
-use App\Models\User;
-use App\Models\Video;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -28,12 +24,9 @@ class MessageFactory extends Factory
         $publishedAt = Carbon::make($createdAt)->addDays(60);
 
         $messagable = [
-            Post::class,
-            Poll::class,
-            Photo::class,
-            Video::class,
             MediaGroup::class,
-        ][rand(0, 4)];
+            Poll::class,
+        ][rand(0, 1)];
 
         return [
             'channel_id' => Channel::first() ?? Channel::factory(),

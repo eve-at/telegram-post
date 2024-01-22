@@ -3,15 +3,11 @@
 namespace Database\Factories;
 
 use App\Models\Channel;
-use App\Models\File;
-use App\Models\Media;
 use App\Models\MediaGroup;
 use App\Models\MediaGroupFile;
-use App\Models\Photo;
 use App\Models\User;
-use App\Models\Video;
-use Closure;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Arr;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\MediaGroup>
@@ -29,17 +25,27 @@ class MediaGroupFactory extends Factory
             'channel_id' => Channel::first() ?? Channel::factory(),
             'user_id' => User::factory(),
             'title' => str(fake()->sentence(rand(2, 4)))->beforeLast('.'),
+            'type' => Arr::random(['message', 'photo', 'video', 'media_group']),
             'body' => fake()->emoji() . ' ' . fake()->paragraph(),
-            'source' => '@' . fake()->firstName() . '_' . fake()->lastName(),
+            'source' => fake()->firstName() . '_' . fake()->lastName(),
         ];
     }
 
     public function configure() 
     {
         return $this->afterCreating(function (MediaGroup $mediaGroup) {
-            collect(range(1, rand(2, 10)))->each(function ($item) use ($mediaGroup) {
+            if ($mediaGroup->type === 'message') {
+                return;
+            }
+
+            $nFiles = 1;
+            if ($mediaGroup->type === 'media_group') {
+                $nFiles = rand(2, 10);
+            }
+
+            collect(range(1, $nFiles))->each(function ($item) use ($mediaGroup) {
                 static $order = 0;
-                $mediable = $this->mediableType();
+                $mediable = $this->mediableType($mediaGroup->type);
 
                 MediaGroupFile::create([
                     'media_group_id' => $mediaGroup->id,
@@ -53,13 +59,17 @@ class MediaGroupFactory extends Factory
         });
     }
     
-    protected function mediableType() 
+    protected function mediableType(?string $type = null) 
     {
+        if ($type === 'media_group') {
+            $type = Arr::random(['photo', 'video']);
+        }
+
         return [
-            ['photo', '.jpg'],
-            ['video', '.mp4'],
-            ['document', '.pdf'],
-        ][rand(0, 2)];
+            'photo' => ['photo', '.jpg'],
+            'video' => ['video', '.mp4'],
+            //'document' => ['document', '.pdf'],
+        ][$type];
     }
     
 }

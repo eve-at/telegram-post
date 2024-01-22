@@ -8,7 +8,7 @@ use Exception;
 use Telegram\Bot\FileUpload\InputFile;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
-class TelegramPoll// implements TelegramPublishable
+class TelegramPoll implements TelegramPublishable
 {
     protected static $publishable;
     protected $chat_id;
@@ -30,12 +30,10 @@ class TelegramPoll// implements TelegramPublishable
         return (new self($poll, $concept));
     }
 
-    public function publish()//: array
+    public function publish(): array
     {
         $response = $this->send();
         
-        return $response;
-
         return [$response->message_id];
     }
 

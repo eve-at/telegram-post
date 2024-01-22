@@ -17,9 +17,11 @@ class ChannelFactory extends Factory
      */
     public function definition(): array
     {
+        $name = fake()->firstName() . ' ' . fake()->lastName();
         return [
-            'name' => fake()->firstName() . ' ' . fake()->lastName(),
+            'name' => $name,
             'chat_id' => '-100' . fake()->randomNumber(5, strict: true) . fake()->randomNumber(5, strict: true),
+            'signature' => '<a href="' . config('app.TELEGRAM_CONCEPT_CHANNEL_LINK') . "\">$name</a>",
         ];
     }
 }

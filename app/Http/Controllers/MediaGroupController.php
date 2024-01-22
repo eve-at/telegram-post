@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\Conceptable;
 use App\Http\Resources\MediaGroupResource;
-use App\Http\Services\TelegramMediaGroup;
-use App\Http\Services\TelegramPhoto;
-use App\Http\Services\TelegramPost;
-use App\Http\Services\TelegramVideo;
 use App\Models\MediaGroup;
 use App\Models\MediaGroupFile;
 use Exception;
@@ -16,6 +13,8 @@ use Inertia\Inertia;
 
 class MediaGroupController extends Controller
 {
+    use Conceptable;
+
     public function index()
     {
         return Inertia::render('MediaGroup/Index', [
@@ -39,39 +38,9 @@ class MediaGroupController extends Controller
 
     public function store(Request $request)
     {
-        // No files => message => `text` 4096 chars
-        // 1 photo => photo => `caption` 1024 chars
-        // 1 video => video => `caption` 1024 chars
-        // 2+ photo/video => media_group => `caption` 1024 chars
-
-        $validationRules = [
-            'title' => ['required', 'max:190'],
-            'body' => ['required', 'max:4096'],
-            'show_title' => ['boolean'],
-            'show_signature' => ['boolean'],
-            'source' => ['max:190'],
-            'concept' => ['boolean'],
-            'filenames' => ['max:10'],
-        ];
-
-        $type = 'message';
-        if ($request->filenames) {
-            $validationRules['body'] = ['max:1024']; // not required
-            $validationRules['filenames.*'] = ['max:190']; // 190 max filename length
-
-            if (count($request->filenames) > 1) {
-                $type = 'media_group';
-                $validationRules['filenames.*'][] = 'ends_with:.mp4,.jpg';
-            } else if (str_ends_with($request->filenames[0], '.mp4')) {
-                $type = 'video';
-                $validationRules['filenames.*'][] = 'ends_with:.mp4';
-            } else { //}if (str_ends_with($request->filenames[0], '.jpg')) {
-                $type = 'photo';
-                $validationRules['filenames.*'][] = 'ends_with:.jpg';
-            }
-        }
-
-        $data = $request->validate($validationRules);
+        
+        $data = $this->validateRequest($request);
+        $type = $this->getRequestType($request);
 
         $concept = $data['concept'] ?? false;
 
@@ -96,13 +65,7 @@ class MediaGroupController extends Controller
         }
 
         if ($concept) {
-            $telegramService = match($type) {
-                'photo' => TelegramPhoto::class,
-                'video' => TelegramVideo::class,
-                'media_group' => TelegramMediaGroup::class,
-                'default' => TelegramPost::make($media, concept: true)->publish(),
-            };
-            $telegramService::make($media, concept: true)->publish();
+            $this->publishConcept($media);
 
             return to_route('media.edit', $media->id)
                         ->with('success', 'The Media Group was created and tested');
@@ -162,17 +125,10 @@ class MediaGroupController extends Controller
     // TODO: take out MediaGroupFile
     public function update(Request $request, MediaGroup $media)
     {
-        $data = $request->validate([
-            'title' => ['required', 'max:190'],
-            'filenames' => ['required', 'min:2', 'max:10'], // 2-10 files
-            'filenames.*' => ['max:190'], // 190 max filename length
-            'body' => ['max:1024'],
-            'show_title' => ['boolean'],
-            'show_signature' => ['boolean'],
-            'source' => ['max:190'],
-            'concept' => ['boolean'],
-        ]);
+        $data = $this->validateRequest($request);
+        $type = $this->getRequestType($request);
 
+        $data['type'] = $type;
         $concept = $data['concept'] ?? false;
 
         $media->update(collect($data)->except('filenames')->toArray());
@@ -216,7 +172,8 @@ class MediaGroupController extends Controller
             });
 
         if ($concept) {
-            TelegramMediaGroup::make(MediaGroup::find($media->id), concept: true)->publish();
+            $this->publishConcept(MediaGroup::find($media->id));
+
             return back()->with('success', 'The Media Group was updated and tested');
         }
 
@@ -234,4 +191,57 @@ class MediaGroupController extends Controller
         return to_route('media.index')->with('success', 'The media group was deleted');
     }
 
+    protected function getRequestType(Request $request) 
+    {
+        if ($request->filenames) {
+            if (count($request->filenames) > 1) {
+                return 'media_group';
+            } 
+            
+            if (str_ends_with($request->filenames[0], '.mp4')) {
+                return 'video';
+            } 
+            
+            //if (str_ends_with($request->filenames[0], '.jpg')) {
+                return 'photo';
+            //}
+        }
+
+        return 'message';
+    }
+
+    protected function validateRequest(Request $request) 
+    {
+        // No files => message => `text` 4096 chars
+        // 1 photo => photo => `caption` 1024 chars
+        // 1 video => video => `caption` 1024 chars
+        // 2+ photo/video => media_group => `caption` 1024 chars
+
+        $validationRules = [
+            'title' => ['required', 'max:190'],
+            'body' => ['required', 'max:4096'],
+            'show_title' => ['boolean'],
+            'show_signature' => ['boolean'],
+            'source' => ['max:190'],
+            'concept' => ['boolean'],
+            'filenames' => ['max:10'],
+        ];
+
+        $type = $this->getRequestType($request);
+        
+        if ($type !== 'message') {
+            $validationRules['body'] = ['max:1024']; // not required
+            $validationRules['filenames.*'] = ['max:190']; // 190 max filename length
+
+            if ($type === 'media_group') {
+                $validationRules['filenames.*'][] = 'ends_with:.mp4,.jpg';
+            } else if ($type === 'video') {
+                $validationRules['filenames.*'][] = 'ends_with:.mp4';
+            } else if ($type === 'photo') {
+                $validationRules['filenames.*'][] = 'ends_with:.jpg';
+            }
+        }
+
+        return $request->validate($validationRules);    
+    }        
 }
