@@ -3,16 +3,16 @@
 namespace Database\Factories;
 
 use App\Models\Channel;
-use App\Models\MediaGroup;
-use App\Models\MediaGroupFile;
+use App\Models\Post;
+use App\Models\PostFile;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Arr;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\MediaGroup>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Post>
  */
-class MediaGroupFactory extends Factory
+class PostFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -33,22 +33,22 @@ class MediaGroupFactory extends Factory
 
     public function configure() 
     {
-        return $this->afterCreating(function (MediaGroup $mediaGroup) {
-            if ($mediaGroup->type === 'message') {
+        return $this->afterCreating(function (Post $post) {
+            if ($post->type === 'message') {
                 return;
             }
 
             $nFiles = 1;
-            if ($mediaGroup->type === 'media_group') {
+            if ($post->type === 'media_group') {
                 $nFiles = rand(2, 10);
             }
 
-            collect(range(1, $nFiles))->each(function ($item) use ($mediaGroup) {
+            collect(range(1, $nFiles))->each(function ($item) use ($post) {
                 static $order = 0;
-                $mediable = $this->mediableType($mediaGroup->type);
+                $mediable = $this->mediableType($post->type);
 
-                MediaGroupFile::create([
-                    'media_group_id' => $mediaGroup->id,
+                PostFile::create([
+                    'post_id' => $post->id,
                     'type' => $mediable[0],
                     'filename' => fake()->slug() . $mediable[1],
                     'file_id' => fake()->sha256(),

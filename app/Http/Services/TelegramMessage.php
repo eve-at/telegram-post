@@ -3,7 +3,7 @@ namespace App\Http\Services;
 
 use Telegram\Bot\Objects\Message;
 use App\Http\Contracts\TelegramPublishable;
-use App\Models\MediaGroup;
+use App\Models\Post;
 use Exception;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
@@ -13,7 +13,7 @@ class TelegramMessage implements TelegramPublishable
     protected $chat_id;
     protected $reuse_file = false;
 
-    protected function __construct(protected MediaGroup $post, $concept = false) 
+    protected function __construct(protected Post $post, $concept = false) 
     {
         if ($concept && ! config('app.TELEGRAM_CONCEPT_CHANNEL_ID')) {
             throw new Exception('Concept Channel ID is missing or empty. Fill out TELEGRAM_CONCEPT_CHANNEL_ID env variable');
@@ -24,7 +24,7 @@ class TelegramMessage implements TelegramPublishable
             : $post->channel->chat_id;
     }
 
-    public static function make(MediaGroup $post, bool $concept = false)
+    public static function make(Post $post, bool $concept = false)
     {
         return (new self($post, $concept));
     }

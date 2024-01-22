@@ -45,22 +45,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('channels', ChannelController::class)->except(['show']);
     Route::patch('/session_channel/{channel}/update', [SessionChannelController::class, 'update'])->name('session_channel.update');
     
+    Route::post('/posts/upload', [PostController::class, 'upload'])->name('posts.media.upload');
+    Route::delete('/posts/upload-undo', [PostController::class, 'uploadUndo'])->name('posts.media.upload-undo');
     Route::resource('posts', PostController::class)->except(['show']);
-    
-    Route::post('/photos/upload', [PhotoController::class, 'upload'])->name('photos.upload');
-    Route::delete('/photos/upload-undo', [PhotoController::class, 'uploadUndo'])->name('photos.upload.undo');
-    Route::resource('photos', PhotoController::class)->except(['show']);
-   
-    Route::post('/videos/upload', [VideoController::class, 'upload'])->name('videos.upload');
-    Route::delete('/videos/upload-undo', [VideoController::class, 'uploadUndo'])->name('videos.upload.undo');
-    Route::resource('videos', VideoController::class)->except(['show']);
-   
-    Route::post('/media/upload', [MediaGroupController::class, 'upload'])->name('media.upload');
-    Route::delete('/media/upload-undo', [MediaGroupController::class, 'uploadUndo'])->name('media.upload.undo');
-    Route::resource('media', MediaGroupController::class, ['parameters' => [
-        'media' => 'media' //type-hinted variable for model biding
-        //'media_group' => 'media' //type-hinted variable for model biding
-    ]])->except(['show']);
     
     Route::resource('polls', PollController::class)->except(['show']);
     

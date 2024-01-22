@@ -3,8 +3,8 @@ namespace App\Http\Services;
 
 use Telegram\Bot\Objects\Message as TelegramMessage;
 use App\Http\Contracts\TelegramPublishable;
-use App\Models\MediaGroup;
-use App\Models\MediaGroupFile;
+use App\Models\Post;
+use App\Models\PostFile;
 use Exception;
 use Telegram\Bot\FileUpload\InputFile;
 use Telegram\Bot\Laravel\Facades\Telegram;
@@ -14,7 +14,7 @@ class TelegramVideo implements TelegramPublishable
     protected static $publishable;
     protected $chat_id;
 
-    protected function __construct(protected MediaGroup $group, $concept = false) 
+    protected function __construct(protected Post $post, $concept = false) 
     {
         if ($concept && ! config('app.TELEGRAM_CONCEPT_CHANNEL_ID')) {
             throw new Exception('Concept Channel ID is missing or empty. Fill out TELEGRAM_CONCEPT_CHANNEL_ID env variable');
@@ -22,12 +22,12 @@ class TelegramVideo implements TelegramPublishable
 
         $this->chat_id = $concept 
             ? config('app.TELEGRAM_CONCEPT_CHANNEL_ID') 
-            : $group->channel->chat_id;
+            : $post->channel->chat_id;
     }
 
-    public static function make(MediaGroup $video, bool $concept = false)
+    public static function make(Post $post, bool $concept = false)
     {
-        return (new self($video, $concept));
+        return (new self($post, $concept));
     }
 
     public function publish(): array
@@ -45,7 +45,7 @@ class TelegramVideo implements TelegramPublishable
             'chat_id' => $this->chat_id,
             'caption' => $this->caption(),
             'parse_mode' => 'HTML',
-            'video' => $this->media($this->group->filenames[0]),
+            'video' => $this->media($this->post->filenames[0]),
             'supports_streaming' => true, //autoplay
         ];
         return Telegram::sendVideo($data);
@@ -55,25 +55,25 @@ class TelegramVideo implements TelegramPublishable
     {
         $caption = '';
         
-        if ($this->group->show_title) {
-            $caption .= "<b>{$this->group->title}</b>" . PHP_EOL . PHP_EOL;
+        if ($this->post->show_title) {
+            $caption .= "<b>{$this->post->title}</b>" . PHP_EOL . PHP_EOL;
         }
         
-        $caption .= $this->group->body;
+        $caption .= $this->post->body;
 
-        if ($this->group->source) {
-            $caption .= PHP_EOL . PHP_EOL . "<i>{$this->group->source}</i>";
+        if ($this->post->source) {
+            $caption .= PHP_EOL . PHP_EOL . "<i>{$this->post->source}</i>";
         }
 
-        if ($this->group->show_signature) {
+        if ($this->post->show_signature) {
             $caption .= (strlen($caption) > 0 ? PHP_EOL . PHP_EOL : '')
-                     . $this->group->channel->signature;
+                     . $this->post->channel->signature;
         }
 
         return $caption;
     } 
 
-    protected function media(MediaGroupFile $media): mixed
+    protected function media(PostFile $media): mixed
     {
         return $media->file_id 
             ?? InputFile::create(
@@ -129,10 +129,10 @@ class TelegramVideo implements TelegramPublishable
 
     protected function updateFiles(TelegramMessage $message)
     {
-        $this->updateFile($message, $this->group->filenames[0]);
+        $this->updateFile($message, $this->post->filenames[0]);
     }
 
-    protected function updateFile(mixed $message, MediaGroupFile $media)
+    protected function updateFile(mixed $message, PostFile $media)
     {
         if ($media->file_id) {
             return $media;

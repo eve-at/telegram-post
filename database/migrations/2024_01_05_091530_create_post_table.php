@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('media_groups', function (Blueprint $table) {
+        Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Channel::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained()->restrictOnDelete();
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('media_groups');
+        Schema::dropIfExists('posts');
     }
 };

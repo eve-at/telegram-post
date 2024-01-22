@@ -4,9 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -52,9 +50,9 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function media_groups(): HasMany
+    public function posts(): HasMany
     {
-        return $this->hasMany(MediaGroup::class);
+        return $this->hasMany(Post::class);
     }
 
     public function messages(): HasMany
@@ -62,24 +60,8 @@ class User extends Authenticatable
         return $this->hasMany(Message::class);
     }
 
-    public function photos(): HasMany
-    {
-        return $this->hasMany(Photo::class);
-    }
-
     public function polls(): HasMany
     {
         return $this->hasMany(Poll::class);
-    }
-
-    public function posts(): HasMany
-    {
-        return $this->hasMany(Post::class);
-    }
-
-    public function videos(): HasMany
-    {
-        return $this->hasMany(Video::class);
-    }
-    
+    } 
 }

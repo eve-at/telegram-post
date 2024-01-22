@@ -28,7 +28,7 @@
                         ></div>
                         <div class="w-7/12">
                             <Link 
-                                :href="`/polls/${poll.id}/edit`" 
+                                :href="route('polls.edit', poll.id)" 
                                 v-text="poll.title"
                                 class="block hover:underline hover:text-blue-600 px-3 py-2"
                             ></Link>
@@ -40,7 +40,7 @@
                         <div class="w-2/12 px-2 py-2 space-x-2">
                             <Link 
                                 class="hover:underline hover:text-blue-600"
-                                :href="`/polls/${poll.id}/edit`" 
+                                :href="route('polls.edit', poll.id)" 
                                 text="Edit"
                             ></Link>
                             <Link 

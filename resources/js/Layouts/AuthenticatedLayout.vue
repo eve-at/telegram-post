@@ -147,9 +147,9 @@ const links = ref([
         active: () => route().current().startsWith('messages') 
     },
     { 
-        title: 'Groups', //Media 
-        href: route('media.index'), 
-        active: () => route().current().startsWith('media') 
+        title: 'Posts',
+        href: route('posts.index'), 
+        active: () => route().current().startsWith('posts') 
     },
     { 
         title: 'Polls', 

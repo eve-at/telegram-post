@@ -3,23 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Traits\Conceptable;
-use App\Http\Resources\MediaGroupResource;
-use App\Models\MediaGroup;
-use App\Models\MediaGroupFile;
+use App\Http\Resources\PostResource;
+use App\Models\Post;
+use App\Models\PostFile;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
-class MediaGroupController extends Controller
+class PostController extends Controller
 {
     use Conceptable;
 
     public function index()
     {
-        return Inertia::render('MediaGroup/Index', [
-            'media' => MediaGroupResource::collection(
-                MediaGroup::where('channel_id', session('channel.id'))
+        return Inertia::render('Post/Index', [
+            'posts' => PostResource::collection(
+                Post::where('channel_id', session('channel.id'))
                     ->orderBy('created_at', 'DESC')
                     ->paginate()
             )
@@ -28,11 +28,11 @@ class MediaGroupController extends Controller
 
     public function create()
     {
-        return Inertia::render('MediaGroup/Edit', [
+        return Inertia::render('Post/Edit', [
             'title' => 'Create',
-            'toRoute' => 'media.store',
-            'cancelRoute' => 'media.index',
-            'group' => MediaGroupResource::make(new MediaGroup),
+            'toRoute' => 'posts.store',
+            'cancelRoute' => 'posts.index',
+            'post' => PostResource::make(new Post),
         ]);
     }
 
@@ -44,11 +44,11 @@ class MediaGroupController extends Controller
 
         $concept = $data['concept'] ?? false;
 
-        $media = MediaGroup::make($data);
-        $media->type = $type;
-        $media->user()->associate($request->user());
-        $media->channel()->associate(session('channel.id'));
-        $media->save();
+        $post = Post::make($data);
+        $post->type = $type;
+        $post->user()->associate($request->user());
+        $post->channel()->associate(session('channel.id'));
+        $post->save();
 
         foreach($data['filenames'] as $index=>$filename) {
             Storage::move(
@@ -56,22 +56,22 @@ class MediaGroupController extends Controller
                 'public/media/' . session('channel.id') . '/' . $filename
             );
 
-            $file = new MediaGroupFile;
+            $file = new PostFile;
             $file->filename = $filename;
             $file->order = $index;
             $file->type = str_ends_with($filename, '.mp4') ? 'video' : 'photo';
-            $file->media_group_id = $media->id;
+            $file->post_id = $post->id;
             $file->save();
         }
 
         if ($concept) {
-            $this->publishConcept($media);
+            $this->publishConcept($post);
 
-            return to_route('media.edit', $media->id)
-                        ->with('success', 'The Media Group was created and tested');
+            return to_route('posts.edit', $post->id)
+                        ->with('success', 'The Post was created and tested');
         }
 
-        return to_route('media.index')->with('success', 'The Media Group was created');
+        return to_route('posts.index')->with('success', 'The Post was created');
     }
 
     public function upload(Request $request)
@@ -112,18 +112,18 @@ class MediaGroupController extends Controller
         }
     }
 
-    public function edit(MediaGroup $media)
+    public function edit(Post $post)
     {
-        return Inertia::render('MediaGroup/Edit', [
+        return Inertia::render('Post/Edit', [
             'title' => 'Edit',
-            'group' => MediaGroupResource::make($media),
-            'toRoute' => 'media.update',
-            'cancelRoute' => 'media.index',
+            'post' => PostResource::make($post),
+            'toRoute' => 'posts.update',
+            'cancelRoute' => 'posts.index',
         ]);
     }
 
-    // TODO: take out MediaGroupFile
-    public function update(Request $request, MediaGroup $media)
+    // TODO: take out PostFile
+    public function update(Request $request, Post $post)
     {
         $data = $this->validateRequest($request);
         $type = $this->getRequestType($request);
@@ -131,15 +131,15 @@ class MediaGroupController extends Controller
         $data['type'] = $type;
         $concept = $data['concept'] ?? false;
 
-        $media->update(collect($data)->except('filenames')->toArray());
+        $post->update(collect($data)->except('filenames')->toArray());
         
-        $filesBefore = $media->filenames->pluck('filename');
+        $filesBefore = $post->filenames->pluck('filename');
         $filesAfter = collect($data['filenames']);
 
         // remove missing files (disk and DB)
         if ($filesDeleted = $filesBefore->diff($filesAfter)) {
-            MediaGroupFile::whereIn('filename', $filesDeleted)
-                ->where('media_group_id', $media->id)
+            PostFile::whereIn('filename', $filesDeleted)
+                ->where('post_id', $post->id)
                 ->delete();
 
             Storage::delete($filesDeleted->map(fn ($filename) => 'public/media/' . session('channel.id') . '/' . $filename)->toArray());
@@ -147,11 +147,11 @@ class MediaGroupController extends Controller
 
         // move new files (disk, and add into DB)
         $orders = $filesAfter->flip();
-        $filesAfter->diff($filesBefore)->each(function($filename) use ($media, $orders) {
-            $file = new MediaGroupFile();
+        $filesAfter->diff($filesBefore)->each(function($filename) use ($post, $orders) {
+            $file = new PostFile();
             $file->filename = $filename;
             $file->type = str_ends_with($filename, '.mp4') ? 'video' : 'photo';
-            $file->media_group_id = $media->id;
+            $file->post_id = $post->id;
             $file->order = $orders->get($filename);
             $file->save();
 
@@ -165,30 +165,30 @@ class MediaGroupController extends Controller
         // reorder old files in DB
         $filesAfter->flip()
             ->intersectByKeys($filesBefore->flip())
-            ->each(function($order, $filename) use ($media) {
-                MediaGroupFile::where('filename', $filename)
-                    ->where('media_group_id', $media->id)
+            ->each(function($order, $filename) use ($post) {
+                PostFile::where('filename', $filename)
+                    ->where('post_id', $post->id)
                     ->update(['order' => $order]);
             });
 
         if ($concept) {
-            $this->publishConcept(MediaGroup::find($media->id));
+            $this->publishConcept(Post::find($post->id));
 
-            return back()->with('success', 'The Media Group was updated and tested');
+            return back()->with('success', 'The Post was updated and tested');
         }
 
-        return to_route('media.index')->with('success', 'The media group was updated');
+        return to_route('posts.index')->with('success', 'The Post was updated');
     }
 
-    public function destroy(MediaGroup $media)
+    public function destroy(Post $post)
     {
-        $files = $media->filenames->pluck('filename');
+        $files = $post->filenames->pluck('filename');
 
-        $media->delete();
+        $post->delete();
 
         Storage::delete($files->map(fn ($filename) => 'public/media/' . session('channel.id') . '/' . $filename)->toArray());
 
-        return to_route('media.index')->with('success', 'The media group was deleted');
+        return to_route('posts.index')->with('success', 'The Post was deleted');
     }
 
     protected function getRequestType(Request $request) 

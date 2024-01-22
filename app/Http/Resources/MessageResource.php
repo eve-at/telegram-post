@@ -2,11 +2,8 @@
 
 namespace App\Http\Resources;
 
-use App\Models\MediaGroup;
-use App\Models\Photo;
 use App\Models\Poll;
 use App\Models\Post;
-use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,9 +19,6 @@ class MessageResource extends JsonResource
 
         $messagableResource = match ($this->messagable_type) {
             Post::class => PostResource::class,
-            Video::class => VideoResource::class,
-            Photo::class => PhotoResource::class,
-            MediaGroup::class => MediaGroupResource::class,
             Poll::class => PollResource::class,
             default => null,
         };

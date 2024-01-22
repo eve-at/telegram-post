@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Channel;
-use App\Models\MediaGroup;
+use App\Models\Post;
 use App\Models\Poll;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -24,7 +24,7 @@ class MessageFactory extends Factory
         $publishedAt = Carbon::make($createdAt)->addDays(60);
 
         $messagable = [
-            MediaGroup::class,
+            Post::class,
             Poll::class,
         ][rand(0, 1)];
 

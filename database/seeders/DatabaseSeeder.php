@@ -5,7 +5,7 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 use App\Models\Channel;
-use App\Models\MediaGroup;
+use App\Models\Post;
 use App\Models\Message;
 use App\Models\Poll;
 use App\Models\User;
@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
         ])];
 
         $factories = collect([
-            MediaGroup::factory(100),
+            Post::factory(100),
             Poll::factory(10),
         ]);
 
@@ -37,7 +37,7 @@ class DatabaseSeeder extends Seeder
             Channel::factory()->create([
                 'chat_id' => config('app.TELEGRAM_CONCEPT_CHANNEL_ID'),
                 'name' => config('app.TELEGRAM_CONCEPT_CHANNEL_NAME'),
-                'signature' => '<a href="' . config('app.TELEGRAM_CONCEPT_CHANNEL_LINK') . '">Subscribe</a>',
+                'signature' => '<a href="' . config('app.TELEGRAM_CONCEPT_CHANNEL_LINK') . '">' . config('app.TELEGRAM_CONCEPT_CHANNEL_NAME') . '</a>',
             ]),
             ...Channel::factory(9)->create()
         ])->each(function ($channel) use ($users, $factories) {

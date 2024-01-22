@@ -1,7 +1,6 @@
 <?php
 
-use App\Models\File;
-use App\Models\MediaGroup;
+use App\Models\Post;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,9 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('media_group_files', function (Blueprint $table) {
+        Schema::create('post_files', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(MediaGroup::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Post::class)->constrained()->cascadeOnDelete();
             $table->integer('order')->default(0);
             $table->set('type', ['photo', 'video', 'document']);
             $table->string('filename');
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('media_group_files');
+        Schema::dropIfExists('post_files');
     }
 };

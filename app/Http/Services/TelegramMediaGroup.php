@@ -3,8 +3,8 @@ namespace App\Http\Services;
 
 use Telegram\Bot\Objects\Message as TelegramMessage;
 use App\Http\Contracts\TelegramPublishable;
-use App\Models\MediaGroup;
-use App\Models\MediaGroupFile;
+use App\Models\Post;
+use App\Models\PostFile;
 use Exception;
 use Telegram\Bot\FileUpload\InputFile;
 use Telegram\Bot\Laravel\Facades\Telegram;
@@ -18,7 +18,7 @@ class TelegramMediaGroup implements TelegramPublishable
     protected $reuse_file = false;
     protected $filesToUpload = [];
 
-    protected function __construct(protected MediaGroup $group, $concept = false) 
+    protected function __construct(protected Post $post, $concept = false) 
     {
         if ($concept && ! config('app.TELEGRAM_CONCEPT_CHANNEL_ID')) {
             throw new Exception('Concept Channel ID is missing or empty. Fill out TELEGRAM_CONCEPT_CHANNEL_ID env variable');
@@ -26,12 +26,12 @@ class TelegramMediaGroup implements TelegramPublishable
 
         $this->chat_id = $concept 
             ? config('app.TELEGRAM_CONCEPT_CHANNEL_ID') 
-            : $group->channel->chat_id;
+            : $post->channel->chat_id;
     }
 
-    public static function make(MediaGroup $group, bool $concept = false)
+    public static function make(Post $post, bool $concept = false)
     {
-        return (new self($group, $concept));
+        return (new self($post, $concept));
     }
 
     public function publish(): array
@@ -47,16 +47,16 @@ class TelegramMediaGroup implements TelegramPublishable
     {
         $this->filesToUpload = [];
 
-        $group = $this->group();
+        $medias = $this->medias();
 
         if ($caption = $this->caption()) {
-            $group[0]['caption'] = $caption;
-            $group[0]['parse_mode'] = 'HTML';
+            $medias[0]['caption'] = $caption;
+            $medias[0]['parse_mode'] = 'HTML';
         }
         
         $data = [
             'chat_id' => $this->chat_id,
-            'media' => json_encode($group),
+            'media' => json_encode($medias),
             ...$this->filesToUpload
         ];
 
@@ -67,27 +67,27 @@ class TelegramMediaGroup implements TelegramPublishable
     {
         $caption = '';
         
-        if ($this->group->show_title) {
-            $caption .= "<b>{$this->group->title}</b>" . PHP_EOL . PHP_EOL;
+        if ($this->post->show_title) {
+            $caption .= "<b>{$this->post->title}</b>" . PHP_EOL . PHP_EOL;
         }
         
-        $caption .= $this->group->body;
+        $caption .= $this->post->body;
 
-        if ($this->group->source) {
-            $caption .= PHP_EOL . PHP_EOL . "<i>{$this->group->source}</i>";
+        if ($this->post->source) {
+            $caption .= PHP_EOL . PHP_EOL . "<i>{$this->post->source}</i>";
         }
 
-        if ($this->group->show_signature) {
+        if ($this->post->show_signature) {
             $caption .= (strlen($caption) > 0 ? PHP_EOL . PHP_EOL : '')
-                     . $this->group->channel->signature;
+                     . $this->post->channel->signature;
         }
 
         return $caption;
     } 
 
-    protected function group(): array
+    protected function medias(): array
     {
-        return $this->group->filenames->map(function (MediaGroupFile $media) {
+        return $this->post->filenames->map(function (PostFile $media) {
             return match($media->type) {
                 'photo' => $this->inputMediaPhoto($media),
                 'video' => $this->inputMediaVideo($media),
@@ -97,7 +97,7 @@ class TelegramMediaGroup implements TelegramPublishable
         })->toArray();
     } 
 
-    protected function inputMediaPhoto(MediaGroupFile $media): InputMediaPhoto
+    protected function inputMediaPhoto(PostFile $media): InputMediaPhoto
     {
         return new InputMediaPhoto([
             'type' => 'photo',
@@ -105,7 +105,7 @@ class TelegramMediaGroup implements TelegramPublishable
         ]);
     }
 
-    protected function inputMediaVideo(MediaGroupFile $media): InputMediaVideo
+    protected function inputMediaVideo(PostFile $media): InputMediaVideo
     {
         return new InputMediaVideo([
             'type' => 'video',
@@ -287,11 +287,11 @@ class TelegramMediaGroup implements TelegramPublishable
     protected function updateFiles(TelegramMessage $messages)
     {
         $messages->each(
-            fn (array $message, int $index) => $this->updateFile($message, $this->group->filenames[$index])
+            fn (array $message, int $index) => $this->updateFile($message, $this->post->filenames[$index])
         );
     }
 
-    protected function updateFile(array $message, MediaGroupFile $media)
+    protected function updateFile(array $message, PostFile $media)
     {
         if ($media->file_id) {
             return $media;
