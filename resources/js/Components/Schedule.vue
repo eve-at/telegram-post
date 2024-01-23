@@ -1,14 +1,6 @@
 <template>
-    <RadioGroup 
-        name="scheduleView"
-        v-model="scheduleView"
-        :options="scheduleOptions"
-        @change="scheduleViewChange($event)"
-    />
-
     <div class="flex mt-4">
         <div 
-            v-if="scheduleView === 'calendar'"
             class="mx-auto flex flex-col items-start space-y-5"
         >
             <span class="text-gray-600">
@@ -22,6 +14,7 @@
                 is24hr 
                 :first-day-of-week="2"
                 :min-date="(new Date)"
+                :expanded="true"
                 :attributes="datePickerAttributes"
             />
 
@@ -31,34 +24,7 @@
                 Add to the calendar
             </PrimaryButton>
         </div>
-        <div 
-            v-if="scheduleView === 'feed'"
-            class="mx-auto flex flex-col items-start space-y-5"
-        >
-            <span class="text-gray-600">
-                Feed view
-
-                <PrimaryButton 
-                    @click.prevent="emitter.emit('schedule', 'feed')"
-                >
-                    Add to the feed
-                </PrimaryButton>
-            </span>
-        </div>
-        <div 
-            v-if="scheduleView === 'now'"
-            class="mx-auto flex flex-col items-start space-y-5"
-        >
-            <span class="text-gray-600">
-                Publish your post right now
-
-                <PrimaryButton 
-                    @click.prevent="emitter.emit('schedule', 'now')"
-                >
-                    Publish it now
-                </PrimaryButton>
-            </span>
-        </div>
+        
     </div>
 </template>
 
@@ -72,29 +38,26 @@ import useEmitter from '@/Composables/useEmitter.js';
 
 const emitter = useEmitter();
 
-const scheduleOptions = ref({
-    'calendar': 'Calendar',
-    'feed': 'Feed',
-    'now': 'Publish now'
-});
-const scheduleView = ref('calendar');
-
-const scheduleViewChange = (e) => {
-    scheduleView.value = e.target.value;
-}
-
 const datePickerTimeAccuracy = ref(2); //1 => hour, 2 => minute, 3 => second
 const publishedAt = ref('');
 const datePickerAttributes = ref([
     {
-        // Boolean
-        dot: true,
+        dot: 'blue',
         dates: [
-            new Date(2024, 1, 18),
-            new Date(2024, 1, 22),
-            new Date(2024, 1, 27),
+            new Date(2024, 0, 18),
+            new Date(2024, 0, 21),
+            new Date(2024, 0, 26),
         ],
-    }
+    },
+    {
+        dot: 'red',
+        dates: [
+            new Date(2024, 0, 18),
+            new Date(2024, 0, 22),
+            new Date(2024, 0, 27),
+        ],
+    },
+    
 ]);
 
 </script>

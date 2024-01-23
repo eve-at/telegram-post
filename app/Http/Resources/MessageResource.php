@@ -29,6 +29,7 @@ class MessageResource extends JsonResource
             'message_id' => $this->message_id,
             'body' => $this->body,
             'status' => $this->status,
+            'ad' => $this->ad,
             'created_at' => $this->created_at,
             'published_at' => $this->published_at,
             'messagable_type' => $this->messagable_type,

@@ -13,6 +13,11 @@ class Message extends Model
     public $guarded = ['id'];
     public $with = ['messagable'];
 
+    protected $casts = [
+        'status' => 'boolean',
+        'ad' => 'boolean',
+    ];
+
     public function messagable()
     {
         return $this->morphTo();

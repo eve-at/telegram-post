@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('message_id')->nullable(); // Telegram message ID
             $table->longText('body')->nullable(); // final body with source
             $table->boolean('status')->default(false); // 0 - draft, 1 - published
+            $table->boolean('ad')->default(false);
             $table->timestamps();
             $table->timestamp('published_at')->nullable();
         });
