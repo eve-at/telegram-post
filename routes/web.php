@@ -8,6 +8,7 @@ use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\PollController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SessionChannelController;
 use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
@@ -52,6 +53,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('polls', PollController::class)->except(['show']);
     
     Route::post('/concepts/store', [ConceptController::class, 'store'])->name('concepts.post');
+
+    Route::resource('schedules', ScheduleController::class);
 });
 
 Route::middleware('auth')->group(function () {

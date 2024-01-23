@@ -14,10 +14,10 @@
             :hasMedia="filepaths.length > 0"
             :media="filepaths"
             :show-signature="postForm.show_signature"
+            :processing="postForm.processing"
             @form:submit="onFormSubmit"
             @form:cancel="onFormCancel"
             @form:concept="onFormConcept"
-            @form:schedule="onFormSchedule"
         >
             <template #form>
                 <div 
@@ -93,10 +93,6 @@
     </AuthenticatedLayout>
 </template>
 
-<script>
-
-</script>
-
 <script setup>
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -113,6 +109,7 @@ import 'filepond/dist/filepond.min.css';
 import { Head, useForm, router, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import useEmitter from '@/Composables/useEmitter.js';
+import axios from 'axios';
 
 const emitter = useEmitter();
 let serverMessage = {};
@@ -180,7 +177,7 @@ const postForm = useForm({
     comment: props.post.comment,
     filenames: props.post.filenames,
     filepaths: props.post.filepaths,
-    concept: false,    
+    concept: false,
 })
 
 let filepathsInitial = [];
@@ -211,8 +208,42 @@ const updatePreview = () => {
 onMounted(() => {
     updatePreview();
 
-    emitter.on("schedule", (type) => {
-        console.log(type);
+    emitter.on("schedule", (datetime) => {
+        if (postForm.processing) {
+            return;
+        }
+
+        axios.post(route('schedules.store'), {
+            'schedulable_type': 'post',
+            'schedulable_id': props.post.id,
+            'datetime': datetime
+        }).then((response) => {
+            console.log('schedule Ok', response);
+            
+            // ...
+
+            emitter.emit('schedule.status', {
+                status: 'success', 
+                messages: ['Post was scheduled.']
+            });
+        }).catch((error) => {
+            let errors;
+            try {
+                errors = error.response.data.errors;
+            } catch (e) {
+                errors = {error: ['An error occured. Please try later']};
+            }
+
+            let errErrors = [];
+            for (let key in errors) {
+                errErrors = [...errErrors, ...errors[key]];
+            }
+
+            emitter.emit('schedule.status', {
+                status: 'error', 
+                messages: errErrors
+            });
+        });
     });
 });
 
@@ -314,13 +345,5 @@ const onFormConcept = () => {
     postForm.concept = true;
     createPost();
     postForm.concept = false;
-}
-
-const onFormSchedule = () => {
-    if (postForm.processing) {
-        return;
-    }
-    
-    console.log('on schedule...');
 }
 </script>

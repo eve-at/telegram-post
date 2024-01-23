@@ -10,6 +10,7 @@
         }"
     >
         <input 
+            class="hidden"
             type="radio" 
             :id="optionValue" 
             :name="'radioGroup_' + name" 

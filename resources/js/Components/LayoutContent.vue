@@ -6,15 +6,25 @@
 
                 <div class="pt-6 mb-3 flex justify-between">
                     <div>
-                        <PrimaryButton v-if="conceptable" @click.prevent="$emit('form:concept')">
+                        <PrimaryButton 
+                            v-if="conceptable" 
+                            @click.prevent="$emit('form:concept')"
+                            :disabled="processing"
+                        >
                             Save & Test
                         </PrimaryButton>
                     </div>
                     <div class="space-x-3">
-                        <PrimaryButton @click.prevent="$emit('form:submit')">
+                        <PrimaryButton 
+                            :disabled="processing"
+                            @click.prevent="$emit('form:submit')"
+                        >
                             Save & Leave
                         </PrimaryButton>
-                        <SecondaryButton @click.prevent="$emit('form:cancel')">
+                        <SecondaryButton 
+                            :disabled="processing"
+                            @click.prevent="$emit('form:cancel')"
+                        >
                             Cancel & Leave
                         </SecondaryButton>
                         <SecondaryButton 
@@ -77,7 +87,9 @@
                     v-if="sidebarView === 'schedule'"
                     class="lg:sticky top-1 mx-auto my-5"
                 >
-                    <Schedule />
+                    <Schedule 
+                        :processing="processing"
+                    />
                 </div>
             </div>
         </div>
@@ -127,6 +139,10 @@ defineProps({
     conceptable: {
         type: Boolean,
         default: true
+    },
+    processing: {
+        type: Boolean,
+        default: false
     },
 })
 
