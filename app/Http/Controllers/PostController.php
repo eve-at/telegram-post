@@ -171,8 +171,8 @@ class PostController extends Controller
                     ->update(['order' => $order]);
             });
 
-        if ($concept) {
-            $this->publishConcept(Post::find($post->id));
+        if ($concept) {;
+            $this->publishConcept($post->fresh());
 
             return back()->with('success', 'The Post was updated and tested');
         }

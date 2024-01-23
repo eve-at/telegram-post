@@ -19,7 +19,18 @@
                 </div>
             </div>
             <div class="lg:w-5/12 relative">
-                <div class="lg:sticky top-1 w-72 mx-auto my-5 border-2 border-gray-500 rounded-xl shadow-lg overflow-hidden">
+                <div class="w-full">
+                    <RadioGroup 
+                        name="sidebarView"
+                        v-model="sidebarView"
+                        :options="sidebarOptions"
+                        @change="sidebarViewChange($event)"
+                    />
+                </div>
+                <div 
+                    v-if="sidebarView === 'preview'"
+                    class="lg:sticky top-1 w-72 mx-auto my-5 border-2 border-gray-500 rounded-xl shadow-lg overflow-hidden"
+                >
                     <div v-if="hasMedia" 
                         class="min-h-28 bg-gray-200"
                         :class="{
@@ -52,6 +63,12 @@
                         <img src="/images/post-footer.jpg" />
                     </div>
                 </div>
+                <div 
+                    v-if="sidebarView === 'schedule'"
+                    class="lg:sticky top-1 w-72 mx-auto my-5"
+                >
+                    <Schedule />
+                </div>
             </div>
         </div>
     </div>
@@ -60,6 +77,19 @@
 <script setup>
 import PrimaryButton from './PrimaryButton.vue';
 import SecondaryButton from './SecondaryButton.vue';
+import RadioGroup from '@/Components/RadioGroup.vue';
+import Schedule from '@/Components/Schedule.vue'
+import { ref } from 'vue';
+
+const sidebarView = ref('preview');
+const sidebarOptions = ref({
+    'preview': 'Preview',
+    'schedule': 'Schedule'
+});
+
+const sidebarViewChange = (e) => {
+    sidebarView.value = e.target.value;
+}
 
 defineProps({
     body: {

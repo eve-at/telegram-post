@@ -122,7 +122,7 @@ class PollController extends Controller
         $poll->update($data);
 
         if ($concept) {
-            $this->publishConcept(Poll::find($poll->id));
+            $this->publishConcept($poll->fresh());
 
             return to_route('polls.edit', $poll->id)
                         ->with('success', 'The poll was updated and tested');
