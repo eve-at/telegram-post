@@ -8,19 +8,6 @@
 
     <div class="flex mt-4">
         <div 
-            v-if="scheduleView === 'queue'"
-            class="mx-auto flex flex-col items-start space-y-5"
-        >
-            <span class="text-gray-600">
-                The post will be added to the next available hour slot.
-            </span>
-            <PrimaryButton 
-                @click.prevent="emitter.emit('schedule', 'queue')"
-            >
-                Add to the queue
-            </PrimaryButton>
-        </div>
-        <div 
             v-if="scheduleView === 'calendar'"
             class="mx-auto flex flex-col items-start space-y-5"
         >
@@ -86,12 +73,11 @@ import useEmitter from '@/Composables/useEmitter.js';
 const emitter = useEmitter();
 
 const scheduleOptions = ref({
-    'queue': 'Queue',
     'calendar': 'Calendar',
     'feed': 'Feed',
     'now': 'Publish now'
 });
-const scheduleView = ref('queue');
+const scheduleView = ref('calendar');
 
 const scheduleViewChange = (e) => {
     scheduleView.value = e.target.value;

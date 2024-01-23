@@ -15,6 +15,7 @@ class Post extends Model
     protected $casts = [
         'show_title' => 'boolean',
         'show_signature' => 'boolean',
+        'ad' => 'boolean',
     ];
 
     public function user()

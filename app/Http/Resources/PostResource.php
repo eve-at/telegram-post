@@ -20,9 +20,11 @@ class PostResource extends JsonResource
             'type' => $this->type ?? '',
             'title' => $this->title ?? '',
             'body' => $this->body ?? '',
+            'comment' => $this->comment ?? '',
             'source' => $this->source ?? '',
             'show_title' => $this->show_title ?? true,
             'show_signature' => $this->show_signature ?? true,
+            'ad' => $this->ad ?? false,
             'created_at' => $this->created_at ?? now(),
             'user' => UserResource::make($this->user),
 

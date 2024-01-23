@@ -222,6 +222,8 @@ class PostController extends Controller
             'body' => ['required', 'max:4096'],
             'show_title' => ['boolean'],
             'show_signature' => ['boolean'],
+            'ad' => ['boolean'],
+            'comment' => ['max:4096'],
             'source' => ['max:190'],
             'concept' => ['boolean'],
             'filenames' => ['max:10'],

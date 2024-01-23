@@ -23,6 +23,8 @@ return new class extends Migration
             $table->text('body')->nullable(); // max 4096 for message, 1024 otherwise
             $table->boolean('show_signature')->default(true);
             $table->string('source')->nullable();
+            $table->boolean('ad')->default(false);
+            $table->text('comment')->nullable();
             $table->timestamps();
         });
     }

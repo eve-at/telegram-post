@@ -20,6 +20,12 @@
             @form:schedule="onFormSchedule"
         >
             <template #form>
+                <div 
+                    v-if="postForm.ad"
+                    class="w-full border border-dashed bg-orange-100 border-orange-300 text-orange-600 font-semibold rounded-md py-1 px-4 mb-4"
+                >
+                    (!) Advertisement
+                </div>
                 <form @submit.prevent="createPost">
                     <div class="mb-3">
                         <InputLabel for="title">Title</InputLabel>
@@ -55,7 +61,7 @@
 
                     <div class="mb-3">
                         <InputLabel for="body">Body</InputLabel>
-                        <TextArea id="body" v-model="postForm.body" rows="10" />
+                        <TextArea id="body" v-model="postForm.body" rows="6" />
                         <InputError :message="postForm.errors.body" />
                     </div>
 
@@ -69,6 +75,18 @@
                         <Checkbox id="show_signature" :checked="postForm.show_signature" @update:checked="updateShowSignature"/>
                         <InputLabel class="ml-2 cursor-pointer" for="show_signature">Show Channel signature</InputLabel>
                     </div> 
+
+                    <div class="mb-3 flex space-x-2">
+                        <Checkbox id="ad" :checked="postForm.ad" @update:checked="updateAd"/>
+                        <InputLabel class="ml-2 cursor-pointer font-semibold" for="ad">Advertisement</InputLabel>
+                    </div> 
+
+                    <div class="mb-3">
+                        <InputLabel for="comment">Comment</InputLabel>
+                        <TextArea id="comment" v-model="postForm.comment" rows="2" />
+                        <InputError :message="postForm.errors.comment" />
+                    </div>
+
                 </form>
             </template>            
         </LayoutContent>
@@ -158,6 +176,8 @@ const postForm = useForm({
     source: props.post.source,
     show_title: props.post.show_title,
     show_signature: props.post.show_signature,
+    ad: props.post.ad,
+    comment: props.post.comment,
     filenames: props.post.filenames,
     filepaths: props.post.filepaths,
     concept: false,    
@@ -169,6 +189,7 @@ let filenameIds = ref([]);
 let preview = ref('');
 const updateShowTitle = (val) => postForm.show_title = val;
 const updateShowSignature = (val) => postForm.show_signature = val;
+const updateAd = (val) => postForm.ad = val;
 
 const updatePreview = () => {
     const title = postForm.show_title 

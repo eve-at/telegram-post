@@ -25,7 +25,11 @@
                     <div 
                         v-for="post in posts.data"
                         :key="post.id"
-                        class="flex w-full hover:bg-gray-100 border-t border-gray-100"
+                        class="flex w-full border-t border-gray-100"
+                        :class="{
+                            'hover:bg-gray-100': ! post.ad,
+                            'bg-orange-100 hover:bg-orange-200': post.ad,
+                        }"
                     >
                         <div 
                             class="w-1/12 px-2 py-2"
