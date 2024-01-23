@@ -17,6 +17,7 @@
             @form:submit="onFormSubmit"
             @form:cancel="onFormCancel"
             @form:concept="onFormConcept"
+            @form:schedule="onFormSchedule"
         >
             <template #form>
                 <form @submit.prevent="createPost">
@@ -92,8 +93,10 @@ import 'filepond/dist/filepond.min.css';
 //import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 //import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
 import { Head, useForm, router, usePage } from '@inertiajs/vue3';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
+import useEmitter from '@/Composables/useEmitter.js';
 
+const emitter = useEmitter();
 let serverMessage = {};
 
 setOptions({
@@ -184,7 +187,17 @@ const updatePreview = () => {
         </div>`;
 }
 
-onMounted(updatePreview);
+onMounted(() => {
+    updatePreview();
+
+    emitter.on("schedule", (type) => {
+        console.log(type);
+    });
+});
+
+onUnmounted(() => {
+    emitter.off("schedule");
+});
 
 watch(    
     postForm,
@@ -280,5 +293,13 @@ const onFormConcept = () => {
     postForm.concept = true;
     createPost();
     postForm.concept = false;
+}
+
+const onFormSchedule = () => {
+    if (postForm.processing) {
+        return;
+    }
+    
+    console.log('on schedule...');
 }
 </script>

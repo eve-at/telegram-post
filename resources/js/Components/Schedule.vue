@@ -6,25 +6,115 @@
         @change="scheduleViewChange($event)"
     />
 
-    <div v-if="scheduleView === 'calendar'">
-        Calendar view
-    </div>
-    <div v-if="scheduleView === 'feed'">
-        Feed view
+    <div class="flex mt-4">
+        <div 
+            v-if="scheduleView === 'queue'"
+            class="mx-auto flex flex-col items-start space-y-5"
+        >
+            <span class="text-gray-600">
+                The post will be added to the next available hour slot.
+            </span>
+            <PrimaryButton 
+                @click.prevent="emitter.emit('schedule', 'queue')"
+            >
+                Add to the queue
+            </PrimaryButton>
+        </div>
+        <div 
+            v-if="scheduleView === 'calendar'"
+            class="mx-auto flex flex-col items-start space-y-5"
+        >
+            <span class="text-gray-600">
+                Shoose desired date and time
+            </span>
+            <DatePicker 
+                class="scheduleCalendar"
+                v-model="publishedAt" 
+                mode="dateTime" 
+                :time-accuracy="datePickerTimeAccuracy"
+                is24hr 
+                :first-day-of-week="2"
+                :min-date="(new Date)"
+                :attributes="datePickerAttributes"
+            />
+
+            <PrimaryButton 
+                @click.prevent="emitter.emit('schedule', 'calendar')"
+            >
+                Add to the calendar
+            </PrimaryButton>
+        </div>
+        <div 
+            v-if="scheduleView === 'feed'"
+            class="mx-auto flex flex-col items-start space-y-5"
+        >
+            <span class="text-gray-600">
+                Feed view
+
+                <PrimaryButton 
+                    @click.prevent="emitter.emit('schedule', 'feed')"
+                >
+                    Add to the feed
+                </PrimaryButton>
+            </span>
+        </div>
+        <div 
+            v-if="scheduleView === 'now'"
+            class="mx-auto flex flex-col items-start space-y-5"
+        >
+            <span class="text-gray-600">
+                Publish your post right now
+
+                <PrimaryButton 
+                    @click.prevent="emitter.emit('schedule', 'now')"
+                >
+                    Publish it now
+                </PrimaryButton>
+            </span>
+        </div>
     </div>
 </template>
 
 <script setup>
 import RadioGroup from '@/Components/RadioGroup.vue';
+import PrimaryButton from './PrimaryButton.vue';
+import 'v-calendar/dist/style.css';
+import { Calendar, DatePicker } from 'v-calendar';
 import { ref } from 'vue';
+import useEmitter from '@/Composables/useEmitter.js';
 
-const scheduleView = ref('calendar');
+const emitter = useEmitter();
+
 const scheduleOptions = ref({
+    'queue': 'Queue',
     'calendar': 'Calendar',
-    'feed': 'Feed'
+    'feed': 'Feed',
+    'now': 'Publish now'
 });
+const scheduleView = ref('queue');
 
 const scheduleViewChange = (e) => {
     scheduleView.value = e.target.value;
 }
+
+const datePickerTimeAccuracy = ref(2); //1 => hour, 2 => minute, 3 => second
+const publishedAt = ref('');
+const datePickerAttributes = ref([
+    {
+        // Boolean
+        dot: true,
+        dates: [
+            new Date(2024, 1, 18),
+            new Date(2024, 1, 22),
+            new Date(2024, 1, 27),
+        ],
+    }
+]);
+
 </script>
+
+<style>
+.scheduleCalendar .vc-weekday-1, .scheduleCalendar .vc-weekday-7 {
+  color: #6366f1;
+}
+</style>

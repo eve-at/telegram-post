@@ -4,7 +4,7 @@
         v-for="(optionName, optionValue) in options"
         :key="optionValue"
         :for="optionValue" 
-        class="w-1/2 py-1 text-center hover:bg-gray-200 cursor-pointer"
+        class="flex-1 py-1 text-center hover:bg-gray-200 cursor-pointer"
         :class="{
             'bg-gray-300': optionValue === modelValue
         }"
@@ -14,6 +14,7 @@
             :id="optionValue" 
             :name="'radioGroup_' + name" 
             :value="optionValue" 
+            :checked="modelValue === optionValue"
             @change="$emit('update:modelValue', $event.target.value)"
         />
         {{ optionName }}

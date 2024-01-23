@@ -5,17 +5,27 @@
                 <slot name="form" />
 
                 <div class="pt-6 mb-3 flex justify-between">
-                    <div class="space-x-3">
-                        <PrimaryButton @click.prevent="$emit('form:submit')">
-                            Submit
-                        </PrimaryButton>
-                        <SecondaryButton @click.prevent="$emit('form:cancel')">Cancel</SecondaryButton>
-                    </div>
                     <div>
                         <PrimaryButton v-if="conceptable" @click.prevent="$emit('form:concept')">
-                            Submit & Test
+                            Save & Test
                         </PrimaryButton>
                     </div>
+                    <div class="space-x-3">
+                        <PrimaryButton @click.prevent="$emit('form:submit')">
+                            Save & Leave
+                        </PrimaryButton>
+                        <SecondaryButton @click.prevent="$emit('form:cancel')">
+                            Cancel & Leave
+                        </SecondaryButton>
+                        <SecondaryButton 
+                            @click.prevent="() => {
+                                sidebarView='schedule'
+                            }"
+                        >
+                            Schedule...
+                        </SecondaryButton>
+                    </div>
+                    
                 </div>
             </div>
             <div class="lg:w-5/12 relative">
@@ -65,7 +75,7 @@
                 </div>
                 <div 
                     v-if="sidebarView === 'schedule'"
-                    class="lg:sticky top-1 w-72 mx-auto my-5"
+                    class="lg:sticky top-1 mx-auto my-5"
                 >
                     <Schedule />
                 </div>
@@ -82,12 +92,14 @@ import Schedule from '@/Components/Schedule.vue'
 import { ref } from 'vue';
 
 const sidebarView = ref('preview');
+
 const sidebarOptions = ref({
     'preview': 'Preview',
     'schedule': 'Schedule'
 });
 
 const sidebarViewChange = (e) => {
+    console.log(e.target.value);
     sidebarView.value = e.target.value;
 }
 
