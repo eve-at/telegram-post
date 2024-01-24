@@ -8,7 +8,7 @@
             </span>
             <DatePicker 
                 class="scheduleCalendar"
-                v-model="publisheAt" 
+                v-model="scheduleData.publishAt" 
                 mode="dateTime" 
                 :attributes="datePickerAttributes"
                 :rules="datePickerRules"
@@ -19,12 +19,28 @@
                 @update:modelValue="onDayTimeChange"
             />
 
-            <PrimaryButton 
-                :disabled="!publisheAt || processing"
-                @click.prevent="schedule"
-            >
-                Schedule
-            </PrimaryButton>
+            <div class="space-y-1">
+                <div class="flex space-x-2 items-center text-right w-full">
+                    <InputLabel class="w-2/4" for="hoursOnTop">Hours on top</InputLabel>
+                    <NumberInput 
+                        class="w-1/4 py-1" 
+                        id="hoursOnTop" 
+                        v-model="scheduleData.hoursOnTop" 
+                        :step="1" 
+                        :min="1"
+                    />
+                </div>
+                <div class="flex space-x-2 items-center text-right">
+                    <InputLabel class="w-2/4" for="removeAfterHours">Remove after (hours)</InputLabel>
+                    <NumberInput 
+                        class="w-1/4 py-1" 
+                        id="removeAfterHours" 
+                        v-model="scheduleData.removeAfterHours" 
+                        :step="24" 
+                        :min="0"
+                    />
+                </div>
+            </div>
 
             <div 
                 v-if="!! scheduleStatus"
@@ -45,6 +61,13 @@
                     ></li>
                 </ul>
             </div>
+
+            <PrimaryButton 
+                :disabled="!scheduleData.publishAt || processing"
+                @click.prevent="schedule"
+            >
+                Schedule
+            </PrimaryButton>            
         </div>
         
     </div>
@@ -52,6 +75,8 @@
 
 <script setup>
 import PrimaryButton from './PrimaryButton.vue';
+import InputLabel from './InputLabel.vue';
+import NumberInput from './NumberInput.vue';
 import 'v-calendar/dist/style.css';
 import { Calendar, DatePicker } from 'v-calendar';
 import { ref, onMounted, onUnmounted } from 'vue';
@@ -68,7 +93,13 @@ defineProps({
 
 let scheduleStatus = ref(null);
 const datePickerTimeAccuracy = ref(2); //1 => hour, 2 => minute, 3 => second
-const publisheAt = ref(null);
+
+const scheduleData = ref({
+    publishAt: null,
+    hoursOnTop: "1",
+    removeAfterHours: "24",
+});
+
 const datePickerRules = ref({
     minutes: { interval: 5 },
 });
@@ -93,13 +124,13 @@ const datePickerAttributes = ref([
 ]);
 
 const onDayTimeChange = (dateTime) => {
-    publisheAt.value = dateTime;
+    scheduleData.value.publishAt = dateTime;
     scheduleStatus.value = null;
 }
 
 const schedule = () => {
     scheduleStatus.value = null;
-    emitter.emit('schedule', publisheAt.value);
+    emitter.emit('schedule', scheduleData.value);
 }
 
 onMounted(() => {

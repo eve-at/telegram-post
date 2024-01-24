@@ -43,6 +43,7 @@ class PostController extends Controller
         $type = $this->getRequestType($request);
 
         $concept = $data['concept'] ?? false;
+        $comeback = $data['comeback'] ?? false;
 
         $post = Post::make($data);
         $post->type = $type;
@@ -69,6 +70,11 @@ class PostController extends Controller
 
             return to_route('posts.edit', $post->id)
                         ->with('success', 'The Post was created and tested');
+        }
+
+        if ($comeback) {;
+            return to_route('posts.edit', $post->id)
+                        ->with('success', 'The Post was created');
         }
 
         return to_route('posts.index')->with('success', 'The Post was created');
@@ -130,6 +136,7 @@ class PostController extends Controller
 
         $data['type'] = $type;
         $concept = $data['concept'] ?? false;
+        $comeback = $data['comeback'] ?? false;
 
         $post->update(collect($data)->except('filenames')->toArray());
         
@@ -175,6 +182,11 @@ class PostController extends Controller
             $this->publishConcept($post->fresh());
 
             return back()->with('success', 'The Post was updated and tested');
+        }
+
+        if ($comeback) {
+            return to_route('posts.edit', $post->id)
+                        ->with('success', 'The Post was updated');
         }
 
         return to_route('posts.index')->with('success', 'The Post was updated');
@@ -226,6 +238,7 @@ class PostController extends Controller
             'comment' => ['max:4096'],
             'source' => ['max:190'],
             'concept' => ['boolean'],
+            'comeback' => ['boolean'],
             'filenames' => ['max:10'],
         ];
 

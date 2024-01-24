@@ -32,4 +32,9 @@ class Post extends Model
     {
         return $this->hasMany(PostFile::class)->orderBy('order');    
     }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class)->orderBy('published_at');    
+    }
 }

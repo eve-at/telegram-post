@@ -7,6 +7,22 @@
                 <div class="pt-6 mb-3 flex justify-between">
                     <div>
                         <PrimaryButton 
+                            @click.prevent="$emit('form:save')"
+                            :disabled="processing"
+                        >
+                            Save
+                        </PrimaryButton>
+                    </div>
+                    <div>
+                        <SecondaryButton 
+                            @click.prevent="$emit('form:reset')"
+                            :disabled="processing"
+                        >
+                            Reset
+                        </SecondaryButton>
+                    </div>
+                    <div>
+                        <PrimaryButton 
                             v-if="conceptable" 
                             @click.prevent="$emit('form:concept')"
                             :disabled="processing"
@@ -87,7 +103,14 @@
                     v-if="sidebarView === 'schedule'"
                     class="lg:sticky top-1 mx-auto my-5"
                 >
+                    <span 
+                        v-if="! canSchedule" 
+                        class="block italic text-center"
+                    >
+                        Please save your article first
+                    </span>
                     <Schedule 
+                        v-if="canSchedule"
                         :processing="processing"
                     />
                 </div>
@@ -141,6 +164,10 @@ defineProps({
         default: true
     },
     processing: {
+        type: Boolean,
+        default: false
+    },
+    canSchedule: {
         type: Boolean,
         default: false
     },

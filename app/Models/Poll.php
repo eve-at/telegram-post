@@ -34,4 +34,9 @@ class Poll extends Model
             set: fn (array $value) => json_encode($value),
         );
     }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class)->orderBy('published_at');    
+    }
 }

@@ -15,6 +15,9 @@
             :media="filepaths"
             :show-signature="postForm.show_signature"
             :processing="postForm.processing"
+            :can-schedule="canSchedule"
+            @form:save="onFormSave"
+            @form:reset="onFormReset"
             @form:submit="onFormSubmit"
             @form:cancel="onFormCancel"
             @form:concept="onFormConcept"
@@ -107,7 +110,7 @@ import 'filepond/dist/filepond.min.css';
 //import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 //import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
 import { Head, useForm, router, usePage } from '@inertiajs/vue3';
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch, reactive, computed } from 'vue';
 import useEmitter from '@/Composables/useEmitter.js';
 import axios from 'axios';
 
@@ -177,7 +180,8 @@ const postForm = useForm({
     comment: props.post.comment,
     filenames: props.post.filenames,
     filepaths: props.post.filepaths,
-    concept: false,
+    concept: false, // push the post to the test telegram channel
+    comeback: false, // return after form submition
 })
 
 let filepathsInitial = [];
@@ -187,6 +191,10 @@ let preview = ref('');
 const updateShowTitle = (val) => postForm.show_title = val;
 const updateShowSignature = (val) => postForm.show_signature = val;
 const updateAd = (val) => postForm.ad = val;
+
+const canSchedule = computed(() => {
+    return !! props.post.id && ! postForm.isDirty;
+});
 
 const updatePreview = () => {
     const title = postForm.show_title 
@@ -205,10 +213,14 @@ const updatePreview = () => {
         </div>`;
 }
 
+const modifiedFormHandler = () => {
+    updatePreview();
+};
+
 onMounted(() => {
     updatePreview();
 
-    emitter.on("schedule", (datetime) => {
+    emitter.on("schedule", (scheduleData) => {
         if (postForm.processing) {
             return;
         }
@@ -216,7 +228,9 @@ onMounted(() => {
         axios.post(route('schedules.store'), {
             'schedulable_type': 'post',
             'schedulable_id': props.post.id,
-            'datetime': datetime
+            'published_at': scheduleData.publishAt,
+            'hours_on_top': scheduleData.hoursOnTop,
+            'remove_after_hours': scheduleData.removeAfterHours,
         }).then((response) => {
             console.log('schedule Ok', response);
             
@@ -253,7 +267,7 @@ onUnmounted(() => {
 
 watch(    
     postForm,
-    updatePreview,
+    modifiedFormHandler,
     { deep: true }
 );
 
@@ -282,11 +296,11 @@ const filepondInitialized = () => {
 const createPost = () => {
     if (props.post.id) { //update
         postForm.patch(route(props.toRoute, props.post.id), {
-            preserveScroll: true
-        })
+            preserveScroll: true,
+        });
     } else { //create
         postForm.post(route(props.toRoute), {
-            preserveScroll: true
+            preserveScroll: true,
         })
     }
 }
@@ -329,6 +343,22 @@ const onFormSubmit = () => {
     }
     postForm.concept = false;
     createPost();
+}
+
+const onFormSave = () => {
+    if (postForm.processing) {
+        return;
+    }
+    postForm.concept = false;
+    postForm.comeback = true;
+    createPost();
+}
+
+const onFormReset = () => {
+    if (postForm.processing) {
+        return;
+    }
+    postForm.reset();
 }
 
 const onFormCancel = () => {
