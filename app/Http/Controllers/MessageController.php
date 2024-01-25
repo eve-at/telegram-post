@@ -40,7 +40,6 @@ class MessageController extends Controller
 
     public function store(Request $request)
     {
-        // TODO: `hours_on_top` and `remove_after_hours` must be required in case of an ad
         $data = $request->validate([
             'schedulable_type' => ['required', Rule::in(['post', 'poll'])],
             'schedulable_id' => ['required', 'integer'],
@@ -56,8 +55,8 @@ class MessageController extends Controller
         // ReDo validation in case of an Ad
         if ($messagable?->ad) {
             $dataAd = $request->validate([
-                'hours_on_top' => ['integer', 'min:1'],
-                'remove_after_hours' => ['integer', 'min:0'],
+                'ad_hours_on_top' => ['integer', 'min:1'],
+                'ad_remove_after_hours' => ['integer', 'min:0'],
             ]);
 
             $data = [...$data, ...$dataAd];
@@ -75,8 +74,10 @@ class MessageController extends Controller
         $message = $message->messagable()->associate($messagable);
 
         if ($message->ad) {
-            $message->ad_top_until = $publishedAt->clone()->addHours($data['hours_on_top']);
-            $message->ad_removed_at = $publishedAt->clone()->addDays($data['remove_after_hours']);
+            $message->ad_hours_on_top = $data['ad_hours_on_top'];
+            $message->ad_remove_after_hours = $data['ad_remove_after_hours'];
+            $message->ad_top_until = $publishedAt->clone()->addHours($data['ad_hours_on_top']);
+            $message->ad_removed_at = $publishedAt->clone()->addDays($data['ad_remove_after_hours']);
         }
 
         if (Scheduler::inConflict($message)) {
@@ -150,6 +151,8 @@ class MessageController extends Controller
             return [];
         }
         
+        //Channel::find(session('channel.id'))->hours
+
         return Message::select([
                 'id', 
                 'messagable_type', 

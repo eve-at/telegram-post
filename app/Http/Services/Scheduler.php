@@ -43,6 +43,5 @@ class Scheduler
             })->count();
             
         return $count > 0;
-    }
-    
+    }    
 }

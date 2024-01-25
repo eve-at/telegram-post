@@ -102,9 +102,10 @@
                     v-for="message in messages"
                     class="group border rounded mb-1 px-2 py-1"
                     :class="{
-                        'border-green-300 bg-green-100': message.ad,
-                        'border-blue-300 bg-blue-100': !message.ad,
-                        'border-black border-2': message.messagable_id === $page.props.messagable_id,
+                        'bg-gray-100': !message.id,
+                        'border-green-300 bg-green-100': message.id && message.ad,
+                        'border-blue-300 bg-blue-100': message.id && !message.ad,
+                        'border-black border-2': message.id && message.messagable_id === $page.props.messagable_id,
                     }"
                 >
                     <div class="flex justify-between text-sm">
@@ -132,22 +133,29 @@
                         <span
                             class="italic text-gray-600 whitespace-nowrap overflow-hidden"
                         >
-                            <span v-if="message.ad" class="font-semibold">[ Ad ]</span>
-                            <span v-if="!message.ad">[ {{ message.messagable_type }} ]</span>
+                            <span v-if="message.id && message.ad" class="font-semibold">[ Ad ]</span>
+                            <span v-if="message.id && !message.ad">[ {{ message.messagable_type }} ]</span>
                             {{ message.title }}
                         </span>
+
                         <span 
-                            v-if="message.messagable_id === $page.props.messagable_id"
-                            class="hidden group-hover:block cursor-pointer hover:text-blue-600 hover:underline"
-                            v-text="'Unshedule'"
-                            @click="messageUnschedule(message.id)"
+                            v-if="message.status"
+                            v-text="'Published'"
                         ></span>
-                        <Link 
-                            v-if="message.messagable_id !== $page.props.messagable_id"
-                            :href="route(message.route, message.messagable_id)"
-                            class="hidden group-hover:block cursor-pointer hover:text-blue-600 hover:underline"
-                            v-text="'Edit'"
-                        ></Link>
+                        <div v-if="!message.status && message.id">
+                            <span 
+                                v-if="message.messagable_id === $page.props.messagable_id"
+                                class="hidden group-hover:block cursor-pointer hover:text-blue-600 hover:underline"
+                                v-text="'Unshedule'"
+                                @click="messageUnschedule(message.id)"
+                            ></span>
+                            <Link 
+                                v-if="message.messagable_id !== $page.props.messagable_id"
+                                :href="route(message.route, message.messagable_id)"
+                                class="hidden group-hover:block cursor-pointer hover:text-blue-600 hover:underline"
+                                v-text="'Edit'"
+                            ></Link>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -224,7 +232,7 @@ const updateSchedulesMessages = () => {
     const date = choosenDate.value;
     axios.get(route('messages.date', date))
         .then((response) => {
-            messages.value = response.data.map((m) => {
+            let arr = response.data.map((m) => {
                 const type = m.messagable_type.replace('App\\Models\\', '');
 
                 return {
@@ -242,6 +250,38 @@ const updateSchedulesMessages = () => {
                     route: type === 'Poll' ? 'polls.edit' : 'posts.edit'
                 };
             });
+
+            if (usePage().props.channel.hours.length) {
+                let timestampNow = (new Date).getTime();
+                let d = new Date(date);
+
+                usePage().props.channel.hours.forEach((hour) => {
+                    let postDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), hour, 0);
+                    
+                    if (timestampNow > postDate.getTime()) {
+                        return;
+                    }
+
+                    arr.push({
+                        id: null,
+                        ad: 0,
+                        ad_hours_on_top: null,
+                        ad_remove_after_hours: null,
+                        ad_removed_at: null,
+                        ad_top_until: null,
+                        messagable_id: null,
+                        messagable_type: 'Post',
+                        published_at: datetimeToTime(postDate),
+                        status: 0,
+                        title: 'Channel auto-post',
+                        route: null
+                    });
+                });
+
+                arr.sort((a, b) => a.published_at.replace(':', '') > b.published_at.replace(':', '') ? 1 : -1)
+            }
+
+            messages.value = arr;
         });
 }
 
@@ -254,15 +294,6 @@ const onDayTimeChange = (dateTime) => {
     console.log('date change');
     scheduleData.value.publishAt = dateTime;
     scheduleStatus.value = null;
-}
-
-const onCalendarMove = (dateTime) => {
-    console.log('onCalendarMove', dateTime);
-
-}
-
-const onUpdatePages = (dateTime) => {
-    console.log('page change', dateTime);
 }
 
 const schedule = () => {
@@ -318,8 +349,8 @@ const scheduleCreate = () => {
         'schedulable_type': 'post',
         'schedulable_id': usePage().props.messagable_id,
         'published_at': scheduleData.value.publishAt,
-        'hours_on_top': scheduleData.value.hoursOnTop,
-        'remove_after_hours': scheduleData.value.removeAfterHours,
+        'ad_hours_on_top': scheduleData.value.hoursOnTop,
+        'ad_remove_after_hours': scheduleData.value.removeAfterHours,
     }).then((response) => {
         emitter.emit('schedule.status', {
             status: 'success', 

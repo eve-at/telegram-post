@@ -39,6 +39,8 @@ class ChannelController extends Controller
 
         Channel::create($data);
 
+        SessionChannelController::refreshSession();
+
         return to_route('channels.index')->with('success', 'The channel was updated');
     }
 
@@ -69,12 +71,16 @@ class ChannelController extends Controller
 
         $channel->update($data);
 
+        SessionChannelController::refreshSession();
+
         return to_route('channels.index')->with('success', 'The channel was updated');
     }
 
     public function destroy(Channel $channel)
     {
         $channel->delete();
+
+        SessionChannelController::refreshSession();
 
         return to_route('channels.index')->with('success', 'The channel was deleted');
     }

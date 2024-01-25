@@ -37,9 +37,10 @@ class PostController extends Controller
     }
 
     public function store(Request $request)
-    {
-        
-        $data = $this->validateRequest($request);
+    {        
+        $data = $this->validateRequest($request, [
+            'ad' => ['boolean'], // we only can set the `ad` field on creation
+        ]);
         $type = $this->getRequestType($request);
 
         $concept = $data['concept'] ?? false;
@@ -131,9 +132,7 @@ class PostController extends Controller
     // TODO: take out PostFile
     public function update(Request $request, Post $post)
     {
-        $data = $this->validateRequest($request, [
-            'ad' => ['missing'], // we can't change the `ad` field
-        ]);
+        $data = $this->validateRequest($request);
         $type = $this->getRequestType($request);
 
         $data['type'] = $type;
@@ -236,7 +235,7 @@ class PostController extends Controller
             'body' => ['required', 'max:4096'],
             'show_title' => ['boolean'],
             'show_signature' => ['boolean'],
-            'ad' => ['boolean'],
+            //'ad' => ['boolean'], // we only can set the `ad` field on creation
             'comment' => ['max:4096'],
             'source' => ['max:190'],
             'concept' => ['boolean'],
