@@ -10,7 +10,7 @@ class Post extends Model
     use HasFactory;
 
     public $guarded = ['id'];
-    public $with = ['filenames'];
+    //public $with = ['filenames'];
     
     protected $casts = [
         'show_title' => 'boolean',

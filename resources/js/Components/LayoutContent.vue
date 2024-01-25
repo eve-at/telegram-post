@@ -105,6 +105,7 @@
                 >
                     <Schedule 
                         :canSchedule="canSchedule"
+                        :is-ad="isAd"
                         :processing="processing"
                     />
                 </div>
@@ -133,6 +134,10 @@ const sidebarViewChange = (e) => {
 }
 
 defineProps({
+    // id: {
+    //     type: Number,
+    //     required: true
+    // },
     body: {
         type: String,
         default: ''
@@ -158,6 +163,10 @@ defineProps({
         default: true
     },
     processing: {
+        type: Boolean,
+        default: false
+    },
+    isAd: {
         type: Boolean,
         default: false
     },

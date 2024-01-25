@@ -3,13 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\MessageResource;
+use App\Http\Services\Scheduler;
 use App\Models\Message;
+use App\Models\Poll;
+use App\Models\Post;
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class MessageController extends Controller
 {
@@ -35,36 +40,56 @@ class MessageController extends Controller
 
     public function store(Request $request)
     {
-        // $data = $request->validate([
-        //     'title' => ['required', 'max:190'],
-        //     'filename' => ['required', 'max:190'],
-        //     'show_title' => ['boolean'],
-        //     'show_signature' => ['boolean'],
-        //     'body' => ['max:1024'],
-        //     'source' => ['max:190'],
-        //     'concept' => ['boolean'],
-        // ]);
+        // TODO: `hours_on_top` and `remove_after_hours` must be required in case of an ad
+        $data = $request->validate([
+            'schedulable_type' => ['required', Rule::in(['post', 'poll'])],
+            'schedulable_id' => ['required', 'integer'],
+            'published_at' => ['required', 'date'],
+        ]);
+   
+        if ($data['schedulable_type'] === 'poll') {
+            $messagable = Poll::find($data['schedulable_id']);
+        } else {
+            $messagable = Post::find($data['schedulable_id']);
+        }
 
-        // $concept = $data['concept'] ?? false;
+        // ReDo validation in case of an Ad
+        if ($messagable?->ad) {
+            $dataAd = $request->validate([
+                'hours_on_top' => ['integer', 'min:1'],
+                'remove_after_hours' => ['integer', 'min:0'],
+            ]);
 
-        // Storage::move(
-        //     'public/tmp/' . $data['filename'], 
-        //     'public/media/' . session('channel.id') . '/' . $data['filename']
-        // );
+            $data = [...$data, ...$dataAd];
+        }
 
-        // $photo = Photo::make($data);
-        // $photo->user()->associate($request->user());
-        // $photo->channel()->associate(session('channel.id'));
+        $publishedAt = Carbon::make($data['published_at']);
+
+        $message = Message::make([
+            'channel_id' => session('channel.id'),
+            'ad' => $messagable?->ad,
+            'published_at' => $publishedAt,
+        ]);
         
-        // $photo->save();
+        // store polymorphic relation
+        $message = $message->messagable()->associate($messagable);
 
-        // if ($concept) {
-        //     TelegramPhoto::make($photo, concept: true)->publish();
-        //     return to_route('photos.edit', $photo->id)
-        //                 ->with('success', 'The photo was created and tested');
-        // }
+        if ($message->ad) {
+            $message->ad_top_until = $publishedAt->clone()->addHours($data['hours_on_top']);
+            $message->ad_removed_at = $publishedAt->clone()->addDays($data['remove_after_hours']);
+        }
 
-        // return to_route('photos.index')->with('success', 'The photo was created');
+        if (Scheduler::inConflict($message)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Publish Date Conflict',
+                'errors' => [['Publish Date Conflict']],
+            ], 422);
+        }
+
+        $message->save();
+
+        return JsonResource::make(['status' => 'ok']);
     }
 
     public function edit(Message $message)
@@ -117,6 +142,33 @@ class MessageController extends Controller
         // return to_route('photos.index')->with('success', 'The photo was updated');
     }
 
+    public function date(String $date)
+    {
+        try {
+            $date = Carbon::make($date);
+        } catch(InvalidFormatException) {
+            return [];
+        }
+        
+        return Message::select([
+                'id', 
+                'messagable_type', 
+                'messagable_id', 
+                'status', 
+                'published_at',
+                'ad', 
+                'ad_hours_on_top', 
+                'ad_remove_after_hours', 
+                'ad_top_until', 
+                'ad_removed_at', 
+            ])
+            ->with(['messagable:id,title'])
+            ->where('channel_id', session('channel.id'))
+            ->whereDate('published_at', $date->toDateString())
+            ->orderBy('published_at')
+            ->get();
+    }
+
     public function dates(Request $request, String $start = null, String $end = null) 
     {
         try {
@@ -147,5 +199,12 @@ class MessageController extends Controller
                     'type_id' => $message->messagable_id,
                 ];
             });
+    }
+
+    public function destroy(Message $message)
+    {
+        $message->delete();
+
+        return ['ok'];
     }
 }

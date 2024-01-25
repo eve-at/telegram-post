@@ -221,7 +221,11 @@ const updatePreview = () => {
         </div>`;
 }
 
-onMounted(updatePreview);
+onMounted(() => {
+    usePage().props.messagable_id = props.post.id;
+    
+    updatePreview();
+});
 
 watch(
     pollForm,

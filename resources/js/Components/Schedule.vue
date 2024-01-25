@@ -31,7 +31,10 @@
                 <div 
                     v-if="canSchedule" 
                 >
-                    <div class="space-y-1">
+                    <div 
+                        v-if="isAd"
+                        class="space-y-1"
+                    >
                         <div class="flex space-x-2 items-center text-right w-full">
                             <InputLabel class="w-2/4" for="hoursOnTop">Hours on top</InputLabel>
                             <NumberInput 
@@ -97,10 +100,11 @@
                 </span>
                 <div 
                     v-for="message in messages"
-                    class="border rounded mb-1 px-2 py-1"
+                    class="group border rounded mb-1 px-2 py-1"
                     :class="{
                         'border-green-300 bg-green-100': message.ad,
                         'border-blue-300 bg-blue-100': !message.ad,
+                        'border-black border-2': message.messagable_id === $page.props.messagable_id,
                     }"
                 >
                     <div class="flex justify-between text-sm">
@@ -111,7 +115,7 @@
                                 v-text="message.published_at"
                             ></span>
                             <span 
-                                v-if="message.ad_top_until"
+                                v-if="message.ad"
                                 v-text="' - ' + message.ad_top_until"
                             ></span>
                         </div>
@@ -124,14 +128,26 @@
                             ></span>
                         </div>
                     </div>
-                    <div class="flex">
+                    <div class="flex text-xs justify-between space-x-2">
                         <span
-                            class="text-xs italic text-gray-600 whitespace-nowrap overflow-hidden"
+                            class="italic text-gray-600 whitespace-nowrap overflow-hidden"
                         >
                             <span v-if="message.ad" class="font-semibold">[ Ad ]</span>
-                            <span v-if="!message.ad">[ {{ message.type }} ]</span>
+                            <span v-if="!message.ad">[ {{ message.messagable_type }} ]</span>
                             {{ message.title }}
                         </span>
+                        <span 
+                            v-if="message.messagable_id === $page.props.messagable_id"
+                            class="hidden group-hover:block cursor-pointer hover:text-blue-600 hover:underline"
+                            v-text="'Unshedule'"
+                            @click="messageUnschedule(message.id)"
+                        ></span>
+                        <Link 
+                            v-if="message.messagable_id !== $page.props.messagable_id"
+                            :href="route(message.route, message.messagable_id)"
+                            class="hidden group-hover:block cursor-pointer hover:text-blue-600 hover:underline"
+                            v-text="'Edit'"
+                        ></Link>
                     </div>
                 </div>
             </div>
@@ -147,13 +163,18 @@ import 'v-calendar/dist/style.css';
 import { Calendar, DatePicker } from 'v-calendar';
 import { ref, onMounted, onUnmounted } from 'vue';
 import useEmitter from '@/Composables/useEmitter.js';
+import { Link, usePage } from '@inertiajs/vue3';
 
 const emitter = useEmitter();
 
 defineProps({
     processing: {
         type: Boolean,
-        default: false,
+        default: false
+    },
+    isAd: {
+        type: Boolean,
+        default: false
     },
     canSchedule: {
         type: Boolean,
@@ -163,65 +184,9 @@ defineProps({
 
 let scheduleStatus = ref(null);
 const datePickerTimeAccuracy = ref(2); //1 => hour, 2 => minute, 3 => second
-let shoosenDate = ref('');
+let choosenDate = ref((new Date).toDateString());
 
-const messages = ref([
-    {
-        id: 1,
-        ad: 0,
-        ad_hours_on_top: null,
-        ad_remove_after_hours: null,
-        title: 'Hello world',
-        type: 'Post',
-        status: 0,
-        published_at: '08:00',
-        ad_top_until: null
-    },
-    {
-        id: 2,
-        ad: 1,
-        ad_hours_on_top: 1,
-        ad_remove_after_hours: 24,
-        title: 'Some ad',
-        type: 'Post',
-        status: 0,
-        published_at: '09:00',
-        ad_top_until: '10:00',
-    },
-    {
-        id: 3,
-        ad: 0,
-        ad_hours_on_top: null,
-        ad_remove_after_hours: null,
-        title: 'Another post with a long long long long long text',
-        type: 'Post',
-        status: 0,
-        published_at: '15:00',
-        ad_top_until: null
-    },
-    {
-        id: 4,
-        ad: 1,
-        ad_hours_on_top: 2,
-        ad_remove_after_hours: 48,
-        title: 'Second ad',
-        type: 'Post',
-        status: 0,
-        published_at: '17:00',
-        ad_top_until: '19:00',
-    },
-    {
-        id: 5,
-        ad: 0,
-        ad_hours_on_top: null,
-        ad_remove_after_hours: null,
-        title: 'Evening poll',
-        type: 'Poll',
-        status: 0,
-        published_at: '20:00',
-        ad_top_until: null,
-    }
-]);
+const messages = ref([]);
 
 const scheduleData = ref({
     publishAt: new Date,
@@ -233,42 +198,96 @@ const datePickerRules = ref({
     minutes: { interval: 5 },
 });
 const datePickerAttributes = ref([
-    {
-        dot: 'blue',
-        dates: [
-            new Date(2024, 0, 19),
-            new Date(2024, 0, 21),
-            new Date(2024, 0, 26),
-        ],
-    },
-    {
-        dot: 'red',
-        dates: [
-            new Date(2024, 0, 18),
-            new Date(2024, 0, 22),
-            new Date(2024, 0, 27),
-        ],
-    },
-    
+    // {
+    //     dot: 'blue',
+    //     dates: [
+    //         new Date(2024, 0, 19),
+    //         new Date(2024, 0, 21),
+    //         new Date(2024, 0, 26),
+    //     ],
+    // },
+    // {
+    //     dot: 'red',
+    //     dates: [
+    //         new Date(2024, 0, 18),
+    //         new Date(2024, 0, 22),
+    //         new Date(2024, 0, 27),
+    //     ],
+    // },    
 ]);
 
+const datetimeToTime = (d) => 
+    ('0' + d.getHours()).slice(-2) 
+    + ':' + ('0' + d.getMinutes()).slice(-2); 
+
+const updateSchedulesMessages = () => {
+    const date = choosenDate.value;
+    axios.get(route('messages.date', date))
+        .then((response) => {
+            messages.value = response.data.map((m) => {
+                const type = m.messagable_type.replace('App\\Models\\', '');
+
+                return {
+                    id: m.id,
+                    ad: m.ad,
+                    ad_hours_on_top: m.ad_hours_on_top,
+                    ad_remove_after_hours: m.ad_remove_after_hours,
+                    ad_removed_at: datetimeToTime(new Date(m.ad_removed_at)),
+                    ad_top_until: datetimeToTime(new Date(m.ad_top_until)),
+                    messagable_id: m.messagable_id,
+                    messagable_type: type,
+                    published_at: datetimeToTime(new Date(m.published_at)),
+                    status: m.status,
+                    title: m.messagable.title,
+                    route: type === 'Poll' ? 'polls.edit' : 'posts.edit'
+                };
+            });
+        });
+}
+
 const onDayClick = (date) => {
-    shoosenDate.value = date.id; //2024-01-26
-    
-    // TODO: update scheduled post view for shoosen date
+    choosenDate.value = date.id; //2024-01-26
+    updateSchedulesMessages();       
 }
 
 const onDayTimeChange = (dateTime) => {
+    console.log('date change');
     scheduleData.value.publishAt = dateTime;
     scheduleStatus.value = null;
 }
 
+const onCalendarMove = (dateTime) => {
+    console.log('onCalendarMove', dateTime);
+
+}
+
+const onUpdatePages = (dateTime) => {
+    console.log('page change', dateTime);
+}
+
 const schedule = () => {
     scheduleStatus.value = null;
-    emitter.emit('schedule', scheduleData.value);
+    scheduleCreate();
+}
+
+const messageUnschedule = (id) => {
+    if (! confirm('Are you sure?')) {
+        return;
+    }
+
+    axios.delete(route('messages.destroy', {
+        id: id
+    }))
+    .then((response) => {
+        console.log(response);
+
+        updateSchedulesMessages();     
+    });
 }
 
 onMounted(() => {
+    updateSchedulesMessages();
+
     emitter.on('schedule.status', (data) => {
         console.log(data);
         scheduleStatus.value = null;
@@ -293,5 +312,39 @@ onMounted(() => {
 onUnmounted(() => {
     emitter.off('schedule.status');
 });
+
+const scheduleCreate = () => {
+    axios.post(route('messages.store'), {
+        'schedulable_type': 'post',
+        'schedulable_id': usePage().props.messagable_id,
+        'published_at': scheduleData.value.publishAt,
+        'hours_on_top': scheduleData.value.hoursOnTop,
+        'remove_after_hours': scheduleData.value.removeAfterHours,
+    }).then((response) => {
+        emitter.emit('schedule.status', {
+            status: 'success', 
+            messages: ['Post was scheduled.']
+        });
+
+        updateSchedulesMessages();
+    }).catch((error) => {
+        let errors;
+        try {
+            errors = error.response.data.errors;
+        } catch (e) {
+            errors = {error: ['An error occured. Please try later']};
+        }
+
+        let errErrors = [];
+        for (let key in errors) {
+            errErrors = [...errErrors, ...errors[key]];
+        }
+
+        emitter.emit('schedule.status', {
+            status: 'error', 
+            messages: errErrors
+        });
+    });
+};
 
 </script>

@@ -39,6 +39,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
+    Route::get('/messages/date/{date}', [MessageController::class, 'date'])->name('messages.date');
     Route::get('/messages/dates/{start}/{end}', [MessageController::class, 'dates'])
         ->name('messages.dates');
     Route::resource('messages', MessageController::class)->except(['show']);
@@ -53,8 +54,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('polls', PollController::class)->except(['show']);
     
     Route::post('/concepts/store', [ConceptController::class, 'store'])->name('concepts.post');
-
-    Route::resource('schedules', ScheduleController::class);
 });
 
 Route::middleware('auth')->group(function () {

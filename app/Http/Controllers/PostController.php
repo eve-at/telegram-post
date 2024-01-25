@@ -131,7 +131,9 @@ class PostController extends Controller
     // TODO: take out PostFile
     public function update(Request $request, Post $post)
     {
-        $data = $this->validateRequest($request);
+        $data = $this->validateRequest($request, [
+            'ad' => ['missing'], // we can't change the `ad` field
+        ]);
         $type = $this->getRequestType($request);
 
         $data['type'] = $type;
@@ -222,7 +224,7 @@ class PostController extends Controller
         return 'message';
     }
 
-    protected function validateRequest(Request $request) 
+    protected function validateRequest(Request $request, array $rules = []) 
     {
         // No files => message => `text` 4096 chars
         // 1 photo => photo => `caption` 1024 chars
@@ -240,6 +242,7 @@ class PostController extends Controller
             'concept' => ['boolean'],
             'comeback' => ['boolean'],
             'filenames' => ['max:10'],
+            ...$rules
         ];
 
         $type = $this->getRequestType($request);

@@ -16,6 +16,7 @@
             :show-signature="postForm.show_signature"
             :processing="postForm.processing"
             :can-schedule="canSchedule"
+            :is-ad="postForm.ad"
             @form:save="onFormSave"
             @form:reset="onFormReset"
             @form:submit="onFormSubmit"
@@ -77,11 +78,30 @@
                     <div class="mb-3 flex space-x-2">
                         <Checkbox id="show_signature" :checked="postForm.show_signature" @update:checked="updateShowSignature"/>
                         <InputLabel class="ml-2 cursor-pointer" for="show_signature">Show Channel signature</InputLabel>
+                        <InputError :message="postForm.errors.show_signature" />
                     </div> 
 
                     <div class="mb-3 flex space-x-2">
-                        <Checkbox id="ad" :checked="postForm.ad" @update:checked="updateAd"/>
-                        <InputLabel class="ml-2 cursor-pointer font-semibold" for="ad">Advertisement</InputLabel>
+                        <Checkbox 
+                            id="ad" 
+                            :checked="postForm.ad" 
+                            :disabled="!!props.post.id" 
+                            @update:checked="updateAd"
+                            :class="{
+                                'cursor-not-allowed': !!props.post.id
+                            }"
+                        />
+                        <InputLabel 
+                            for="ad"
+                            class="ml-2"
+                            :class="{
+                                'cursor-pointer': !props.post.id,
+                                'cursor-not-allowed': !!props.post.id
+                            }"
+                        >
+                            Advertisement
+                        </InputLabel>
+                        <InputError :message="postForm.errors.ad" />
                     </div> 
 
                     <div class="mb-3">
@@ -110,7 +130,7 @@ import 'filepond/dist/filepond.min.css';
 //import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 //import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
 import { Head, useForm, router, usePage } from '@inertiajs/vue3';
-import { ref, onMounted, onUnmounted, watch, reactive, computed } from 'vue';
+import { ref, onUpdated, onMounted, onUnmounted, watch, reactive, computed } from 'vue';
 import useEmitter from '@/Composables/useEmitter.js';
 import axios from 'axios';
 
@@ -217,52 +237,18 @@ const modifiedFormHandler = () => {
     updatePreview();
 };
 
+onUpdated(() => {
+    usePage().props.messagable_id = props.post.id;
+});
+
 onMounted(() => {
     updatePreview();
 
-    emitter.on("schedule", (scheduleData) => {
-        if (postForm.processing) {
-            return;
-        }
-
-        axios.post(route('schedules.store'), {
-            'schedulable_type': 'post',
-            'schedulable_id': props.post.id,
-            'published_at': scheduleData.publishAt,
-            'hours_on_top': scheduleData.hoursOnTop,
-            'remove_after_hours': scheduleData.removeAfterHours,
-        }).then((response) => {
-            console.log('schedule Ok', response);
-            
-            // ...
-
-            emitter.emit('schedule.status', {
-                status: 'success', 
-                messages: ['Post was scheduled.']
-            });
-        }).catch((error) => {
-            let errors;
-            try {
-                errors = error.response.data.errors;
-            } catch (e) {
-                errors = {error: ['An error occured. Please try later']};
-            }
-
-            let errErrors = [];
-            for (let key in errors) {
-                errErrors = [...errErrors, ...errors[key]];
-            }
-
-            emitter.emit('schedule.status', {
-                status: 'error', 
-                messages: errErrors
-            });
-        });
-    });
+    usePage().props.messagable_id = props.post.id;
 });
 
 onUnmounted(() => {
-    emitter.off("schedule");
+    delete usePage().props.messagable_id;
 });
 
 watch(    
