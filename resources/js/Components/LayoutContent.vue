@@ -103,14 +103,8 @@
                     v-if="sidebarView === 'schedule'"
                     class="lg:sticky top-1 mx-auto my-5"
                 >
-                    <span 
-                        v-if="! canSchedule" 
-                        class="block italic text-center"
-                    >
-                        Please save your article first
-                    </span>
                     <Schedule 
-                        v-if="canSchedule"
+                        :canSchedule="canSchedule"
                         :processing="processing"
                     />
                 </div>
