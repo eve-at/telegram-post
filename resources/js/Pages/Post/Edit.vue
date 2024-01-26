@@ -11,11 +11,12 @@
 
         <LayoutContent 
             :body="preview" 
-            :hasMedia="filepaths.length > 0"
+            :show-sidebar="true"
+            :has-media="filepaths.length > 0"
             :media="filepaths"
             :show-signature="postForm.show_signature"
             :processing="postForm.processing"
-            :can-schedule="canSchedule"
+            :form-was-saved="formWasSaved"
             :is-ad="postForm.ad"
             @form:save="onFormSave"
             @form:reset="onFormReset"
@@ -99,7 +100,7 @@
                                 'cursor-not-allowed': !!props.post.id
                             }"
                         >
-                            Advertisement
+                            Advertisement <span class="text-xs italic">(can't be changed)</span>
                         </InputLabel>
                         <InputError :message="postForm.errors.ad" />
                     </div> 
@@ -212,7 +213,7 @@ const updateShowTitle = (val) => postForm.show_title = val;
 const updateShowSignature = (val) => postForm.show_signature = val;
 const updateAd = (val) => postForm.ad = val;
 
-const canSchedule = computed(() => {
+const formWasSaved = computed(() => {
     return !! props.post.id && ! postForm.isDirty;
 });
 

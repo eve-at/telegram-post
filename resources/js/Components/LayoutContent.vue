@@ -1,19 +1,25 @@
 <template>
     <div class="mx-auto w-10/12 flex flex-col">
         <div class="flex flex-col lg:flex-row p-3 bg-white border-gray-300 rounded-xl m-2">
-            <div class="lg:w-7/12 lg:border-r lg:border-dotted pr-2 mr-2">
+            <div class="lg:w-1/2">
                 <slot name="form" />
 
                 <div class="pt-6 mb-3 flex justify-between">
                     <div>
                         <PrimaryButton 
-                            @click.prevent="$emit('form:save')"
                             :disabled="processing"
+                            @click.prevent="$emit('form:submit')"
                         >
-                            Save
-                        </PrimaryButton>
+                            Save & Leave
+                        </PrimaryButton>                        
                     </div>
-                    <div>
+                    <div class="space-x-3">
+                        <SecondaryButton 
+                            :disabled="processing"
+                            @click.prevent="$emit('form:cancel')"
+                        >
+                            Cancel
+                        </SecondaryButton> 
                         <SecondaryButton 
                             @click.prevent="$emit('form:reset')"
                             :disabled="processing"
@@ -21,40 +27,27 @@
                             Reset
                         </SecondaryButton>
                     </div>
-                    <div>
+                    <div class="space-x-3">
                         <PrimaryButton 
                             v-if="conceptable" 
                             @click.prevent="$emit('form:concept')"
-                            :disabled="processing"
+                            :disabled="!formWasSaved || processing"
                         >
-                            Save & Test
-                        </PrimaryButton>
-                    </div>
-                    <div class="space-x-3">
+                            Test
+                        </PrimaryButton>  
                         <PrimaryButton 
+                            @click.prevent="$emit('form:save')"
                             :disabled="processing"
-                            @click.prevent="$emit('form:submit')"
                         >
-                            Save & Leave
-                        </PrimaryButton>
-                        <SecondaryButton 
-                            :disabled="processing"
-                            @click.prevent="$emit('form:cancel')"
-                        >
-                            Cancel & Leave
-                        </SecondaryButton>
-                        <SecondaryButton 
-                            @click.prevent="() => {
-                                sidebarView='schedule'
-                            }"
-                        >
-                            Schedule...
-                        </SecondaryButton>
-                    </div>
-                    
+                            Save
+                        </PrimaryButton>                     
+                    </div>                    
                 </div>
             </div>
-            <div class="lg:w-5/12 relative">
+            <div 
+                v-if="showSidebar"
+                class="lg:w-1/2 relative lg:border-l lg:border-dotted pl-2 ml-2"
+            >
                 <div class="w-full">
                     <RadioGroup 
                         name="sidebarView"
@@ -104,7 +97,7 @@
                     class="lg:sticky top-1 mx-auto my-5"
                 >
                     <Schedule 
-                        :canSchedule="canSchedule"
+                        :canSchedule="formWasSaved"
                         :is-ad="isAd"
                         :processing="processing"
                     />
@@ -138,6 +131,10 @@ defineProps({
     //     type: Number,
     //     required: true
     // },
+    showSidebar: {
+        type: Boolean,
+        default: false
+    },
     body: {
         type: String,
         default: ''
@@ -170,7 +167,7 @@ defineProps({
         type: Boolean,
         default: false
     },
-    canSchedule: {
+    formWasSaved: {
         type: Boolean,
         default: false
     },

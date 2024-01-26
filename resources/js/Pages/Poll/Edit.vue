@@ -11,6 +11,7 @@
 
         <LayoutContent 
             :body="preview" 
+            :show-sidebar="true"
             :has-media="false"
             :show-signature="pollForm.show_signature"
             @form:submit="onFormSubmit"

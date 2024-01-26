@@ -37,11 +37,17 @@ class ChannelController extends Controller
             'hours' => ['max:5'],
             'hours.*' => ['integer', 'min:0', 'max:23'],
             'timezone' => ['timezone'],
+            'comeback' => ['boolean'],
         ]);
 
-        Channel::create($data);
+        $channel = Channel::create($data);
 
         SessionChannelController::refreshSession();
+
+        if ($data['comeback'] ?? false) {
+            return to_route('channels.edit', $channel->id)
+                        ->with('success', 'The channel was created');
+        }
 
         return to_route('channels.index')->with('success', 'The channel was updated');
     }
@@ -71,11 +77,17 @@ class ChannelController extends Controller
             'hours' => ['max:5'],
             'hours.*' => ['integer', 'min:0', 'max:23'],
             'timezone' => ['timezone'],
+            'comeback' => ['boolean'],
         ]);
 
         $channel->update($data);
 
         SessionChannelController::refreshSession();
+
+        if ($data['comeback'] ?? false) {
+            return to_route('channels.edit', $channel->id)
+                        ->with('success', 'The channel was updated');
+        }
 
         return to_route('channels.index')->with('success', 'The channel was updated');
     }

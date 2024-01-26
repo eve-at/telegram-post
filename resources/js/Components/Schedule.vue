@@ -22,34 +22,39 @@
                     @update:modelValue="onDayTimeChange"
                 />
 
-
                 <span 
                     v-if="! canSchedule" 
                     class="block italic text-center"
                 >
-                    Please save your article first
+                    Save changes before scheduling
                 </span>
                 <div 
-                    v-if="canSchedule" 
+                    v-if="canSchedule && isAd" 
+                    class="flex flex-col px-4 space-y-1"
                 >
-                    <div 
-                        v-if="isAd"
-                        class="space-y-1"
-                    >
-                        <div class="flex space-x-2 items-center text-right w-full">
-                            <InputLabel class="w-2/4" for="hoursOnTop">Hours on top</InputLabel>
+                    <div class="flex justify-center items-center">
+                        <div class="w-5/12">
+                            <InputLabel for="hoursOnTop">
+                                Hours on top
+                            </InputLabel>
+                        </div>
+                        <div class="w-5/12">
                             <NumberInput 
-                                class="w-1/4 py-1" 
                                 id="hoursOnTop" 
                                 v-model="scheduleData.hoursOnTop" 
                                 :step="1" 
                                 :min="1"
                             />
                         </div>
-                        <div class="flex space-x-2 items-center text-right">
-                            <InputLabel class="w-2/4" for="removeAfterHours">Remove after (hours)</InputLabel>
+                    </div>
+                    <div class="flex justify-center items-center">
+                        <div class="w-5/12">
+                            <InputLabel for="removeAfterHours">
+                                Remove after (hours)
+                            </InputLabel>
+                        </div>
+                        <div class="w-5/12">
                             <NumberInput 
-                                class="w-1/4 py-1" 
                                 id="removeAfterHours" 
                                 v-model="scheduleData.removeAfterHours" 
                                 :step="24" 
@@ -57,27 +62,28 @@
                             />
                         </div>
                     </div>
-
-                    <div 
-                        v-if="!! scheduleStatus"
-                        class="border rounded-md py-2 pl-6 pr-2 mt-2 text-sm "
-                        :class="{
-                            'bg-red-100 border-red-300 text-red-600': scheduleStatus.status === 'error',
-                            'bg-green-100 border-green-300 text-green-600': scheduleStatus.status === 'success',
-                        }"
-                    >
-                        <span 
-                            v-if="scheduleStatus.status === 'error'"
-                            class="font-semibold"
-                        >Error(s):</span>
-                        <ul>
-                            <li 
-                                v-for="message in scheduleStatus.messages"
-                                v-text="message"
-                            ></li>
-                        </ul>
-                    </div>
                 </div>
+
+                <div 
+                    v-if="!! scheduleStatus"
+                    class="border rounded-md py-2 pl-6 pr-2 mt-2 text-sm "
+                    :class="{
+                        'bg-red-100 border-red-300 text-red-600': scheduleStatus.status === 'error',
+                        'bg-green-100 border-green-300 text-green-600': scheduleStatus.status === 'success',
+                    }"
+                >
+                    <span 
+                        v-if="scheduleStatus.status === 'error'"
+                        class="font-semibold"
+                    >Error(s):</span>
+                    <ul>
+                        <li 
+                            v-for="message in scheduleStatus.messages"
+                            v-text="message"
+                        ></li>
+                    </ul>
+                </div>
+
                 <PrimaryButton 
                     :disabled="!scheduleData.publishAt || processing || ! canSchedule"
                     @click.prevent="schedule"
@@ -104,8 +110,10 @@
                     class="group border rounded mb-1 px-2 py-1"
                     :class="{
                         'bg-gray-100': !message.id,
-                        'border-green-300 bg-green-100': message.id && message.ad,
-                        'border-blue-300 bg-blue-100': message.id && !message.ad,
+                        'bg-green-100': message.id && message.ad,
+                        'bg-blue-100': message.id && !message.ad,
+                        'border-blue-300': !message.ad && message.messagable_id !== $page.props.messagable_id,
+                        'border-green-300': message.ad && message.messagable_id !== $page.props.messagable_id,
                         'border-black border-2': message.id && message.messagable_id === $page.props.messagable_id,
                     }"
                 >
@@ -230,7 +238,10 @@ const datetimeToTime = (d) =>
     + ':' + ('0' + d.getMinutes()).slice(-2); 
 
 const updateSchedulesMessages = () => {
-    const date = choosenDate.value;
+    //const date = choosenDate.value;
+    const date = new Date(choosenDate.value).toISOString().slice(0, 10);
+    //const date = new Date(choosenDate.value).toLocaleString('en', {timeZone: 'America/New_York'})
+    console.log('date', date);
     axios.get(route('messages.date', date))
         .then((response) => {
             let arr = response.data.map((m) => {
@@ -253,12 +264,21 @@ const updateSchedulesMessages = () => {
             });
 
             if (usePage().props.channel.hours.length) {
-                let timestampNow = (new Date).getTime();
-                let d = new Date(date);
+                //let timestampNow = (new Date).getTime();
+                let timestampNow = new Date(new Date().toLocaleString('en', {timeZone: usePage().props.channel.timezone})).getTime();
+                //let d = new Date(date);
+                console.log('now', timestampNow);
+                //let d = new Date(date);
+                let d = date.split('-')
 
                 usePage().props.channel.hours.forEach((hour) => {
-                    let postDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), hour, 0);
-                    
+                    //let postDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), hour, 0);
+                    //let postDate = new Date(new Date(d.getFullYear(), d.getMonth(), d.getDate(), hour, 0).toLocaleString('en', {timeZone: usePage().props.channel.timezone}));
+                    //console.log('p D', postDate.getTime(), d.getFullYear(), d.getMonth(), d.getDate(), hour);
+                    //let postDate = new Date(new Date(d[0], d[1], d[2], hour, 0).toLocaleString('en', {timeZone: usePage().props.channel.timezone}));
+                    let postDate = new Date(d[0], d[1]-1, d[2], hour, 0);
+                    console.log('p D', postDate.getTime(), d[0], d[1]-1, d[2], hour);
+
                     if (timestampNow > postDate.getTime()) {
                         return;
                     }

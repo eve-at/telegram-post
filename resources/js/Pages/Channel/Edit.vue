@@ -11,12 +11,15 @@
 
         <LayoutContent 
             :body="bodyTemplate" 
+            :show-sidebar="false"
             :media="[]"
             :show-signature="showSignature"
             :signature="channelForm.signature"
             :conceptable="false"
             @form:submit="onFormSubmit"
             @form:cancel="onFormCancel"
+            @form:save="onFormSave"
+            @form:reset="onFormReset"
         >
             <template #form>
                 <span 
@@ -135,7 +138,7 @@ const props = defineProps({
         required: false
     },
     timezones: {
-        type: Array,
+        type: Object,
         required: true
     },
 });
@@ -146,6 +149,7 @@ const channelForm = useForm({
     signature: props.channel.signature,    
     hours: props.channel.hours,    
     timezone: props.channel.timezone,    
+    comeback: false, // return after form submition
 })
 
 const showSignature = ref(true);
@@ -158,8 +162,22 @@ const onFormSubmit = () => {
     if (channelForm.processing) {
         return;
     }
-    channelForm.concept = false;
     createChannel();
+}
+
+const onFormSave = () => {
+    if (channelForm.processing) {
+        return;
+    }
+    channelForm.comeback = true;
+    createChannel();
+}
+
+const onFormReset = () => {
+    if (channelForm.processing) {
+        return;
+    }
+    channelForm.reset();
 }
 
 const onFormCancel = () => {
