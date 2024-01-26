@@ -146,15 +146,22 @@ class MessageController extends Controller
     public function date(String $date)
     {
         try {
-            $date = Carbon::make($date);
+            $date = Carbon::parse($date, session('channel.timezone'));
         } catch(InvalidFormatException) {
             return [];
         }
         
-        //Channel::find(session('channel.id'))->hours
+        $start = $date->clone()->startOfDay()->setTimezone('UTC');
+        $end = $date->clone()->endOfDay()->setTimezone('UTC');
+        // //$d2 = Carbon::now('UTC')->setTimezone('America/Toronto');
+        // //$d3 = Carbon::now('UTC')->setTimezone('Europe/London');
+        //return [$date, $start, $end]; 
+
+        // //Channel::find(session('channel.id'))->hours
 
         return Message::select([
                 'id', 
+                'channel_id', 
                 'messagable_type', 
                 'messagable_id', 
                 'status', 
@@ -167,7 +174,8 @@ class MessageController extends Controller
             ])
             ->with(['messagable:id,title'])
             ->where('channel_id', session('channel.id'))
-            ->whereDate('published_at', $date->toDateString())
+            //->whereDate('published_at', $date)
+            ->whereBetween('published_at', [$start, $end])
             ->orderBy('published_at')
             ->get();
     }

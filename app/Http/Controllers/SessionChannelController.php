@@ -19,6 +19,7 @@ class SessionChannelController extends Controller
         if ($channel) {
             session(['channel.id' => $channel->id]);
             session(['channel.name' => $channel->name]);
+            session(['channel.timezone' => $channel->timezone]);
             session(['channel.hours' => Channel::find($channel->id)->hours]);
             session(['channel.list' => $channels->toJson()]);
         }
@@ -29,6 +30,7 @@ class SessionChannelController extends Controller
         if ($channel) {
             session(['channel.id' => $channel->id]);
             session(['channel.name' => $channel->name]);
+            session(['channel.timezone' => $channel->timezone]);
             session(['channel.hours' => $channel->hours]);
         } 
 
@@ -45,6 +47,7 @@ class SessionChannelController extends Controller
 
         session(['channel.id' => $channel->id]);
         session(['channel.name' => $channel->name]);
+        session(['channel.timezone' => $channel->timezone]);
         session(['channel.hours' => $channel->hours]);
 
         $channels = Channel::select(['id', 'name'])

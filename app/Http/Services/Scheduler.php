@@ -15,6 +15,7 @@ class Scheduler
     {
         if ($message->ad) {
             $count = Message::query()
+                ->where('channel_id', $message->channel_id)
                 ->where('id', '<>', $message->id)
                 ->where(function ($query) use ($message) {
                     $query->where(function ($query) use ($message) {
@@ -35,6 +36,7 @@ class Scheduler
         } 
         
         $count = Message::query()
+            ->where('channel_id', $message->channel_id)
             ->where('ad', 1)
             ->where('id', '<>', $message->id)
             ->where(function ($query) use ($message) {

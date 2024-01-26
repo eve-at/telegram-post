@@ -23,6 +23,7 @@ class ChannelController extends Controller
             'title' => 'Create',
             'toRoute' => 'channels.store',
             'cancelRoute' => 'channels.index',
+            'timezones' => array_combine(timezone_identifiers_list(), timezone_identifiers_list()),
             'channel' => ChannelResource::make(new Channel),
         ]);
     }
@@ -35,6 +36,7 @@ class ChannelController extends Controller
             'chat_id' => ['required', 'numeric', 'starts_with:-100'],
             'hours' => ['max:5'],
             'hours.*' => ['integer', 'min:0', 'max:23'],
+            'timezone' => ['timezone'],
         ]);
 
         Channel::create($data);
@@ -49,6 +51,7 @@ class ChannelController extends Controller
         return Inertia::render('Channel/Edit', [
             'title' => 'Settings',
             'channel' => ChannelResource::make($channel),
+            'timezones' => array_combine(timezone_identifiers_list(), timezone_identifiers_list()),
             'toRoute' => 'channels.update',
             'cancelRoute' => 'channels.index',
         ]);    
@@ -67,6 +70,7 @@ class ChannelController extends Controller
             ],
             'hours' => ['max:5'],
             'hours.*' => ['integer', 'min:0', 'max:23'],
+            'timezone' => ['timezone'],
         ]);
 
         $channel->update($data);

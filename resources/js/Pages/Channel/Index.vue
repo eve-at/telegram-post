@@ -10,7 +10,8 @@
         <div class="mx-auto w-10/12 flex overflow-hidden flex-col">
             <div class="border bg-white border-gray-300 rounded-xl m-2 divide-y divide-solid divide-gray-300 overflow-hidden">
                 <div class="flex w-full bg-gray-100">
-                    <div class="w-8/12 py-3 px-2">Title</div>
+                    <div class="w-6/12 py-3 px-2">Title</div>
+                    <div class="w-2/12 py-3 px-2">Timezone</div>
                     <div class="w-2/12 py-2 px-2">Created at</div>
                     <div class="w-2/12 py-2 px-2">Options</div>
                 </div>
@@ -20,13 +21,17 @@
                     :key="channel.id"
                     class="flex w-full hover:bg-gray-100"
                 >
-                    <div class="w-8/12 ">
+                    <div class="w-6/12 ">
                         <Link 
                             :href="`/channels/${channel.id}/edit`" 
                             v-text="channel.name"
                             class="block hover:underline hover:text-blue-600 px-3 py-2"
                         ></Link>
                     </div>
+                    <div 
+                        class="w-2/12 px-2 py-2"
+                        v-text="channel.timezone"
+                    ></div>
                     <div 
                         class="w-2/12 px-2 py-2"
                         v-text="formateDate(channel.created_at)"                        

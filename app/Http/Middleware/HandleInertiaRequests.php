@@ -37,6 +37,7 @@ class HandleInertiaRequests extends Middleware
             'channel' => [
                 'id' => session('channel.id'),
                 'name' => session('channel.name'),
+                'timezone' => session('channel.timezone'),
                 'hours' => session('channel.hours'),
                 'list' => json_decode(session('channel.list')),
             ],

@@ -45,6 +45,12 @@
                                 <TextInput id="signature" v-model="channelForm.signature"/>
                                 <InputError :message="channelForm.errors.signature" />
                             </div>
+
+                            <div class="mb-3">
+                                <InputLabel for="timezones">Timezone</InputLabel>
+                                <Select id="timezones" v-model="channelForm.timezone" :options="props.timezones"/>
+                                <InputError :message="channelForm.errors.timezone" />
+                            </div>
                         </div>
                         <div class="w-3/12 flex flex-wrap pl-4">
                             <div class="w-full">
@@ -103,6 +109,7 @@
 import Checkbox from '@/Components/Checkbox.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
+import Select from '@/Components/Select.vue';
 import LayoutContent from '@/Components/LayoutContent.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
@@ -127,6 +134,10 @@ const props = defineProps({
         default: null,
         required: false
     },
+    timezones: {
+        type: Array,
+        required: true
+    },
 });
 
 const channelForm = useForm({
@@ -134,6 +145,7 @@ const channelForm = useForm({
     chat_id: props.channel.chat_id,
     signature: props.channel.signature,    
     hours: props.channel.hours,    
+    timezone: props.channel.timezone,    
 })
 
 const showSignature = ref(true);

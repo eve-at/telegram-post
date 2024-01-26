@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('hours')->default('8,18');
             $table->string('signature')->nullable();
+            $table->string('timezone')->default('Europe/London');
             $table->timestamps();
             $table->softDeletes();
         });
