@@ -9,6 +9,7 @@ use App\Models\Poll;
 use App\Models\Post;
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidFormatException;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -18,7 +19,7 @@ use Illuminate\Validation\Rule;
 
 class MessageController extends Controller
 {
-    public function index() 
+    public function index()
     {
         $start = (Carbon::now())->startOfWeek();
         $end = (Carbon::now())->endOfWeek();
@@ -34,7 +35,7 @@ class MessageController extends Controller
             'title' => 'Create',
             'toRoute' => 'messages.store',
             'cancelRoute' => 'messages.index',
-            'message' => MessageResource::make(new Message),
+            'message' => MessageResource::make(new Message()),
         ]);
     }
 
@@ -45,7 +46,7 @@ class MessageController extends Controller
             'schedulable_id' => ['required', 'integer'],
             'published_at' => ['required', 'date'],
         ]);
-   
+
         if ($data['schedulable_type'] === 'poll') {
             $messagable = Poll::find($data['schedulable_id']);
         } else {
@@ -69,7 +70,7 @@ class MessageController extends Controller
             'ad' => $messagable?->ad,
             'published_at' => $publishedAt,
         ]);
-        
+
         // store polymorphic relation
         $message = $message->messagable()->associate($messagable);
 
@@ -130,7 +131,7 @@ class MessageController extends Controller
         // if ($data['filename'] !== $oldFilename) {
         //     Storage::delete('public/media/' . session('channel.id') . '/' . $oldFilename);
         //     Storage::move(
-        //         'public/tmp/' . $data['filename'], 
+        //         'public/tmp/' . $data['filename'],
         //         'public/media/' . session('channel.id') . '/' . $data['filename']
         //     );
         // }
@@ -145,42 +146,51 @@ class MessageController extends Controller
 
     public function date(String $date)
     {
+        if (empty(session('channel.timezone'))) {
+            throw new Exception('Channel timezone is missing');
+        }
+
         try {
             $date = Carbon::parse($date, session('channel.timezone'));
         } catch(InvalidFormatException) {
             return [];
         }
-        
+
         $start = $date->clone()->startOfDay()->setTimezone('UTC');
         $end = $date->clone()->endOfDay()->setTimezone('UTC');
-        // //$d2 = Carbon::now('UTC')->setTimezone('America/Toronto');
-        // //$d3 = Carbon::now('UTC')->setTimezone('Europe/London');
-        //return [$date, $start, $end]; 
-
-        // //Channel::find(session('channel.id'))->hours
 
         return Message::select([
-                'id', 
-                'channel_id', 
-                'messagable_type', 
-                'messagable_id', 
-                'status', 
-                'published_at',
-                'ad', 
-                'ad_hours_on_top', 
-                'ad_remove_after_hours', 
-                'ad_top_until', 
-                'ad_removed_at', 
-            ])
+            'id',
+            'channel_id',
+            'messagable_type',
+            'messagable_id',
+            'status',
+            'published_at',
+            'ad',
+            'ad_hours_on_top',
+            'ad_remove_after_hours',
+            'ad_top_until',
+            'ad_removed_at',
+        ])
             ->with(['messagable:id,title'])
             ->where('channel_id', session('channel.id'))
             //->whereDate('published_at', $date)
             ->whereBetween('published_at', [$start, $end])
             ->orderBy('published_at')
-            ->get();
+            ->get()
+            ->map(function ($message) {
+                $message['published_at'] = Carbon::createFromFormat('Y-m-d H:i:s', $message['published_at'])->setTimezone(session('channel.timezone'))->toDateTimeString();
+                $message['ad_top_until'] = $message['ad_top_until'] 
+                    ? Carbon::createFromFormat('Y-m-d H:i:s', $message['ad_top_until'])->setTimezone(session('channel.timezone'))->toDateTimeString()
+                    : null;
+                $message['ad_removed_at'] = $message['ad_removed_at'] 
+                    ? Carbon::createFromFormat('Y-m-d H:i:s', $message['ad_removed_at'])->setTimezone(session('channel.timezone'))->toDateTimeString()
+                    : null;
+                return $message;
+            });        
     }
 
-    public function dates(Request $request, String $start = null, String $end = null) 
+    public function dates(Request $request, String $start = null, String $end = null)
     {
         try {
             $start = Carbon::parse($start);
@@ -191,7 +201,7 @@ class MessageController extends Controller
 
         return static::messagesBetweenDates($start, $end);
     }
-    
+
     protected static function messagesBetweenDates(Carbon $start, Carbon $end): Collection
     {
         return Message::where('channel_id', session('channel.id'))
@@ -199,7 +209,7 @@ class MessageController extends Controller
             ->orderBy('created_at')
             ->get()->map(function ($message) {
                 $type = str_replace('Group', '', Str::afterLast($message->messagable_type, '\\'));
-                
+
                 return [
                     'id' => $message->id,
                     'name' => $message->messagable->title,

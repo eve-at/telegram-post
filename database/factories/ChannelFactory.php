@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Channel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -22,7 +21,8 @@ class ChannelFactory extends Factory
             'name' => $name,
             'chat_id' => '-100' . fake()->randomNumber(5, strict: true) . fake()->randomNumber(5, strict: true),
             'signature' => '<a href="' . config('app.TELEGRAM_CONCEPT_CHANNEL_LINK') . "\">$name</a>",
-            'hours' => [rand(0, 12), rand(13, 23)]
+            'hours' => [rand(0, 12), rand(13, 23)],
+            'timezone' => 'Europe/London',
         ];
     }
 }

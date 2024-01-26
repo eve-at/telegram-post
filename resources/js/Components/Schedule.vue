@@ -11,6 +11,7 @@
                     class="scheduleCalendar"
                     v-model="scheduleData.publishAt" 
                     mode="dateTime" 
+                    :timezone="$page.props.channel.timezone"
                     :attributes="datePickerAttributes"
                     :rules="datePickerRules"
                     :time-accuracy="datePickerTimeAccuracy"

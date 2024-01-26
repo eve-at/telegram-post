@@ -10,7 +10,7 @@ class SessionChannelController extends Controller
     public static function setChannel()
     {
         // TODO: get user's channels
-        $channels = Channel::select(['id', 'name'])
+        $channels = Channel::select(['id', 'name', 'timezone'])
                             ->orderBy('name')
                             ->get();
 
@@ -25,23 +25,23 @@ class SessionChannelController extends Controller
         }
     }
 
-    public function update(Request $request, Channel $channel) 
+    public function update(Request $request, Channel $channel)
     {
         if ($channel) {
             session(['channel.id' => $channel->id]);
             session(['channel.name' => $channel->name]);
             session(['channel.timezone' => $channel->timezone]);
             session(['channel.hours' => $channel->hours]);
-        } 
+        }
 
         return to_route('dashboard');
     }
 
-    public static function refreshSession() 
+    public static function refreshSession()
     {
         $channel = Channel::find(session('channel.id'));
 
-        if (! $channel) {
+        if (!$channel) {
             $channel = Channel::first();
         }
 
@@ -56,5 +56,4 @@ class SessionChannelController extends Controller
 
         session(['channel.list' => $channels->toJson()]);
     }
-    
 }
