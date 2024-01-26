@@ -22,12 +22,6 @@
                     @update:modelValue="onDayTimeChange"
                 />
 
-                <span 
-                    v-if="! canSchedule" 
-                    class="block italic text-center"
-                >
-                    Save changes before scheduling
-                </span>
                 <div 
                     v-if="canSchedule && isAd" 
                     class="flex flex-col px-4 space-y-1"
@@ -84,12 +78,21 @@
                     </ul>
                 </div>
 
-                <PrimaryButton 
-                    :disabled="!scheduleData.publishAt || processing || ! canSchedule"
-                    @click.prevent="schedule"
-                >
-                    Schedule
-                </PrimaryButton> 
+                <div class="text-center">
+                    <PrimaryButton 
+                        :disabled="!scheduleData.publishAt || processing || ! canSchedule"
+                        @click.prevent="schedule"
+                    >
+                        Schedule
+                    </PrimaryButton> 
+
+                    <span 
+                        v-if="! canSchedule" 
+                        class="block italic text-center mt-2"
+                    >
+                        Save changes before scheduling
+                    </span>
+                </div>
             </div>
             <div 
                 class="w-1/2"
@@ -103,7 +106,7 @@
                     v-if="!messages.length"
                     class="block text-gray-600 italic whitespace-nowrap text-center"
                 >
-                    < No posts for this day >
+                    &lang; No posts for this day &rang;
                 </span>
                 <div 
                     v-for="message in messages"
@@ -112,9 +115,9 @@
                         'bg-gray-100': !message.id,
                         'bg-green-100': message.id && message.ad,
                         'bg-blue-100': message.id && !message.ad,
-                        'border-blue-300': !message.ad && message.messagable_id !== $page.props.messagable_id,
-                        'border-green-300': message.ad && message.messagable_id !== $page.props.messagable_id,
-                        'border-black border-2': message.id && message.messagable_id === $page.props.messagable_id,
+                        'border-blue-300': !message.ad && !sameMessagable(message),
+                        'border-green-300': message.ad && !sameMessagable(message),
+                        'border-black border-2': message.id && sameMessagable(message),
                     }"
                 >
                     <div class="flex justify-between text-sm">
@@ -153,13 +156,13 @@
                         ></span>
                         <div v-if="!message.status && message.id">
                             <span 
-                                v-if="message.messagable_id === $page.props.messagable_id"
+                                v-if="sameMessagable(message)"
                                 class="hidden group-hover:block cursor-pointer hover:text-blue-600 hover:underline"
                                 v-text="'Unshedule'"
                                 @click="messageUnschedule(message.id)"
                             ></span>
                             <Link 
-                                v-if="message.messagable_id !== $page.props.messagable_id"
+                                v-else
                                 :href="route(message.route, message.messagable_id)"
                                 class="hidden group-hover:block cursor-pointer hover:text-blue-600 hover:underline"
                                 v-text="'Edit'"
@@ -238,10 +241,8 @@ const datetimeToTime = (d) =>
     + ':' + ('0' + d.getMinutes()).slice(-2); 
 
 const updateSchedulesMessages = () => {
-    //const date = choosenDate.value;
     const date = new Date(choosenDate.value).toISOString().slice(0, 10);
-    //const date = new Date(choosenDate.value).toLocaleString('en', {timeZone: 'America/New_York'})
-    console.log('date', date);
+    
     axios.get(route('messages.date', date))
         .then((response) => {
             let arr = response.data.map((m) => {
@@ -264,20 +265,11 @@ const updateSchedulesMessages = () => {
             });
 
             if (usePage().props.channel.hours.length) {
-                //let timestampNow = (new Date).getTime();
                 let timestampNow = new Date(new Date().toLocaleString('en', {timeZone: usePage().props.channel.timezone})).getTime();
-                //let d = new Date(date);
-                console.log('now', timestampNow);
-                //let d = new Date(date);
                 let d = date.split('-')
 
                 usePage().props.channel.hours.forEach((hour) => {
-                    //let postDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), hour, 0);
-                    //let postDate = new Date(new Date(d.getFullYear(), d.getMonth(), d.getDate(), hour, 0).toLocaleString('en', {timeZone: usePage().props.channel.timezone}));
-                    //console.log('p D', postDate.getTime(), d.getFullYear(), d.getMonth(), d.getDate(), hour);
-                    //let postDate = new Date(new Date(d[0], d[1], d[2], hour, 0).toLocaleString('en', {timeZone: usePage().props.channel.timezone}));
                     let postDate = new Date(d[0], d[1]-1, d[2], hour, 0);
-                    console.log('p D', postDate.getTime(), d[0], d[1]-1, d[2], hour);
 
                     if (timestampNow > postDate.getTime()) {
                         return;
@@ -312,7 +304,6 @@ const onDayClick = (date) => {
 }
 
 const onDayTimeChange = (dateTime) => {
-    console.log('date change');
     scheduleData.value.publishAt = dateTime;
     scheduleStatus.value = null;
 }
@@ -331,8 +322,6 @@ const messageUnschedule = (id) => {
         id: id
     }))
     .then((response) => {
-        console.log(response);
-
         updateSchedulesMessages();     
     });
 }
@@ -341,7 +330,6 @@ onMounted(() => {
     updateSchedulesMessages();
 
     emitter.on('schedule.status', (data) => {
-        console.log(data);
         scheduleStatus.value = null;
 
         switch (data.status) {
@@ -367,7 +355,7 @@ onUnmounted(() => {
 
 const scheduleCreate = () => {
     axios.post(route('messages.store'), {
-        'schedulable_type': 'post',
+        'schedulable_type': usePage().props.messagable_type,
         'schedulable_id': usePage().props.messagable_id,
         'published_at': scheduleData.value.publishAt,
         'ad_hours_on_top': scheduleData.value.hoursOnTop,
@@ -398,5 +386,10 @@ const scheduleCreate = () => {
         });
     });
 };
+
+const sameMessagable = (message) => {
+    return message.messagable_id === usePage().props.messagable_id 
+        && message.messagable_type.toLowerCase() === usePage().props.messagable_type;
+}
 
 </script>

@@ -73,7 +73,7 @@ class PostController extends Controller
                         ->with('success', 'The Post was created and tested');
         }
 
-        if ($comeback) {;
+        if ($comeback) {
             return to_route('posts.edit', $post->id)
                         ->with('success', 'The Post was created');
         }

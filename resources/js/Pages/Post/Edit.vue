@@ -244,11 +244,12 @@ onUpdated(() => {
 
 onMounted(() => {
     updatePreview();
-
+    usePage().props.messagable_type = 'post';
     usePage().props.messagable_id = props.post.id;
 });
 
 onUnmounted(() => {
+    delete usePage().props.messagable_type;
     delete usePage().props.messagable_id;
 });
 

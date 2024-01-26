@@ -13,7 +13,10 @@
             :body="preview" 
             :show-sidebar="true"
             :has-media="false"
-            :show-signature="pollForm.show_signature"
+            :show-signature="false"
+            :form-was-saved="formWasSaved"
+            @form:save="onFormSave"
+            @form:reset="onFormReset"
             @form:submit="onFormSubmit"
             @form:cancel="onFormCancel"
             @form:concept="onFormConcept"
@@ -155,8 +158,8 @@ import LayoutContent from '@/Components/LayoutContent.vue';
 //https://sortablejs.github.io/vue.draggable.next/#/simple
 import draggable from 'vuedraggable';
 import Modal from '@/Components/Modal.vue'
-import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, onMounted, watch } from 'vue';
+import { Head, useForm, usePage, router } from '@inertiajs/vue3';
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 //import Checkbox from '@/Components/Checkbox.vue';
 
 const props = defineProps({
@@ -197,10 +200,15 @@ const pollForm = useForm({
     //show_signature: props.poll.show_signature,
     is_anonymous: props.poll.is_anonymous, // non-anonymous polls can't be sent to channel chats
     concept: false,  
+    comeback: false, // return after form submition
 });
 
 //const updateShowSignature = (val) => pollForm.show_signature = val;
 //const updateIsAnonymous = (val) => pollForm.is_anonymous = val;
+
+const formWasSaved = computed(() => {
+    return !! props.poll.id && ! pollForm.isDirty;
+});
 
 const updatePreview = () => {
     const explantion = pollForm.explanation.length 
@@ -223,10 +231,16 @@ const updatePreview = () => {
 }
 
 onMounted(() => {
-    usePage().props.messagable_id = props.post.id;
-    
     updatePreview();
+    usePage().props.messagable_type = 'poll';
+    usePage().props.messagable_id = props.poll.id; 
 });
+
+onUnmounted(() => {
+    delete usePage().props.messagable_type;
+    delete usePage().props.messagable_id;
+});
+
 
 watch(
     pollForm,
@@ -301,6 +315,22 @@ const editOption = (index) => {
     modalEditOption.value = index;
     modalInputText.value = pollForm.options[index];
     openModal();
+}
+
+const onFormSave = () => {
+    if (pollForm.processing) {
+        return;
+    }
+    pollForm.concept = false;
+    pollForm.comeback = true;
+    createPoll();
+}
+
+const onFormReset = () => {
+    if (pollForm.processing) {
+        return;
+    }
+    pollForm.reset();
 }
 
 const onFormSubmit = () => {

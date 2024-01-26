@@ -67,7 +67,7 @@ class MessageController extends Controller
 
         $message = Message::make([
             'channel_id' => session('channel.id'),
-            'ad' => $messagable?->ad,
+            'ad' => $messagable->ad ?? false,
             'published_at' => $publishedAt,
         ]);
 

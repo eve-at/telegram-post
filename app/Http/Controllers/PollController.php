@@ -56,9 +56,11 @@ class PollController extends Controller
             //'show_signature' => ['boolean'],
             //'show_signature' => ['boolean'], // non-anonymous polls can't be sent to channel chats
             'concept' => ['boolean'],
+            'comeback' => ['boolean'],
         ]);
 
         $concept = $data['concept'] ?? false;
+        $comeback = $data['comeback'] ?? false;
 
         $data['correct_option_id'] = $data['answer'];
         unset($data['answer']);
@@ -74,6 +76,11 @@ class PollController extends Controller
 
             return to_route('polls.edit', $poll->id)
                         ->with('success', 'The poll was created and tested');
+        }
+
+        if ($comeback) {
+            return to_route('polls.edit', $poll->id)
+                        ->with('success', 'The poll was created');
         }
 
         return to_route('polls.index')->with('success', 'The poll was created');
@@ -111,9 +118,11 @@ class PollController extends Controller
             //'show_signature' => ['boolean'], // non-anonymous polls can't be sent to channel chats
             'is_anonymous' => ['boolean'],
             'concept' => ['boolean'],
+            'comeback' => ['boolean'],
         ]);
 
         $concept = $data['concept'] ?? false;
+        $comeback = $data['comeback'] ?? false;
 
         $data['correct_option_id'] = $data['answer'];
         unset($data['answer']);
@@ -126,6 +135,11 @@ class PollController extends Controller
 
             return to_route('polls.edit', $poll->id)
                         ->with('success', 'The poll was updated and tested');
+        }
+
+        if ($comeback) {
+            return to_route('polls.edit', $poll->id)
+                        ->with('success', 'The poll was created');
         }
 
         return to_route('polls.index')->with('success', 'The poll was updated');
