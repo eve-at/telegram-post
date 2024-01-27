@@ -23,8 +23,8 @@ class Channel extends Model
     public function hours(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => collect(explode(',', $value))->map(fn($i) => (int)$i)->toArray(),
-            set: fn (array $arr) => collect($arr)->sort()->unique()->implode(','),
+            get: fn (?string $value) => json_decode($value),
+            set: fn (array $arr) => collect($arr)->sort()->unique()->toJson(),
         );
     }
 }
