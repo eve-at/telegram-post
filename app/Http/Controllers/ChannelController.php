@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ChannelUpdated;
 use App\Http\Resources\ChannelResource;
 use App\Models\Channel;
 use Illuminate\Http\Request;
@@ -24,7 +25,7 @@ class ChannelController extends Controller
             'toRoute' => 'channels.store',
             'cancelRoute' => 'channels.index',
             'timezones' => array_combine(timezone_identifiers_list(), timezone_identifiers_list()),
-            'channel' => ChannelResource::make(new Channel),
+            'theChannel' => ChannelResource::make(new Channel),
         ]);
     }
 
@@ -42,8 +43,6 @@ class ChannelController extends Controller
 
         $channel = Channel::create($data);
 
-        SessionChannelController::refreshSession();
-
         if ($data['comeback'] ?? false) {
             return to_route('channels.edit', $channel->id)
                         ->with('success', 'The channel was created');
@@ -56,7 +55,7 @@ class ChannelController extends Controller
     {
         return Inertia::render('Channel/Edit', [
             'title' => 'Settings',
-            'channel' => ChannelResource::make($channel),
+            'theChannel' => ChannelResource::make($channel),
             'timezones' => array_combine(timezone_identifiers_list(), timezone_identifiers_list()),
             'toRoute' => 'channels.update',
             'cancelRoute' => 'channels.index',
@@ -82,8 +81,6 @@ class ChannelController extends Controller
 
         $channel->update($data);
 
-        SessionChannelController::refreshSession();
-
         if ($data['comeback'] ?? false) {
             return to_route('channels.edit', $channel->id)
                         ->with('success', 'The channel was updated');
@@ -95,8 +92,6 @@ class ChannelController extends Controller
     public function destroy(Channel $channel)
     {
         $channel->delete();
-
-        SessionChannelController::refreshSession();
 
         return to_route('channels.index')->with('success', 'The channel was deleted');
     }

@@ -23,7 +23,7 @@
         >
             <template #form>
                 <span 
-                    v-if="!props.channel.id"
+                    v-if="!props.theChannel.id"
                     class="bg-gray-200 block py-2 px-3 mt-2 mb-4 italic rounded-md"
                 >
                     Note: Before filling out this form, create the channel through the Telegram application.
@@ -132,7 +132,7 @@ const props = defineProps({
         type: String,
         required: true
     },
-    channel: {
+    theChannel: {
         type: Object,
         default: null,
         required: false
@@ -144,11 +144,11 @@ const props = defineProps({
 });
 
 const channelForm = useForm({
-    name: props.channel.name,
-    chat_id: props.channel.chat_id,
-    signature: props.channel.signature,    
-    hours: props.channel.hours,    
-    timezone: props.channel.timezone,    
+    name: props.theChannel.name,
+    chat_id: props.theChannel.chat_id,
+    signature: props.theChannel.signature,    
+    hours: props.theChannel.hours,    
+    timezone: props.theChannel.timezone,    
     comeback: false, // return after form submition
 })
 
@@ -188,8 +188,8 @@ const onFormCancel = () => {
 }
 
 const createChannel = () => {
-    if (props.channel.id) { //update
-        channelForm.patch(route(props.toRoute, props.channel.id), {
+    if (props.theChannel.id) { //update
+        channelForm.patch(route(props.toRoute, props.theChannel.id), {
             preserveScroll: true
         })
     } else { //create

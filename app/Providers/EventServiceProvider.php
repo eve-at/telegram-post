@@ -2,10 +2,20 @@
 
 namespace App\Providers;
 
+use App\Events\ChannelDelited;
+use App\Events\ChannelSessionChanged;
+use App\Events\ChannelUpdated;
+use App\Listeners\ChannelDelitedListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
+use App\Listeners\ChannelSessionChangedListener;
+use App\Listeners\ChannelSessionInitListener;
+use App\Listeners\ChannelSessionListListener;
+use App\Listeners\ChannelUpdatedListener;
+use App\Models\Channel;
+use App\Observers\ChannelObserver;
+use Illuminate\Auth\Events\Login;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -16,8 +26,27 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         Registered::class => [
-            SendEmailVerificationNotification::class,
+            SendEmailVerificationNotification::class,            
         ],
+        Login::class => [
+            ChannelSessionInitListener::class,
+            ChannelSessionListListener::class,
+        ],
+        ChannelSessionChanged::class => [
+            ChannelSessionChangedListener::class
+        ],
+        ChannelUpdated::class => [
+            ChannelUpdatedListener::class,
+            ChannelSessionListListener::class,
+        ],
+        ChannelDelited::class => [
+            ChannelDelitedListener::class,
+            ChannelSessionListListener::class
+        ],
+    ];
+
+    protected $observers = [
+        Channel::class => [ChannelObserver::class],
     ];
 
     /**

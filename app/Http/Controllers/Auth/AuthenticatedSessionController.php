@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Events\ChannelInit;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\SessionChannelController;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
@@ -34,9 +34,6 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
-
-        // set defaut channel into the session
-        SessionChannelController::setChannel();
         
         return redirect()->intended(RouteServiceProvider::HOME);
     }
