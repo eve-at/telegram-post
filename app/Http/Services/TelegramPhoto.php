@@ -5,6 +5,7 @@ use Telegram\Bot\Objects\Message as TelegramMessage;
 use App\Http\Contracts\TelegramPublishable;
 use App\Models\Post;
 use App\Models\PostFile;
+use Carbon\Carbon;
 use Exception;
 use Telegram\Bot\FileUpload\InputFile;
 use Telegram\Bot\Laravel\Facades\Telegram;
@@ -13,6 +14,7 @@ class TelegramPhoto implements TelegramPublishable
 {
     protected static $publishable;
     protected $chat_id;
+    protected $message = [];
 
     protected function __construct(protected Post $post, $concept = false) 
     {
@@ -23,11 +25,23 @@ class TelegramPhoto implements TelegramPublishable
         $this->chat_id = $concept 
             ? config('app.TELEGRAM_CONCEPT_CHANNEL_ID') 
             : $post->channel->chat_id;
+
+        $this->prepare();
     }
 
     public static function make(Post $post, bool $concept = false)
     {
         return (new self($post, $concept));
+    }
+
+    protected function prepare(): void
+    {
+        $this->message = [
+            'chat_id' => $this->chat_id,
+            'caption' => $this->caption(),
+            'parse_mode' => 'HTML',
+            'photo' => $this->media($this->post->filenames[0]),
+        ];
     }
 
     public function publish(): array
@@ -39,14 +53,18 @@ class TelegramPhoto implements TelegramPublishable
         return [$response->message_id];
     }
 
+    public function schedule(\DateTime $datetime): array
+    {
+        $this->message['schedule_date'] = Carbon::parse($datetime)->timestamp;
+        
+        //Log::debug("Message scheduled for $datetime [$this->message['schedule_date']]");
+
+        return $this->publish();
+    }
+    
     protected function send(): TelegramMessage
     {
-        return Telegram::sendPhoto([
-            'chat_id' => $this->chat_id,
-            'caption' => $this->caption(),
-            'parse_mode' => 'HTML',
-            'photo' => $this->media($this->post->filenames[0]),
-        ]);
+        return Telegram::sendPhoto($this->message);
     }
 
     public function caption(): String

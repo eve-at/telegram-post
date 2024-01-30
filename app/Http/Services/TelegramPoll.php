@@ -4,6 +4,7 @@ namespace App\Http\Services;
 use Telegram\Bot\Objects\Message as TelegramMessage;
 use App\Http\Contracts\TelegramPublishable;
 use App\Models\Poll;
+use Carbon\Carbon;
 use Exception;
 use Telegram\Bot\FileUpload\InputFile;
 use Telegram\Bot\Laravel\Facades\Telegram;
@@ -13,6 +14,7 @@ class TelegramPoll implements TelegramPublishable
     protected static $publishable;
     protected $chat_id;
     protected $reuse_file = false;
+    protected $message = [];
 
     protected function __construct(protected Poll $poll, $concept = false) 
     {
@@ -23,11 +25,26 @@ class TelegramPoll implements TelegramPublishable
         $this->chat_id = $concept 
             ? config('app.TELEGRAM_CONCEPT_CHANNEL_ID') 
             : $poll->channel->chat_id;
+
+        $this->prepare();
     }
 
     public static function make(Poll $poll, bool $concept = false)
     {
         return (new self($poll, $concept));
+    }
+
+    protected function prepare(): void
+    {
+        $this->message = [
+            'chat_id' => $this->chat_id,
+            'type' => $this->poll->type,
+            'question' => $this->poll->title,
+            'options' => $this->poll->options,
+            'explanation' => $this->poll->explanation,
+            'correct_option_id' => $this->poll->correct_option_id,
+            'is_anonymous' => $this->poll->is_anonymous,
+        ];
     }
 
     public function publish(): array
@@ -37,17 +54,18 @@ class TelegramPoll implements TelegramPublishable
         return [$response->message_id];
     }
 
+    public function schedule(\DateTime $datetime): array
+    {
+        $this->message['schedule_date'] = Carbon::parse($datetime)->timestamp;
+        
+        //Log::debug("Message scheduled for $datetime [$this->message['schedule_date']]");
+
+        return $this->publish();
+    }
+    
     protected function send(): TelegramMessage
     {
-        return Telegram::sendPoll([
-            'chat_id' => $this->chat_id,
-            'type' => $this->poll->type,
-            'question' => $this->poll->title,
-            'options' => $this->poll->options,
-            'explanation' => $this->poll->explanation,
-            'correct_option_id' => $this->poll->correct_option_id,
-            'is_anonymous' => $this->poll->is_anonymous,
-        ]);
+        return Telegram::sendPoll($this->message);
     }
 
     // response for Poll Telegram\Bot\Objects\Message

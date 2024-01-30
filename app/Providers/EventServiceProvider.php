@@ -14,7 +14,9 @@ use App\Listeners\ChannelSessionInitListener;
 use App\Listeners\ChannelSessionListListener;
 use App\Listeners\ChannelUpdatedListener;
 use App\Models\Channel;
+use App\Models\Message;
 use App\Observers\ChannelObserver;
+use App\Observers\MessageObserver;
 use Illuminate\Auth\Events\Login;
 
 class EventServiceProvider extends ServiceProvider
@@ -47,6 +49,7 @@ class EventServiceProvider extends ServiceProvider
 
     protected $observers = [
         Channel::class => [ChannelObserver::class],
+        Message::class => [MessageObserver::class],
     ];
 
     /**

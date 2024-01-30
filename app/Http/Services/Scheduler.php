@@ -3,7 +3,7 @@
 namespace App\Http\Services;
 
 use App\Models\Message;
-use Exception;
+use Carbon\Carbon;
 
 class Scheduler 
 {
@@ -45,5 +45,11 @@ class Scheduler
             })->count();
             
         return $count > 0;
-    }    
+    }   
+    
+    public static function schedule(Message $message)
+    {
+        TelegramService::make($message)->schedule($message->published_at);
+    }
+    
 }

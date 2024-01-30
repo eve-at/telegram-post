@@ -8,4 +8,5 @@ interface TelegramPublishable
     // @see https://www.php.net/manual/en/language.types.declarations.php#language.types.declarations.union
     // public static function make(Post|Poll $object): TelegramMessagable;    
     public function publish(): array;  
+    public function schedule(\DateTime $datetime): array;  
 }

@@ -5,7 +5,9 @@ use Telegram\Bot\Objects\Message as TelegramMessage;
 use App\Http\Contracts\TelegramPublishable;
 use App\Models\Post;
 use App\Models\PostFile;
+use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Telegram\Bot\FileUpload\InputFile;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use Telegram\Bot\Objects\InputMedia\InputMediaPhoto;
@@ -17,6 +19,7 @@ class TelegramMediaGroup implements TelegramPublishable
     protected $chat_id;
     protected $reuse_file = false;
     protected $filesToUpload = [];
+    protected $message = [];
 
     protected function __construct(protected Post $post, $concept = false) 
     {
@@ -27,6 +30,8 @@ class TelegramMediaGroup implements TelegramPublishable
         $this->chat_id = $concept 
             ? config('app.TELEGRAM_CONCEPT_CHANNEL_ID') 
             : $post->channel->chat_id;
+
+        $this->prepare();
     }
 
     public static function make(Post $post, bool $concept = false)
@@ -34,16 +39,7 @@ class TelegramMediaGroup implements TelegramPublishable
         return (new self($post, $concept));
     }
 
-    public function publish(): array
-    {
-        $response = $this->send();
-        
-        $this->updateFiles($response);
-
-        return $response->pluck('message_id')->toArray();
-    }
-
-    protected function send(): TelegramMessage
+    protected function prepare(): void
     {
         $this->filesToUpload = [];
 
@@ -54,13 +50,31 @@ class TelegramMediaGroup implements TelegramPublishable
             $medias[0]['parse_mode'] = 'HTML';
         }
         
-        $data = [
+        $this->message = [
             'chat_id' => $this->chat_id,
             'media' => json_encode($medias),
             ...$this->filesToUpload
         ];
+    }
 
-        return Telegram::sendMediaGroup($data);
+    public function publish(): array
+    {
+        $response = Telegram::sendMediaGroup($this->message);
+        
+        $this->updateFiles($response);
+
+        return $response->pluck('message_id')->toArray();
+    }
+
+    public function schedule(\DateTime $datetime): array
+    {
+        //TODO: fix teh scheduler, now it posting the message immediately
+        //@see: https://core.telegram.org/api/scheduled-messages
+        $this->message['schedule_date'] = Carbon::parse($datetime)->timestamp;
+        
+        Log::debug("Message scheduled for $datetime [$this->message['schedule_date']]");
+
+        return $this->publish();
     }
 
     public function caption(): string
