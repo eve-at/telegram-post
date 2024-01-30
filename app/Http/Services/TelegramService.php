@@ -3,14 +3,14 @@
 namespace App\Http\Services;
 
 use App\Http\Contracts\TelegramPublishable;
-use App\Models\Message;
 
 class TelegramService 
 {
 
-    public static function make(Message $message, Bool $concept = false): TelegramPublishable
+    public static function make(mixed $messagable, Bool $concept = false): TelegramPublishable
     {
-        $serviceClass = match($message->type) {
+
+        $serviceClass = match($messagable->type) {
             // Poll
             'quiz', 'regular' => TelegramPoll::class,
 
@@ -23,7 +23,7 @@ class TelegramService
             default => TelegramMessage::class,
         };
 
-        return $serviceClass::make($message->messagable()->first(), $concept);
+        return $serviceClass::make($messagable, $concept);
     }   
     
 }

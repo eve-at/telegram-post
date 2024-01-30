@@ -239,6 +239,7 @@ const modifiedFormHandler = () => {
 };
 
 onUpdated(() => {
+    usePage().props.messagable_type = 'post';
     usePage().props.messagable_id = props.post.id;
 });
 

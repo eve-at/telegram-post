@@ -5,7 +5,6 @@ use Telegram\Bot\Objects\Message as TelegramMessage;
 use App\Http\Contracts\TelegramPublishable;
 use App\Models\Post;
 use App\Models\PostFile;
-use Carbon\Carbon;
 use Exception;
 use Telegram\Bot\FileUpload\InputFile;
 use Telegram\Bot\Laravel\Facades\Telegram;
@@ -51,15 +50,6 @@ class TelegramPhoto implements TelegramPublishable
         $this->updateFiles($response);
 
         return [$response->message_id];
-    }
-
-    public function schedule(\DateTime $datetime): array
-    {
-        $this->message['schedule_date'] = Carbon::parse($datetime)->timestamp;
-        
-        //Log::debug("Message scheduled for $datetime [$this->message['schedule_date']]");
-
-        return $this->publish();
     }
     
     protected function send(): TelegramMessage

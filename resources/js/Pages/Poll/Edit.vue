@@ -236,6 +236,11 @@ onMounted(() => {
     usePage().props.messagable_id = props.poll.id; 
 });
 
+onUpdated(() => {
+    usePage().props.messagable_type = 'poll';
+    usePage().props.messagable_id = props.post.id;
+});
+
 onUnmounted(() => {
     delete usePage().props.messagable_type;
     delete usePage().props.messagable_id;

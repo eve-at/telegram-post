@@ -5,9 +5,7 @@ use Telegram\Bot\Objects\Message as TelegramMessage;
 use App\Http\Contracts\TelegramPublishable;
 use App\Models\Post;
 use App\Models\PostFile;
-use Carbon\Carbon;
 use Exception;
-use Illuminate\Support\Facades\Log;
 use Telegram\Bot\FileUpload\InputFile;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use Telegram\Bot\Objects\InputMedia\InputMediaPhoto;
@@ -64,17 +62,6 @@ class TelegramMediaGroup implements TelegramPublishable
         $this->updateFiles($response);
 
         return $response->pluck('message_id')->toArray();
-    }
-
-    public function schedule(\DateTime $datetime): array
-    {
-        //TODO: fix teh scheduler, now it posting the message immediately
-        //@see: https://core.telegram.org/api/scheduled-messages
-        $this->message['schedule_date'] = Carbon::parse($datetime)->timestamp;
-        
-        Log::debug("Message scheduled for $datetime [$this->message['schedule_date']]");
-
-        return $this->publish();
     }
 
     public function caption(): string

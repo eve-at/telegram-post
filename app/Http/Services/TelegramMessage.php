@@ -4,8 +4,6 @@ namespace App\Http\Services;
 use Telegram\Bot\Objects\Message;
 use App\Http\Contracts\TelegramPublishable;
 use App\Models\Post;
-use Carbon\Carbon;
-use Clockwork\Request\Log;
 use Exception;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
@@ -46,15 +44,6 @@ class TelegramMessage implements TelegramPublishable
     public function publish(): array
     {
         return [$this->send()->message_id];
-    }
-
-    public function schedule(\DateTime $datetime): array
-    {
-        $this->message['schedule_date'] = Carbon::parse($datetime)->timestamp;
-        
-        //Log::debug("Message scheduled for $datetime [$this->message['schedule_date']]");
-
-        return $this->publish();
     }
 
     protected function send(): Message
