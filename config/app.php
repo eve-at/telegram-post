@@ -7,12 +7,17 @@ return [
 
 
     'TELEGRAM_BOT_TOKEN' => env('TELEGRAM_BOT_TOKEN'),
+
+    'TELEGRAM_CONCEPT_CHAT_ID' => env('TELEGRAM_CONCEPT_CHAT_ID'),
+    'TELEGRAM_CONCEPT_CHAT_NAME' => env('TELEGRAM_CONCEPT_CHAT_NAME'),
+    'TELEGRAM_CONCEPT_CHAT_LINK' => env('TELEGRAM_CONCEPT_CHAT_LINK'),
+    
+     // Model ID of the concept channel. Must be replaced by a checkbox in the Channel
     'TELEGRAM_CONCEPT_CHANNEL_ID' => env('TELEGRAM_CONCEPT_CHANNEL_ID'),
-    'TELEGRAM_CONCEPT_CHANNEL_NAME' => env('TELEGRAM_CONCEPT_CHANNEL_NAME'),
-    'TELEGRAM_CONCEPT_CHANNEL_LINK' => env('TELEGRAM_CONCEPT_CHANNEL_LINK'),
-    'TELEGRAM_CHANNEL_ID' => env('TELEGRAM_CHANNEL_ID'),
-    'TELEGRAM_CHANNEL_NAME' => env('TELEGRAM_CHANNEL_NAME'),
-    'TELEGRAM_CHANNEL_LINK' => env('TELEGRAM_CHANNEL_LINK'),
+
+    'TELEGRAM_CHAT_ID' => env('TELEGRAM_CHAT_ID'),
+    'TELEGRAM_CHAT_NAME' => env('TELEGRAM_CHAT_NAME'),
+    'TELEGRAM_CHAT_LINK' => env('TELEGRAM_CHAT_LINK'),
 
     /*
     |--------------------------------------------------------------------------

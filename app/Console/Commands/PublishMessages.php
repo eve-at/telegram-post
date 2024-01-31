@@ -37,8 +37,7 @@ class PublishMessages extends Command
         $now = Carbon::now();
         Message::whereBetween(
                 'published_at', 
-                $now->startOfMinute()->toDateTimeString(), 
-                $now->endOfMinute()->toDateTimeString()
+                [$now->startOfMinute()->toDateTimeString(), $now->endOfMinute()->toDateTimeString()]
             )
             ->where('status', 0)
             ->each(function (Message $message) use ($queue) {

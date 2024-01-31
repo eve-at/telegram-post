@@ -13,17 +13,22 @@ class TelegramPhoto implements TelegramPublishable
 {
     protected static $publishable;
     protected $chat_id;
+    protected $channel_id;
     protected $message = [];
 
     protected function __construct(protected Post $post, $concept = false) 
     {
-        if ($concept && ! config('app.TELEGRAM_CONCEPT_CHANNEL_ID')) {
-            throw new Exception('Concept Channel ID is missing or empty. Fill out TELEGRAM_CONCEPT_CHANNEL_ID env variable');
+        if ($concept && ! config('app.TELEGRAM_CONCEPT_CHAT_ID')) {
+            throw new Exception('Concept Channel ID is missing or empty. Fill out TELEGRAM_CONCEPT_CHAT_ID env variable');
         }
 
         $this->chat_id = $concept 
-            ? config('app.TELEGRAM_CONCEPT_CHANNEL_ID') 
+            ? config('app.TELEGRAM_CONCEPT_CHAT_ID') 
             : $post->channel->chat_id;
+
+        $this->channel_id = $concept 
+            ? config('app.TELEGRAM_CONCEPT_CHANNEL_ID') 
+            : $post->channel_id;
 
         $this->prepare();
     }
@@ -83,7 +88,7 @@ class TelegramPhoto implements TelegramPublishable
     {
         return $media->file_id 
             ?? InputFile::create(
-                storage_path('app\\public\\media\\' . session('channel.id') . '\\' . $media->filename), 
+                storage_path('app\\public\\media\\' . $this->channel_id . '\\' . $media->filename), 
                 $media->filename
             );
     }

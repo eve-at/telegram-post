@@ -6,6 +6,7 @@ use App\Http\Contracts\TelegramPublishable;
 use App\Models\Post;
 use App\Models\PostFile;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Telegram\Bot\FileUpload\InputFile;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use Telegram\Bot\Objects\InputMedia\InputMediaPhoto;
@@ -14,6 +15,7 @@ use Telegram\Bot\Objects\InputMedia\InputMediaVideo;
 class TelegramMediaGroup implements TelegramPublishable
 {
     protected static $publishable;
+    protected $channel_id;
     protected $chat_id;
     protected $reuse_file = false;
     protected $filesToUpload = [];
@@ -21,13 +23,17 @@ class TelegramMediaGroup implements TelegramPublishable
 
     protected function __construct(protected Post $post, $concept = false) 
     {
-        if ($concept && ! config('app.TELEGRAM_CONCEPT_CHANNEL_ID')) {
-            throw new Exception('Concept Channel ID is missing or empty. Fill out TELEGRAM_CONCEPT_CHANNEL_ID env variable');
+        if ($concept && ! config('app.TELEGRAM_CONCEPT_CHAT_ID')) {
+            throw new Exception('Concept Channel ID is missing or empty. Fill out TELEGRAM_CONCEPT_CHAT_ID env variable');
         }
 
         $this->chat_id = $concept 
-            ? config('app.TELEGRAM_CONCEPT_CHANNEL_ID') 
+            ? config('app.TELEGRAM_CONCEPT_CHAT_ID') 
             : $post->channel->chat_id;
+
+        $this->channel_id = $concept 
+            ? config('app.TELEGRAM_CONCEPT_CHANNEL_ID') 
+            : $post->channel_id;
 
         $this->prepare();
     }
@@ -58,6 +64,8 @@ class TelegramMediaGroup implements TelegramPublishable
     public function publish(): array
     {
         $response = Telegram::sendMediaGroup($this->message);
+        
+        Log::info($response);
         
         $this->updateFiles($response);
 
@@ -121,7 +129,7 @@ class TelegramMediaGroup implements TelegramPublishable
         }
 
         $this->filesToUpload[$media->filename] = InputFile::create(
-            storage_path('app\\public\\media\\' . session('channel.id') . '\\' . $media->filename), 
+            storage_path('app\\public\\media\\' . $this->channel_id . '\\' . $media->filename), 
             $media->filename
         );
 

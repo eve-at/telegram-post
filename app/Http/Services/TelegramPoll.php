@@ -16,12 +16,12 @@ class TelegramPoll implements TelegramPublishable
 
     protected function __construct(protected Poll $poll, $concept = false) 
     {
-        if ($concept && ! config('app.TELEGRAM_CONCEPT_CHANNEL_ID')) {
-            throw new Exception('Concept Channel ID is missing or empty. Fill out TELEGRAM_CONCEPT_CHANNEL_ID env variable');
+        if ($concept && ! config('app.TELEGRAM_CONCEPT_CHAT_ID')) {
+            throw new Exception('Concept Channel ID is missing or empty. Fill out TELEGRAM_CONCEPT_CHAT_ID env variable');
         }
 
         $this->chat_id = $concept 
-            ? config('app.TELEGRAM_CONCEPT_CHANNEL_ID') 
+            ? config('app.TELEGRAM_CONCEPT_CHAT_ID') 
             : $poll->channel->chat_id;
 
         $this->prepare();
