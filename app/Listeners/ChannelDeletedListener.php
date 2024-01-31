@@ -3,12 +3,12 @@
 namespace App\Listeners;
 
 use App\Events\ChannelSessionChanged;
-use App\Events\ChannelDelited;
+use App\Events\ChannelDeleted;
 use App\Models\Channel;
 
-class ChannelDelitedListener
+class ChannelDeletedListener
 {
-   public function handle(ChannelDelited $event): void
+   public function handle(ChannelDeleted $event): void
     {
         if (session('channel.id') !== $event->channel->id) {
             return;            

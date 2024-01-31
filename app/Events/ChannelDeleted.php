@@ -7,7 +7,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ChannelDelited
+class ChannelDeleted
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 

@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use App\Events\ChannelDelited;
+use App\Events\ChannelDeleted;
 use App\Events\ChannelSessionChanged;
 use App\Events\ChannelUpdated;
-use App\Listeners\ChannelDelitedListener;
+use App\Listeners\ChannelDeletedListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -39,8 +39,8 @@ class EventServiceProvider extends ServiceProvider
             ChannelUpdatedListener::class,
             ChannelSessionListListener::class,
         ],
-        ChannelDelited::class => [
-            ChannelDelitedListener::class,
+        ChannelDeleted::class => [
+            ChannelDeletedListener::class,
             ChannelSessionListListener::class
         ],
     ];

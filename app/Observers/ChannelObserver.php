@@ -2,7 +2,7 @@
 
 namespace App\Observers;
 
-use App\Events\ChannelDelited;
+use App\Events\ChannelDeleted;
 use App\Events\ChannelUpdated;
 use App\Models\Channel;
 
@@ -29,7 +29,7 @@ class ChannelObserver
      */
     public function deleted(Channel $channel): void
     {
-        ChannelDelited::dispatch($channel);
+        ChannelDeleted::dispatch($channel);
     }
 
     /**
@@ -45,6 +45,6 @@ class ChannelObserver
      */
     public function forceDeleted(Channel $channel): void
     {
-        ChannelDelited::dispatch($channel);
+        ChannelDeleted::dispatch($channel);
     }
 }

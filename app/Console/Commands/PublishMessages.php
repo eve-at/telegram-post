@@ -2,6 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\PublishMessage;
+use App\Models\Message;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class PublishMessages extends Command
@@ -25,6 +28,18 @@ class PublishMessages extends Command
      */
     public function handle()
     {
-        //
+        $queue = 'default'; // 'ads'
+
+        // $message = Message::first();
+        // dispatch(new PublishMessage($message))->onQueue($queue);
+        // $this->info(sprintf('Pushed to `%s` queue: [%s] `%s` ', $queue, $message->messagable->type, $message->messagable->title));
+
+        $now = Carbon::now();
+        Message::whereBetween('publish_at', $now->startOfMinute(), $now->endOfMinute())
+            ->where('status', 0)
+            ->each(function (Message $message) use ($queue) {
+                dispatch(new PublishMessage($message))->onQueue($queue);       
+                $this->info(sprintf('Pushed to `%s` queue: [%s] `%s` ', $queue, $message->messagable->type, $message->messagable->title));         
+            });
     }
 }
