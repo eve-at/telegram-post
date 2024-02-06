@@ -125,7 +125,7 @@
                             class="font-bold"
                         >
                             <span 
-                                v-text="message.published_at"
+                                v-text="message.published_at ? message.published_at : message.publish_at"
                             ></span>
                             <span 
                                 v-if="message.ad"
@@ -253,11 +253,12 @@ const updateSchedulesMessages = () => {
                     ad: m.ad,
                     ad_hours_on_top: m.ad_hours_on_top,
                     ad_remove_after_hours: m.ad_remove_after_hours,
-                    ad_removed_at: datetimeToTime(new Date(m.ad_removed_at)),
-                    ad_top_until: datetimeToTime(new Date(m.ad_top_until)),
+                    ad_removed_at: m.ad_removed_at ? datetimeToTime(new Date(m.ad_removed_at)) : null,
+                    ad_top_until: m.ad_top_until ? datetimeToTime(new Date(m.ad_top_until)) : null,
                     messagable_id: m.messagable_id,
                     messagable_type: type,
-                    published_at: datetimeToTime(new Date(m.published_at)),
+                    publish_at: datetimeToTime(new Date(m.publish_at)),
+                    published_at: m.published_at ? datetimeToTime(new Date(m.published_at)) : null,
                     status: m.status,
                     title: m.messagable.title,
                     route: type === 'Poll' ? 'polls.edit' : 'posts.edit'
@@ -284,6 +285,7 @@ const updateSchedulesMessages = () => {
                         ad_top_until: null,
                         messagable_id: null,
                         messagable_type: 'Post',
+                        publish_at: datetimeToTime(postDate),
                         published_at: datetimeToTime(postDate),
                         status: 0,
                         title: 'Channel auto-post',
@@ -291,7 +293,7 @@ const updateSchedulesMessages = () => {
                     });
                 });
 
-                arr.sort((a, b) => a.published_at.replace(':', '') > b.published_at.replace(':', '') ? 1 : -1)
+                arr.sort((a, b) => a.publish_at.replace(':', '') > b.publish_at.replace(':', '') ? 1 : -1)
             }
 
             messages.value = arr;

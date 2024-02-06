@@ -196,18 +196,18 @@ class MessageController extends Controller
             });        
     }
 
-    protected function dateToTimeString(Carbon $date)
+    protected function dateToTimeString(string $date)
     {
         return Carbon::createFromFormat('Y-m-d H:i:s', $date)->setTimezone(session('channel.timezone'))->toDateTimeString();
     }
 
-    protected function datePlusHoursToTimeString(Carbon $date, ?int $hours = null)
+    protected function datePlusHoursToTimeString(string $date, ?int $hours = null)
     {
         if (is_null($hours)) {
             return null;
         }
 
-        return $this->dateToTimeString($date->addHours($hours));
+        return $this->dateToTimeString(Carbon::createFromFormat('Y-m-d H:i:s', $date)->addHours($hours)->toDateTimeString());
     }
 
     public function dates(Request $request, String $start = null, String $end = null)
