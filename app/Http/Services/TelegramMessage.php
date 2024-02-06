@@ -41,9 +41,9 @@ class TelegramMessage implements TelegramPublishable
         ];
     }
 
-    public function publish(): array
+    public function publish(): Message
     {
-        return [$this->send()->message_id];
+        return $this->send();
     }
 
     protected function send(): Message

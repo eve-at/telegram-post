@@ -22,7 +22,8 @@ return new class extends Migration
             $table->longText('body')->nullable(); // final body with source
             $table->boolean('status')->default(false); // 0 - draft, 1 - published
             $table->timestamps();
-            $table->timestamp('published_at')->nullable();
+            $table->timestamp('publish_at'); // desired publish datetime
+            $table->timestamp('published_at')->nullable(); // real publish datetime
 
             $table->boolean('ad')->default(false);
             $table->integer('ad_hours_on_top')->nullable(); // how many hours the ad must remain on top

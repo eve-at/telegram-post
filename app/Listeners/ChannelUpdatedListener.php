@@ -3,7 +3,6 @@
 namespace App\Listeners;
 
 use App\Events\ChannelUpdated;
-use App\Models\Channel;
 
 class ChannelUpdatedListener
 {

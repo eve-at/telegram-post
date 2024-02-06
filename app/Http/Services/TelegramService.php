@@ -4,13 +4,11 @@ namespace App\Http\Services;
 
 use App\Http\Contracts\TelegramPublishable;
 
-class TelegramService 
+class TelegramService
 {
-
     public static function make(mixed $messagable, Bool $concept = false): TelegramPublishable
     {
-
-        $serviceClass = match($messagable->type) {
+        $serviceClass = match ($messagable->type) {
             // Poll
             'quiz', 'regular' => TelegramPoll::class,
 
@@ -19,11 +17,19 @@ class TelegramService
             'video' => TelegramVideo::class,
             'media_group' => TelegramMediaGroup::class,
             'message' => TelegramMessage::class,
-            
+
             default => TelegramMessage::class,
         };
 
         return $serviceClass::make($messagable, $concept);
-    }   
-    
+    }
+
+    public static function media(PostFile $media): mixed
+    {
+        return $media->file_id
+            ?? InputFile::create(
+                storage_path('app\\public\\media\\' . $this->channel_id . '\\' . $media->filename),
+                $media->filename
+            );
+    }
 }

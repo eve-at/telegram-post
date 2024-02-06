@@ -5,14 +5,13 @@ use Illuminate\Support\ServiceProvider;
 
 return [
 
-
     'TELEGRAM_BOT_TOKEN' => env('TELEGRAM_BOT_TOKEN'),
 
     'TELEGRAM_CONCEPT_CHAT_ID' => env('TELEGRAM_CONCEPT_CHAT_ID'),
     'TELEGRAM_CONCEPT_CHAT_NAME' => env('TELEGRAM_CONCEPT_CHAT_NAME'),
     'TELEGRAM_CONCEPT_CHAT_LINK' => env('TELEGRAM_CONCEPT_CHAT_LINK'),
-    
-     // Model ID of the concept channel. Must be replaced by a checkbox in the Channel
+
+    // Model ID of the concept channel. Must be replaced by a checkbox in the Channel
     'TELEGRAM_CONCEPT_CHANNEL_ID' => env('TELEGRAM_CONCEPT_CHANNEL_ID'),
 
     'TELEGRAM_CHAT_ID' => env('TELEGRAM_CHAT_ID'),
@@ -196,7 +195,7 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        // 'Example' => App\Facades\Example::class,
+        'Helper' => App\Helpers\Helper::class,
     ])->toArray(),
 
 ];

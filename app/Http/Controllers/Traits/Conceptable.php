@@ -6,8 +6,8 @@ use App\Http\Services\TelegramService;
 
 trait Conceptable 
 {
-    protected function publishConcept(mixed $media): array
+    protected function publishConcept(mixed $media): void
     {
-        return TelegramService::make($media, concept: true)->publish();    
+        TelegramService::make($media, concept: true)->publish();    
     }
 }

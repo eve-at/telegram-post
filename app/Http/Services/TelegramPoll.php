@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Services;
 
-use Telegram\Bot\Objects\Message as TelegramMessage;
+use Telegram\Bot\Objects\Message;
 use App\Http\Contracts\TelegramPublishable;
 use App\Models\Poll;
 use Exception;
@@ -45,14 +45,12 @@ class TelegramPoll implements TelegramPublishable
         ];
     }
 
-    public function publish(): array
+    public function publish(): Message
     {
-        $response = $this->send();
-        
-        return [$response->message_id];
+        return $this->send();
     }
     
-    protected function send(): TelegramMessage
+    protected function send(): Message
     {
         return Telegram::sendPoll($this->message);
     }

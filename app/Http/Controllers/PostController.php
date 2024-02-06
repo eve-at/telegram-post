@@ -32,12 +32,12 @@ class PostController extends Controller
             'title' => 'Create',
             'toRoute' => 'posts.store',
             'cancelRoute' => 'posts.index',
-            'post' => PostResource::make(new Post),
+            'post' => PostResource::make(new Post()),
         ]);
     }
 
     public function store(Request $request)
-    {        
+    {
         $data = $this->validateRequest($request, [
             'ad' => ['boolean'], // we only can set the `ad` field on creation
         ]);
@@ -52,13 +52,13 @@ class PostController extends Controller
         $post->channel()->associate(session('channel.id'));
         $post->save();
 
-        foreach($data['filenames'] as $index=>$filename) {
+        foreach ($data['filenames'] as $index => $filename) {
             Storage::move(
-                'public/tmp/' . $filename, 
+                'public/tmp/' . $filename,
                 'public/media/' . session('channel.id') . '/' . $filename
             );
 
-            $file = new PostFile;
+            $file = new PostFile();
             $file->filename = $filename;
             $file->order = $index;
             $file->type = str_ends_with($filename, '.mp4') ? 'video' : 'photo';
@@ -92,13 +92,13 @@ class PostController extends Controller
         //  - The image's width and height must not exceed 10000 in total.
         //  - Width and height ratio must be at most 20.
         // @see: https://core.telegram.org/bots/api#sendgroup
-        //  - There is no explicit rules for a video 
+        //  - There is no explicit rules for a video
         // @see: https://core.telegram.org/bots/api#sendgroup
         $rules = ['required', 'image', 'mimes:jpeg,jpg', 'max:4096'];
         if ($request->file('filename')->getClientMimeType() === 'video/mp4') {
             $rules = ['required', 'file', 'mimes:mp4', 'max:102400'];
         }
-       
+
         $request->validate([
             'filename' => $rules,
         ]);
@@ -140,7 +140,7 @@ class PostController extends Controller
         $comeback = $data['comeback'] ?? false;
 
         $post->update(collect($data)->except('filenames')->toArray());
-        
+
         $filesBefore = $post->filenames->pluck('filename');
         $filesAfter = collect($data['filenames']);
 
@@ -155,7 +155,7 @@ class PostController extends Controller
 
         // move new files (disk, and add into DB)
         $orders = $filesAfter->flip();
-        $filesAfter->diff($filesBefore)->each(function($filename) use ($post, $orders) {
+        $filesAfter->diff($filesBefore)->each(function ($filename) use ($post, $orders) {
             $file = new PostFile();
             $file->filename = $filename;
             $file->type = str_ends_with($filename, '.mp4') ? 'video' : 'photo';
@@ -165,7 +165,7 @@ class PostController extends Controller
 
             // TODO: queue it
             Storage::move(
-                'public/tmp/' . $filename, 
+                'public/tmp/' . $filename,
                 'public/media/' . session('channel.id') . '/' . $filename
             );
         });
@@ -173,13 +173,14 @@ class PostController extends Controller
         // reorder old files in DB
         $filesAfter->flip()
             ->intersectByKeys($filesBefore->flip())
-            ->each(function($order, $filename) use ($post) {
+            ->each(function ($order, $filename) use ($post) {
                 PostFile::where('filename', $filename)
                     ->where('post_id', $post->id)
                     ->update(['order' => $order]);
             });
 
-        if ($concept) {;
+        if ($concept) {
+            ;
             $this->publishConcept($post->fresh());
 
             return back()->with('success', 'The Post was updated and tested');
@@ -204,26 +205,26 @@ class PostController extends Controller
         return to_route('posts.index')->with('success', 'The Post was deleted');
     }
 
-    protected function getRequestType(Request $request) 
+    protected function getRequestType(Request $request)
     {
         if ($request->filenames) {
             if (count($request->filenames) > 1) {
                 return 'media_group';
-            } 
-            
+            }
+
             if (str_ends_with($request->filenames[0], '.mp4')) {
                 return 'video';
-            } 
-            
+            }
+
             //if (str_ends_with($request->filenames[0], '.jpg')) {
-                return 'photo';
+            return 'photo';
             //}
         }
 
         return 'message';
     }
 
-    protected function validateRequest(Request $request, array $rules = []) 
+    protected function validateRequest(Request $request, array $rules = [])
     {
         // No files => message => `text` 4096 chars
         // 1 photo => photo => `caption` 1024 chars
@@ -245,20 +246,20 @@ class PostController extends Controller
         ];
 
         $type = $this->getRequestType($request);
-        
+
         if ($type !== 'message') {
             $validationRules['body'] = ['max:1024']; // not required
             $validationRules['filenames.*'] = ['max:190']; // 190 max filename length
 
             if ($type === 'media_group') {
                 $validationRules['filenames.*'][] = 'ends_with:.mp4,.jpg';
-            } else if ($type === 'video') {
+            } elseif ($type === 'video') {
                 $validationRules['filenames.*'][] = 'ends_with:.mp4';
-            } else if ($type === 'photo') {
+            } elseif ($type === 'photo') {
                 $validationRules['filenames.*'][] = 'ends_with:.jpg';
             }
         }
 
-        return $request->validate($validationRules);    
-    }        
+        return $request->validate($validationRules);
+    }
 }

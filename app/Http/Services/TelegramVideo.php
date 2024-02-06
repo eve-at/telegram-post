@@ -1,7 +1,8 @@
 <?php
 namespace App\Http\Services;
 
-use Telegram\Bot\Objects\Message as TelegramMessage;
+use App\Helpers\Helper;
+use Telegram\Bot\Objects\Message;
 use App\Http\Contracts\TelegramPublishable;
 use App\Models\Post;
 use App\Models\PostFile;
@@ -49,16 +50,17 @@ class TelegramVideo implements TelegramPublishable
         ];
     }
 
-    public function publish(): array
+    public function publish(): Message
     {
         $response = $this->send();
         
         $this->updateFiles($response);
 
-        return [$response->message_id];
+        //return [$response->message_id];
+        return $response;
     }
     
-    protected function send(): TelegramMessage
+    protected function send(): Message
     {
         return Telegram::sendVideo($this->message);
     }
@@ -89,7 +91,7 @@ class TelegramVideo implements TelegramPublishable
     {
         return $media->file_id 
             ?? InputFile::create(
-                storage_path('app\\public\\media\\' . $this->channel_id . '\\' . $media->filename), 
+                Helper::filepath($this->channel_id, $media->filename),
                 $media->filename
             );
     }
@@ -139,7 +141,7 @@ class TelegramVideo implements TelegramPublishable
     //     ]
     // }
 
-    protected function updateFiles(TelegramMessage $message)
+    protected function updateFiles(Message $message)
     {
         $this->updateFile($message, $this->post->filenames[0]);
     }

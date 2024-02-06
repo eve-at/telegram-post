@@ -44,7 +44,7 @@ class MessageController extends Controller
         $data = $request->validate([
             'schedulable_type' => ['required', Rule::in(['post', 'poll'])],
             'schedulable_id' => ['required', 'integer'],
-            'published_at' => ['required', 'date'],
+            'publish_at' => ['required', 'date'],
         ]);
 
         if ($data['schedulable_type'] === 'poll') {
@@ -63,12 +63,12 @@ class MessageController extends Controller
             $data = [...$data, ...$dataAd];
         }
 
-        $publishedAt = Carbon::make($data['published_at']);
+        $publishAt = Carbon::make($data['publish_at']);
 
         $message = Message::make([
             'channel_id' => session('channel.id'),
             'ad' => $messagable->ad ?? false,
-            'published_at' => $publishedAt,
+            'publish_at' => $publishAt,
         ]);
 
         // store polymorphic relation
@@ -77,8 +77,10 @@ class MessageController extends Controller
         if ($message->ad) {
             $message->ad_hours_on_top = $data['ad_hours_on_top'];
             $message->ad_remove_after_hours = $data['ad_remove_after_hours'];
-            $message->ad_top_until = $publishedAt->clone()->addHours($data['ad_hours_on_top']);
-            $message->ad_removed_at = $publishedAt->clone()->addDays($data['ad_remove_after_hours']);
+
+            // TODO: move it to publisher
+            // $message->ad_top_until = $publishAt->clone()->addHours($data['ad_hours_on_top']);
+            // $message->ad_removed_at = $publishAt->clone()->addDays($data['ad_remove_after_hours']);
         }
 
         if (Scheduler::inConflict($message)) {
@@ -165,6 +167,7 @@ class MessageController extends Controller
             'messagable_type',
             'messagable_id',
             'status',
+            'publish_at',
             'published_at',
             'ad',
             'ad_hours_on_top',
@@ -174,20 +177,37 @@ class MessageController extends Controller
         ])
             ->with(['messagable:id,title'])
             ->where('channel_id', session('channel.id'))
-            //->whereDate('published_at', $date)
-            ->whereBetween('published_at', [$start, $end])
-            ->orderBy('published_at')
+            //->whereDate('publish_at', $date)
+            ->whereBetween('publish_at', [$start, $end])
+            ->orderBy('publish_at')
             ->get()
             ->map(function ($message) {
-                $message['published_at'] = Carbon::createFromFormat('Y-m-d H:i:s', $message['published_at'])->setTimezone(session('channel.timezone'))->toDateTimeString();
+                $message['publish_at'] = $this->dateToTimeString($message['publish_at']);
+                $message['published_at'] = $message['published_at'] 
+                    ? $this->dateToTimeString($message['published_at'])
+                    : null;
                 $message['ad_top_until'] = $message['ad_top_until'] 
-                    ? Carbon::createFromFormat('Y-m-d H:i:s', $message['ad_top_until'])->setTimezone(session('channel.timezone'))->toDateTimeString()
-                    : null;
+                    ? $this->dateToTimeString($message['ad_top_until'])
+                    : $this->datePlusHoursToTimeString($message['publish_at'], $message['ad_hours_on_top']);
                 $message['ad_removed_at'] = $message['ad_removed_at'] 
-                    ? Carbon::createFromFormat('Y-m-d H:i:s', $message['ad_removed_at'])->setTimezone(session('channel.timezone'))->toDateTimeString()
-                    : null;
+                    ? $this->dateToTimeString($message['ad_removed_at'])
+                    : $this->datePlusHoursToTimeString($message['publish_at'], $message['ad_remove_after_hours']);
                 return $message;
             });        
+    }
+
+    protected function dateToTimeString(Carbon $date)
+    {
+        return Carbon::createFromFormat('Y-m-d H:i:s', $date)->setTimezone(session('channel.timezone'))->toDateTimeString();
+    }
+
+    protected function datePlusHoursToTimeString(Carbon $date, ?int $hours = null)
+    {
+        if (is_null($hours)) {
+            return null;
+        }
+
+        return $this->dateToTimeString($date->addHours($hours));
     }
 
     public function dates(Request $request, String $start = null, String $end = null)
@@ -205,7 +225,7 @@ class MessageController extends Controller
     protected static function messagesBetweenDates(Carbon $start, Carbon $end): Collection
     {
         return Message::where('channel_id', session('channel.id'))
-            ->whereBetween('published_at', [$start, $end])
+            ->whereBetween('publish_at', [$start, $end])
             ->orderBy('created_at')
             ->get()->map(function ($message) {
                 $type = str_replace('Group', '', Str::afterLast($message->messagable_type, '\\'));
@@ -213,7 +233,7 @@ class MessageController extends Controller
                 return [
                     'id' => $message->id,
                     'name' => $message->messagable->title,
-                    'date' => Carbon::createFromTimeString($message->published_at)->jsonSerialize(),
+                    'date' => Carbon::createFromTimeString($message->publish_at)->jsonSerialize(),
                     'status' => $message->status,
                     'keywords' => $type,
                     'type' => Str::plural(strtolower($type)),

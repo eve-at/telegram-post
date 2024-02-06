@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Events\ChannelDeleted;
 use App\Events\ChannelSessionChanged;
 use App\Events\ChannelUpdated;
+use App\Events\MessagePublished;
 use App\Listeners\ChannelDeletedListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -13,6 +14,7 @@ use App\Listeners\ChannelSessionChangedListener;
 use App\Listeners\ChannelSessionInitListener;
 use App\Listeners\ChannelSessionListListener;
 use App\Listeners\ChannelUpdatedListener;
+use App\Listeners\MessagePublishedListener;
 use App\Models\Channel;
 use App\Observers\ChannelObserver;
 use Illuminate\Auth\Events\Login;
@@ -42,6 +44,9 @@ class EventServiceProvider extends ServiceProvider
         ChannelDeleted::class => [
             ChannelDeletedListener::class,
             ChannelSessionListListener::class
+        ],
+        MessagePublished::class => [
+            MessagePublishedListener::class
         ],
     ];
 

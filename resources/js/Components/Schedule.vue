@@ -357,7 +357,7 @@ const scheduleCreate = () => {
     axios.post(route('messages.store'), {
         'schedulable_type': usePage().props.messagable_type,
         'schedulable_id': usePage().props.messagable_id,
-        'published_at': scheduleData.value.publishAt,
+        'publish_at': scheduleData.value.publishAt,
         'ad_hours_on_top': scheduleData.value.hoursOnTop,
         'ad_remove_after_hours': scheduleData.value.removeAfterHours,
     }).then((response) => {

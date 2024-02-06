@@ -18,15 +18,15 @@ class Scheduler
                 ->where('id', '<>', $message->id)
                 ->where(function ($query) use ($message) {
                     $query->where(function ($query) use ($message) {
-                        $query->whereBetween('published_at', [$message->published_at, $message->ad_top_until]);
+                        $query->whereBetween('publish_at', [$message->publish_at, $message->ad_top_until]);
                     })
                     ->orWhere(function ($query) use ($message) {
                         $query->where('ad', 1)
-                            ->whereBetween('ad_top_until', [$message->published_at, $message->ad_top_until]);
+                            ->whereBetween('ad_top_until', [$message->publish_at, $message->ad_top_until]);
                     })
                     ->orWhere(function ($query) use ($message) {
                         $query->where('ad', 1)
-                            ->where('published_at', '<=', $message->published_at)
+                            ->where('publish_at', '<=', $message->publish_at)
                             ->where('ad_top_until', '>=', $message->ad_top_until);
                     });
                 })->count();
@@ -39,8 +39,8 @@ class Scheduler
             ->where('ad', 1)
             ->where('id', '<>', $message->id)
             ->where(function ($query) use ($message) {
-                $query->where('published_at', '<=', $message->published_at)
-                    ->where('ad_top_until', '>=', $message->published_at);
+                $query->where('publish_at', '<=', $message->publish_at)
+                    ->where('ad_top_until', '>=', $message->publish_at);
             })->count();
             
         return $count > 0;
