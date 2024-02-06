@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class PublishMessage implements ShouldQueue
 {
@@ -29,7 +30,7 @@ class PublishMessage implements ShouldQueue
      */
     public function handle(): void
     {
-        //Log::info('publish ' . $this->message->id);
+        Log::info('publish message #' . $this->message->id . ' into chat ' . $this->message->messagable->channel->chat_id);
         $response = TelegramService::make($this->message->messagable)->publish();
 
         MessagePublished::dispatch(new PublishedMessage(

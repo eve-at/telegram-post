@@ -195,7 +195,7 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        'Helper' => App\Helpers\Helper::class,
+        'Redis' => Illuminate\Support\Facades\Redis::class,
     ])->toArray(),
 
 ];
