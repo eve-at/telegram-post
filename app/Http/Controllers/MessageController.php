@@ -80,7 +80,7 @@ class MessageController extends Controller
 
             // TODO: move it to publisher
             // $message->ad_top_until = $publishAt->clone()->addHours($data['ad_hours_on_top']);
-            // $message->ad_removed_at = $publishAt->clone()->addDays($data['ad_remove_after_hours']);
+            // $message->ad_deleted_at = $publishAt->clone()->addDays($data['ad_remove_after_hours']);
         }
 
         if (Scheduler::inConflict($message)) {
@@ -173,7 +173,7 @@ class MessageController extends Controller
             'ad_hours_on_top',
             'ad_remove_after_hours',
             'ad_top_until',
-            'ad_removed_at',
+            'ad_deleted_at',
         ])
             ->with(['messagable:id,title'])
             ->where('channel_id', session('channel.id'))
@@ -189,8 +189,8 @@ class MessageController extends Controller
                 $message['ad_top_until'] = $message['ad_top_until'] 
                     ? $this->dateToTimeString($message['ad_top_until'])
                     : $this->datePlusHoursToTimeString($message['publish_at'], $message['ad_hours_on_top']);
-                $message['ad_removed_at'] = $message['ad_removed_at'] 
-                    ? $this->dateToTimeString($message['ad_removed_at'])
+                $message['ad_deleted_at'] = $message['ad_deleted_at'] 
+                    ? $this->dateToTimeString($message['ad_deleted_at'])
                     : $this->datePlusHoursToTimeString($message['publish_at'], $message['ad_remove_after_hours']);
                 return $message;
             });        
