@@ -30,7 +30,7 @@ class PublishMessage implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::info('publish message #' . $this->message->id . ' into chat ' . $this->message->messagable->channel->chat_id);
+        //Log::info('publish message #' . $this->message->id . ' into chat ' . $this->message->messagable->channel->chat_id);
         $response = TelegramService::make($this->message->messagable)->publish();
 
         MessagePublished::dispatch(new PublishedMessage(

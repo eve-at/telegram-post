@@ -17,6 +17,8 @@ return [
     'TELEGRAM_CHAT_ID' => env('TELEGRAM_CHAT_ID'),
     'TELEGRAM_CHAT_NAME' => env('TELEGRAM_CHAT_NAME'),
     'TELEGRAM_CHAT_LINK' => env('TELEGRAM_CHAT_LINK'),
+    
+    'HORIZON_ADMIN_EMAIL' => env('HORIZON_ADMIN_EMAIL'),
 
     /*
     |--------------------------------------------------------------------------
