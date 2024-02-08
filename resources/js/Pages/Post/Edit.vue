@@ -218,20 +218,18 @@ const formWasSaved = computed(() => {
 });
 
 const updatePreview = () => {
-    const title = postForm.show_title 
-        ? `<span class="text-base text-bold leading-4 block mr-8">${postForm.title}</span><br />`
+    const title = postForm.show_title && postForm.title.length
+        ? `<span class="text-base text-bold leading-4 block mr-8">${postForm.title}</span>`
         : '';
 
     const source = postForm.source.length 
-        ? `<span class="block italic mt-2">${postForm.source}</span><br />`
+        ? `<span class="block italic mt-2">${postForm.source}</span>`
         : '';
 
     preview.value = 
-        `<div class="relative">
-            ${title}
-            ${postForm.body}<br />
-            ${source}
-        </div>`;
+        `${title}
+${postForm.body}
+${source}`;
 }
 
 const modifiedFormHandler = () => {
