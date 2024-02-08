@@ -33,11 +33,11 @@ class DatabaseSeeder extends Seeder
             Poll::factory(10),
         ]);
 
-        collect([
+        collect([       
             Channel::factory()->create([
-                'chat_id' => config('app.TELEGRAM_CONCEPT_CHANNEL_ID'),
-                'name' => config('app.TELEGRAM_CONCEPT_CHANNEL_NAME'),
-                'signature' => '<a href="' . config('app.TELEGRAM_CONCEPT_CHANNEL_LINK') . '">' . config('app.TELEGRAM_CONCEPT_CHANNEL_NAME') . '</a>',
+                'chat_id' => config('app.TELEGRAM_CONCEPT_CHAT_ID'),
+                'name' => config('app.TELEGRAM_CONCEPT_CHAT_NAME'),
+                'signature' => '<a href="' . config('app.TELEGRAM_CONCEPT_CHAT_LINK') . '">' . config('app.TELEGRAM_CONCEPT_CHAT_NAME') . '</a>',
                 'hours' => [8, 18],
             ]),
             ...Channel::factory(9)->create()

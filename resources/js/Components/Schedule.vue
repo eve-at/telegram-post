@@ -53,6 +53,7 @@
                                 v-model="scheduleData.removeAfterHours" 
                                 :step="24" 
                                 :min="0"
+                                :max="48"
                             />
                         </div>
                     </div>

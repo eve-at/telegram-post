@@ -6,6 +6,7 @@ use App\Events\ChannelDeleted;
 use App\Events\ChannelSessionChanged;
 use App\Events\ChannelUpdated;
 use App\Events\MessagePublished;
+use App\Events\MessageUnpublished;
 use App\Listeners\ChannelDeletedListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -15,6 +16,7 @@ use App\Listeners\ChannelSessionInitListener;
 use App\Listeners\ChannelSessionListListener;
 use App\Listeners\ChannelUpdatedListener;
 use App\Listeners\MessagePublishedListener;
+use App\Listeners\MessageUnpublishedListener;
 use App\Models\Channel;
 use App\Observers\ChannelObserver;
 use Illuminate\Auth\Events\Login;
@@ -47,6 +49,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         MessagePublished::class => [
             MessagePublishedListener::class
+        ],
+        MessageUnpublished::class => [
+            MessageUnpublishedListener::class
         ],
     ];
 

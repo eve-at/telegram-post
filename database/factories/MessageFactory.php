@@ -21,7 +21,8 @@ class MessageFactory extends Factory
     public function definition(): array
     {
         $createdAt = Carbon::make(fake()->dateTimeBetween('-1 year', 'now'));
-        $publishedAt = Carbon::make($createdAt)->addDays(60);
+        $publishAt = Carbon::make($createdAt)->addDays(60);
+        $status = Carbon::now()->greaterThan($publishAt);
 
         $messagable = [
             Post::class,
@@ -39,8 +40,9 @@ class MessageFactory extends Factory
                 . fake()->paragraphs(1, asText: true)
                 . fake()->emoji(),
             'created_at' => $createdAt,
-            'published_at' => $publishedAt,
-            'status' => Carbon::now()->greaterThan($publishedAt),
+            'publish_at' => $publishAt,
+            'published_at' => $status ? $publishAt : null,
+            'status' => $status,
         ];
     }
 }
