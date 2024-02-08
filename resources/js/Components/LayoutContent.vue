@@ -181,15 +181,11 @@ const isVideo = (filename) => filename.endsWith('.mp4');
 </script>
 
 <style>
-    .post-body {
-        a {
-            color: rgb(59 130 246);
-
-            &:hover {
-                text-decoration: underline;
-            }
-        }
+    .post-body a {
+        color: rgb(59 130 246);
     }
-
-    
+     
+    .post-body a:hover {
+        text-decoration: underline;
+    }   
 </style>
