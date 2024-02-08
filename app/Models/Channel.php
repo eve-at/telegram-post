@@ -24,7 +24,7 @@ class Channel extends Model
     {
         return Attribute::make(
             get: fn (?string $value) => json_decode($value),
-            set: fn (array $arr) => collect($arr)->sort()->unique()->toJson(),
+            set: fn (array $arr) => json_encode(collect($arr)->sort()->unique()->values()),
         );
     }
 }
