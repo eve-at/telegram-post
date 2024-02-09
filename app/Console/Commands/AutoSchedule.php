@@ -28,7 +28,7 @@ class AutoSchedule extends Command
     public function handle()
     {
         Channel::all()->each(function ($channel) {
-            if (in_array(now()->hour, $channel->hours)) {
+            if (in_array(now($channel->timezone)->hour, $channel->hours)) {
                 Scheduler::autoScheduledMessage(
                     channel: $channel,
                     publishAt: now()->addMinutes(2)
