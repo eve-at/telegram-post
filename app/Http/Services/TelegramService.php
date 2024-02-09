@@ -5,7 +5,6 @@ namespace App\Http\Services;
 use App\Http\Contracts\TelegramPublishable;
 use App\Models\Message;
 use Telegram\Bot\Laravel\Facades\Telegram;
-use Telegram\Bot\Objects\Message as TelegramMessage;
 
 class TelegramService
 {

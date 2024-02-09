@@ -90,7 +90,10 @@
                         <div 
                             v-if="body.length" 
                             v-html="body" 
-                            class="post-body text-xs whitespace-pre-wrap inline-block align-top"
+                            class="post-body text-xs"
+                            :class="{
+                                'whitespace-pre-wrap': nl2br
+                            }"
                         ></div>
                         <div v-if="showSignature" class="text-sm text-blue-500 italic font-semibold" v-html="signature ?? $page.props.channel.name"></div>
                         <img src="/images/post-footer.jpg" />
@@ -175,13 +178,17 @@ defineProps({
         type: Boolean,
         default: false
     },
+    nl2br: {
+        type: Boolean,
+        default: false
+    }
 })
 
 const isVideo = (filename) => filename.endsWith('.mp4');
 </script>
 
 <style>
-    .post-body a {
+    .post-edit .post-body a {
         color: rgb(59 130 246);
     }
      

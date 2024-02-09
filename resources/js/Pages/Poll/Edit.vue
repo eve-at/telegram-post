@@ -159,7 +159,7 @@ import LayoutContent from '@/Components/LayoutContent.vue';
 import draggable from 'vuedraggable';
 import Modal from '@/Components/Modal.vue'
 import { Head, useForm, usePage, router } from '@inertiajs/vue3';
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
+import { ref, onMounted, onUnmounted, onUpdated, watch, computed } from 'vue';
 //import Checkbox from '@/Components/Checkbox.vue';
 
 const props = defineProps({
@@ -238,7 +238,7 @@ onMounted(() => {
 
 onUpdated(() => {
     usePage().props.messagable_type = 'poll';
-    usePage().props.messagable_id = props.post.id;
+    usePage().props.messagable_id = props.poll.id;
 });
 
 onUnmounted(() => {

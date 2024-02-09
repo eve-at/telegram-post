@@ -2,9 +2,12 @@
 
 namespace App\Listeners;
 
+use App\Events\AdPublished;
 use App\Events\MessagePublished;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\DB;
 
-class MessagePublishedListener
+class MessagePublishedListener implements ShouldQueue
 {
     public function handle(MessagePublished $event): void
     {
@@ -27,7 +30,7 @@ class MessagePublishedListener
         //but in case of 48h post: now + 48h - 2 minutes (A message can only be deleted if it was sent less than 48 hours ago)
         //https://core.telegram.org/bots/api#deletemessage
         if ($message->ad) {
-            $message->ad_top_until = $now->clone()->addHours($message->ad_hours_on_top)->addMinutes(2);
+            $message->ad_top_until = $now->clone()->addHours($message->ad_hours_on_top);
 
             if ($message->ad_remove_after_hours < 48) {
                 $message->ad_delete_at = $now->clone()->addHours($message->ad_remove_after_hours)->addMinutes(2);
@@ -36,7 +39,17 @@ class MessagePublishedListener
             }
         }
 
-        $message->save();
+        // update messagable last published date
+        $message->messagable->published_at = $now;
+
+        DB::transaction(function () use ($message) {
+            $message->save();
+            $message->messagable->save();
+        }, 2);
+        
+        if ($message->ad && $message->id) {
+            AdPublished::dispatch($message);
+        }
 
         //TODO: move here the logic of updating post's media file_id(s)
         

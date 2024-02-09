@@ -2,7 +2,11 @@
 
 namespace App\Http\Services;
 
+use App\Models\Channel;
 use App\Models\Message;
+use App\Models\Post;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Scheduler 
 {
@@ -44,5 +48,49 @@ class Scheduler
             })->count();
             
         return $count > 0;
-    }       
+    }   
+    
+    public static function autoScheduledMessage(Channel $channel, Carbon $publishAt): bool
+    {
+        // skip auto-scheduling if another post already scheduled in current hour
+        $scheduled = Message::query()
+            ->where('channel_id', $channel->id)
+            ->where('status', 0)
+            ->whereBetween('publish_at', [$publishAt->clone()->startOfHour(), $publishAt->clone()->addHour()])
+            ->count();
+
+        if ($scheduled > 0) {
+            return false;
+        }
+
+        $message = Message::make([
+            'channel_id' => $channel->id,
+            'publish_at' => $publishAt,
+            'ad' => 0,
+        ]);
+
+        //skip if in conflict with already published ad
+        if (self::inConflict($message)) {
+            return false;
+        }
+
+        $post = Post::select(['posts.id'])
+            ->leftJoin('messages', function ($join) {
+                $join->on('messages.messagable_id', '=', 'posts.id')
+                ->where('messages.messagable_type', '=', 'App\Models\Post');
+            })
+            ->where('posts.channel_id', $channel->id)
+            ->orderBy('messages.publish_at')
+            ->first();
+
+        if (! $post) {
+            return false;
+        }
+
+        $post->fresh();
+        
+        $message = $message->messagable()->associate($post);
+
+        return $message->save();
+    }
 }

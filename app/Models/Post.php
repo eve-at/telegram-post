@@ -35,6 +35,6 @@ class Post extends Model
 
     public function messages()
     {
-        return $this->hasMany(Message::class)->orderBy('publish_at');    
+        return $this->morphMany(Message::class, 'messagable')->orderBy('publish_at');    
     }
 }

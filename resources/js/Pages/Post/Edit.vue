@@ -18,6 +18,7 @@
             :processing="postForm.processing"
             :form-was-saved="formWasSaved"
             :is-ad="postForm.ad"
+            :nl2br="true"
             @form:save="onFormSave"
             @form:reset="onFormReset"
             @form:submit="onFormSubmit"

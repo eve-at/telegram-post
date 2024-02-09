@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Events\AdPublished;
 use App\Events\ChannelDeleted;
 use App\Events\ChannelSessionChanged;
 use App\Events\ChannelUpdated;
 use App\Events\MessagePublished;
 use App\Events\MessageUnpublished;
+use App\Listeners\AdPublishedListener;
 use App\Listeners\ChannelDeletedListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -49,6 +51,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         MessagePublished::class => [
             MessagePublishedListener::class
+        ],
+        AdPublished::class => [
+            AdPublishedListener::class
         ],
         MessageUnpublished::class => [
             MessageUnpublishedListener::class

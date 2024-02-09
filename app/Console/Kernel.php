@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\AutoSchedule;
 use App\Console\Commands\PublishMessages;
 use App\Console\Commands\UnpublishMessages;
 use Illuminate\Console\Scheduling\Schedule;
@@ -16,6 +17,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command(PublishMessages::class)->everyMinute();
         $schedule->command(UnpublishMessages::class)->everyMinute();
+        $schedule->command(AutoSchedule::class)->hourlyAt(8);
     }
 
     /**

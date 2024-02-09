@@ -3,8 +3,9 @@
 namespace App\Listeners;
 
 use App\Events\MessageUnpublished;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class MessageUnpublishedListener
+class MessageUnpublishedListener implements ShouldQueue
 {
     public function handle(MessageUnpublished $event): void
     {
