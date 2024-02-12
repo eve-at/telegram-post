@@ -80,7 +80,8 @@ class Scheduler
                 ->where('messages.messagable_type', '=', 'App\Models\Post');
             })
             ->where('posts.channel_id', $channel->id)
-            ->orderBy('messages.publish_at')
+            ->where('posts.ad', 0)
+            ->orderBy('posts.published_at')
             ->first();
 
         if (! $post) {

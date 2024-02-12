@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Events\AdPublished;
 use App\Events\MessagePublished;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\DB;
 
 class MessagePublishedListener implements ShouldQueue
 {
@@ -38,7 +39,13 @@ class MessagePublishedListener implements ShouldQueue
             }
         }
 
-        $message->save();
+        // update messagable last published date
+        $message->messagable->published_at = $now;
+
+        DB::transaction(function () use ($message) {
+            $message->save();
+            $message->messagable->save();
+        }, 2);
         
         if ($message->ad && $message->id) {
             AdPublished::dispatch($message);
