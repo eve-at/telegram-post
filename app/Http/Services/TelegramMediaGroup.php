@@ -33,9 +33,7 @@ class TelegramMediaGroup implements TelegramPublishable
             ? config('app.TELEGRAM_CONCEPT_CHAT_ID')
             : $post->channel->chat_id;
 
-        $this->channel_id = $concept
-            ? config('app.TELEGRAM_CONCEPT_CHANNEL_ID')
-            : $post->channel_id;
+        $this->channel_id = $post->channel_id;
 
         $this->prepare();
     }
