@@ -206,6 +206,7 @@ defineProps({
 let scheduleStatus = ref(null);
 const datePickerTimeAccuracy = ref(2); //1 => hour, 2 => minute, 3 => second
 let choosenDate = ref((new Date).toDateString());
+let channel_id = ref(0);
 
 const messages = ref([]);
 
@@ -330,6 +331,7 @@ const messageUnschedule = (id) => {
 }
 
 onMounted(() => {
+    channel_id.value = usePage().props.channel.id;
     updateSchedulesMessages();
 
     emitter.on('schedule.status', (data) => {
@@ -350,10 +352,16 @@ onMounted(() => {
                 break;
         }
     });
+
+    window.Echo.private('schedule.' + channel_id.value)
+        //.listen('App\\Events\\MessageScheduled', (e) => {
+        .listen('MessageScheduled', (e) => {
+            updateSchedulesMessages();
+        });
 });
 
 onUnmounted(() => {
-    emitter.off('schedule.status');
+    window.Echo.leave('schedule.' + channel_id.value);
 });
 
 const scheduleCreate = () => {

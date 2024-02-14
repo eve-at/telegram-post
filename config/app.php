@@ -180,7 +180,7 @@ return [
          */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
+        App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\HorizonServiceProvider::class,
@@ -199,6 +199,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         'Redis' => Illuminate\Support\Facades\Redis::class,
+        //'Pusher' =>  Pusher\Pusher::class
     ])->toArray(),
 
 ];
