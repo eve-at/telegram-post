@@ -354,8 +354,8 @@ onMounted(() => {
     });
 
     window.Echo.private('schedule.' + channel_id.value)
-        //.listen('App\\Events\\MessageScheduled', (e) => {
-        .listen('MessageScheduled', (e) => {
+        //.listen('App\\Events\\ScheduledInChannel', (e) => {
+        .listen('ScheduledInChannel', (e) => {
             updateSchedulesMessages();
         });
 });

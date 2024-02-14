@@ -2,7 +2,7 @@
 
 namespace App\Observers;
 
-use App\Events\MessageScheduled;
+use App\Events\ScheduledInChannel;
 use App\Models\Message;
 
 class MessageObserver
@@ -12,8 +12,8 @@ class MessageObserver
      */
     public function created(Message $message): void
     {
-        //MessageScheduled::dispatch($message);
-        broadcast(new MessageScheduled($message))->toOthers();
+        //ScheduledInChannel::dispatch($message->channel);
+        broadcast(new ScheduledInChannel($message->channel))->toOthers();
     }
 
     /**
@@ -21,8 +21,8 @@ class MessageObserver
      */
     public function updated(Message $message): void
     {
-        //MessageScheduled::dispatch($message);
-        broadcast(new MessageScheduled($message))->toOthers();
+        //ScheduledInChannel::dispatch($message->channel);
+        broadcast(new ScheduledInChannel($message->channel))->toOthers();
     }
 
     /**
@@ -30,7 +30,8 @@ class MessageObserver
      */
     public function deleted(Message $message): void
     {
-        //MessageScheduled::dispatch($message);
-        broadcast(new MessageScheduled($message))->toOthers();
+        //ScheduledInChannel::dispatch($message->channel);
+        //broadcast(new ScheduledInChannel($message))->toOthers();
+        broadcast(new ScheduledInChannel($message->channel))->toOthers();
     }
 }
