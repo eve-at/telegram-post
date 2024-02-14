@@ -15,4 +15,7 @@ If your url looks like .../c12112121212_17878787878787878, do the following:
 - Get the part between the first letter ("c") and the underscore. In my example you'll get **12112121212**
 - Prefix it with a -100 so **-10012112121212** is your channel id.
 
-WIP
+Create the symbolic link for your media storage
+```
+php artisan storage:link
+```

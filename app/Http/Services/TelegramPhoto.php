@@ -17,19 +17,17 @@ class TelegramPhoto implements TelegramPublishable
     protected $channel_id;
     protected $message = [];
 
-    protected function __construct(protected Post $post, $concept = false) 
+    protected function __construct(protected Post $post, $concept = false)
     {
         if ($concept && ! config('app.TELEGRAM_CONCEPT_CHAT_ID')) {
             throw new Exception('Concept Channel ID is missing or empty. Fill out TELEGRAM_CONCEPT_CHAT_ID env variable');
         }
 
-        $this->chat_id = $concept 
-            ? config('app.TELEGRAM_CONCEPT_CHAT_ID') 
+        $this->chat_id = $concept
+            ? config('app.TELEGRAM_CONCEPT_CHAT_ID')
             : $post->channel->chat_id;
 
-        $this->channel_id = $concept 
-            ? config('app.TELEGRAM_CONCEPT_CHANNEL_ID') 
-            : $post->channel_id;
+        $this->channel_id = $post->channel_id;
 
         $this->prepare();
     }
@@ -52,13 +50,13 @@ class TelegramPhoto implements TelegramPublishable
     public function publish(): Message
     {
         $response = $this->send();
-        
+
         $this->updateFiles($response);
 
         //return [$response->message_id];
         return $response;
     }
-    
+
     protected function send(): Message
     {
         return Telegram::sendPhoto($this->message);
@@ -67,11 +65,11 @@ class TelegramPhoto implements TelegramPublishable
     public function caption(): String
     {
         $caption = '';
-        
+
         if ($this->post->show_title) {
             $caption .= "<b>{$this->post->title}</b>" . PHP_EOL . PHP_EOL;
         }
-        
+
         $caption .= $this->post->body;
 
         if ($this->post->source) {
@@ -84,11 +82,11 @@ class TelegramPhoto implements TelegramPublishable
         }
 
         return $caption;
-    } 
+    }
 
     protected function media(PostFile $media): mixed
     {
-        return $media->file_id 
+        return $media->file_id
             ?? InputFile::create(
                 Helper::filepath($this->channel_id, $media->filename),
                 $media->filename
@@ -141,7 +139,7 @@ class TelegramPhoto implements TelegramPublishable
         } else {
             throw new Exception('Invalid type of Telegram Media');
         }
-        
+
         return $media->save();
     }
 }
