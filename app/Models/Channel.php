@@ -15,6 +15,10 @@ class Channel extends Model
 
     public $guarded = ['id'];
 
+    protected $casts = [
+        'post_loop' => 'boolean',
+    ];
+
     public function posts()
     {
         return $this->hasMany(Post::class);    

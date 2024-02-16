@@ -54,6 +54,22 @@
                                 <Select id="timezones" v-model="channelForm.timezone" :options="props.timezones"/>
                                 <InputError :message="channelForm.errors.timezone" />
                             </div>
+
+                            <div class="mb-3 flex it ems-center">
+                                <Checkbox 
+                                    :value="channelForm.post_loop ? 1 : 0"
+                                    id="post_loop" 
+                                    :checked="channelForm.post_loop"
+                                    @update:checked="channelForm.post_loop = $event"
+                                />
+                                <InputLabel 
+                                    class="ml-2 cursor-pointer border-b border-b-gray-300 border-dashed" 
+                                    for="post_loop"
+                                    title="Re-publish posts if there is no more unpublished posts in the queue"
+                                >
+                                    Loop posts
+                                </InputLabel>
+                            </div>
                         </div>
                         <div class="w-3/12 flex flex-wrap pl-4">
                             <div class="w-full">
@@ -149,6 +165,7 @@ const channelForm = useForm({
     signature: props.theChannel.signature,    
     hours: props.theChannel.hours,    
     timezone: props.theChannel.timezone,    
+    post_loop: props.theChannel.post_loop,   
     comeback: false, // return after form submition
 })
 

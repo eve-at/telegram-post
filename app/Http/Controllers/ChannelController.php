@@ -37,6 +37,7 @@ class ChannelController extends Controller
             'hours' => ['max:12'],
             'hours.*' => ['integer', 'min:0', 'max:23'],
             'timezone' => ['timezone'],
+            'post_loop' => ['boolean'],
             'comeback' => ['boolean'],
         ]);
 
@@ -75,11 +76,12 @@ class ChannelController extends Controller
             'hours' => ['max:12'],
             'hours.*' => ['integer', 'min:0', 'max:23'],
             'timezone' => ['timezone'],
+            'post_loop' => ['boolean'],
             'comeback' => ['boolean'],
         ]);
 
         $channel->update($data);
-
+        
         if ($data['comeback'] ?? false) {
             return to_route('channels.edit', $channel->id)
                         ->with('success', 'The channel was updated');

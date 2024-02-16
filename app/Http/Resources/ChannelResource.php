@@ -22,6 +22,7 @@ class ChannelResource extends JsonResource
             'timezone' => $this->timezone ?? 'Europe/London',
             'hours' => $this->hours ?? [8, 18],
             'created_at' => $this->created_at ?? now(),            
+            'post_loop' => $this->post_loop ?? true,            
         ];
     }
 }

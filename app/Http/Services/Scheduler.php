@@ -6,7 +6,8 @@ use App\Models\Channel;
 use App\Models\Message;
 use App\Models\Post;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 
 class Scheduler 
 {
@@ -81,6 +82,9 @@ class Scheduler
             })
             ->where('posts.channel_id', $channel->id)
             ->where('posts.ad', 0)
+            ->when(!$channel->post_loop, function (Builder $query) {
+                $query->whereNull('posts.published_at');
+            })
             ->orderBy('posts.published_at')
             ->first();
 
