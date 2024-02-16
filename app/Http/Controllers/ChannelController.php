@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ChannelUpdated;
 use App\Http\Resources\ChannelResource;
 use App\Models\Channel;
 use Illuminate\Http\Request;
@@ -11,13 +10,13 @@ use Inertia\Inertia;
 
 class ChannelController extends Controller
 {
-    public function index() 
+    public function index()
     {
         return Inertia::render('Channel/Index', [
             'channels' => ChannelResource::collection(Channel::orderBy('name')->paginate())
         ]);
     }
-    
+
     public function create()
     {
         return Inertia::render('Channel/Edit', [
@@ -25,7 +24,7 @@ class ChannelController extends Controller
             'toRoute' => 'channels.store',
             'cancelRoute' => 'channels.index',
             'timezones' => array_combine(timezone_identifiers_list(), timezone_identifiers_list()),
-            'theChannel' => ChannelResource::make(new Channel),
+            'theChannel' => ChannelResource::make(new Channel()),
         ]);
     }
 
@@ -35,7 +34,7 @@ class ChannelController extends Controller
             'name' => ['required', 'max:190'],
             'signature' => ['max:190'],
             'chat_id' => ['required', 'numeric', 'starts_with:-100'],
-            'hours' => ['max:5'],
+            'hours' => ['max:12'],
             'hours.*' => ['integer', 'min:0', 'max:23'],
             'timezone' => ['timezone'],
             'comeback' => ['boolean'],
@@ -51,7 +50,7 @@ class ChannelController extends Controller
         return to_route('channels.index')->with('success', 'The channel was updated');
     }
 
-    public function edit(Channel $channel) 
+    public function edit(Channel $channel)
     {
         return Inertia::render('Channel/Edit', [
             'title' => 'Settings',
@@ -59,21 +58,21 @@ class ChannelController extends Controller
             'timezones' => array_combine(timezone_identifiers_list(), timezone_identifiers_list()),
             'toRoute' => 'channels.update',
             'cancelRoute' => 'channels.index',
-        ]);    
+        ]);
     }
-    
+
     public function update(Request $request, Channel $channel)
     {
         $data = $request->validate([
             'name' => ['required', 'max:190'],
             'signature' => ['max:190'],
             'chat_id' => [
-                'required', 
-                'numeric', 
-                'starts_with:-100', 
+                'required',
+                'numeric',
+                'starts_with:-100',
                 Rule::unique('channels')->ignore($channel->id)
             ],
-            'hours' => ['max:5'],
+            'hours' => ['max:12'],
             'hours.*' => ['integer', 'min:0', 'max:23'],
             'timezone' => ['timezone'],
             'comeback' => ['boolean'],
