@@ -45,6 +45,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('messages', MessageController::class)->except(['show']);
     
     Route::resource('channels', ChannelController::class)->except(['show']);
+    Route::patch('/channels/{channel}/template', [ChannelController::class, 'setTemplate'])->name('channel_template.set');
+    Route::get('/channels/{channel}/template', [ChannelController::class, 'getTemplate'])->name('channel_template.get');
     Route::patch('/session_channel/{channel}/update', [SessionChannelController::class, 'update'])->name('session_channel.update');
     
     Route::post('/posts/upload', [PostController::class, 'upload'])->name('posts.media.upload');

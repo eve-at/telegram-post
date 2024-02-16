@@ -66,9 +66,34 @@
                     </div>
 
                     <div class="mb-3">
-                        <InputLabel for="body">Body</InputLabel>
+                        <div class="flex justify-between pt-2">
+                            <InputLabel for="body">Body</InputLabel>
+                            <div class="space-x-2 pb-1">
+                                <SecondaryButton 
+                                    small
+                                    @click="loadTemplate"
+                                >
+                                    Load Template
+                                </SecondaryButton>
+                                <SecondaryButton 
+                                    :disabled="!(postForm.body.trim()).length"
+                                    small
+                                    @click="saveTemplate"
+                                >
+                                    Set as Template
+                                </SecondaryButton>
+                            </div>
+                        </div>
                         <TextArea id="body" v-model="postForm.body" rows="6" />
                         <InputError :message="postForm.errors.body" />
+                        <InputError 
+                            v-if="templateStatus.status === 'error'" 
+                            :message="templateStatus.message" 
+                        />
+                        <InputSuccess 
+                            v-if="templateStatus.status === 'success'"
+                            :message="templateStatus.message" 
+                        />
                     </div>
 
                     <div class="mb-3">
@@ -120,6 +145,7 @@
 
 <script setup>
 import InputError from '@/Components/InputError.vue';
+import InputSuccess from '@/Components/InputSuccess.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextArea from '@/Components/TextArea.vue';
 import TextInput from '@/Components/TextInput.vue';
@@ -132,9 +158,10 @@ import 'filepond/dist/filepond.min.css';
 //import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 //import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
 import { Head, useForm, router, usePage } from '@inertiajs/vue3';
-import { ref, onUpdated, onMounted, onUnmounted, watch, reactive, computed } from 'vue';
+import { ref, onUpdated, onMounted, onUnmounted, watch, computed } from 'vue';
 import useEmitter from '@/Composables/useEmitter.js';
 import axios from 'axios';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 
 const emitter = useEmitter();
 let serverMessage = {};
@@ -206,6 +233,10 @@ const postForm = useForm({
     comeback: false, // return after form submition
 })
 
+let templateStatus = ref({
+    'status': null,
+    'message': null,
+});
 let filepathsInitial = [];
 let filepaths = ref([]);
 let filenameIds = ref([]);
@@ -256,6 +287,17 @@ onUnmounted(() => {
 watch(    
     postForm,
     modifiedFormHandler,
+    { deep: true }
+);
+
+watch(    
+    templateStatus,
+    () => {
+        setTimeout(() => {
+            templateStatus.value.status = null;
+            templateStatus.value.message = null;
+        }, 3000);
+    },
     { deep: true }
 );
 
@@ -363,5 +405,47 @@ const onFormConcept = () => {
     postForm.concept = true;
     createPost();
     postForm.concept = false;
+}
+
+const loadTemplate = () => {
+    if (postForm.body.trim().length > 0 
+        && !confirm('The template will overwrite the body. Are you sure?')) {
+        return;
+    }
+
+    templateStatus.value.status = null;
+    templateStatus.value.message = null;
+
+    axios.get(route('channel_template.get', {'channel': usePage().props.channel.id}))
+    .then((response) => {
+        postForm.body = response.data;
+        templateStatus.value.status = 'success';
+        templateStatus.value.message = 'The template was successfully loaded';
+    }).catch((data) => {
+        templateStatus.value.status = 'error';
+        templateStatus.value.message = 'Template is empty or does not exist';
+    });
+}
+
+const saveTemplate = () => {
+    if (!confirm('Save the body text as a default template for the channel?')) {
+        return;
+    }
+
+    templateStatus.value.status = null;
+    templateStatus.value.message = null;
+
+    axios.patch(route('channel_template.set', {'channel': usePage().props.channel.id}), {
+        'template': postForm.body
+    }).then((response) => {
+        console.log(response);
+        //postForm.success.template
+        templateStatus.value.status = 'success';
+        templateStatus.value.message = 'The template was successfully saved';
+    }).catch((data) => {
+        templateStatus.value.status = 'error';
+        templateStatus.value.message = data.response.data.message;
+        //console.log(data.response.data.message);
+    });
 }
 </script>

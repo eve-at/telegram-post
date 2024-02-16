@@ -94,4 +94,21 @@ class ChannelController extends Controller
 
         return to_route('channels.index')->with('success', 'The channel was deleted');
     }
+
+    public function setTemplate(Request $request, Channel $channel)
+    {
+        $data = $request->validate([
+            'template' => ['required', 'string', 'max:4096'],
+        ]);
+
+        $channel->template = $data['template'];
+        $channel->save();
+
+        return ['ok'];
+    }
+
+    public function getTemplate(Channel $channel)
+    {
+        return $channel->template;
+    }
 }
