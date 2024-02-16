@@ -206,7 +206,7 @@ defineProps({
 let scheduleStatus = ref(null);
 const datePickerTimeAccuracy = ref(2); //1 => hour, 2 => minute, 3 => second
 let choosenDate = ref((new Date).toDateString());
-let channel_id = ref(0);
+//let channel_id = ref(0);
 
 const messages = ref([]);
 
@@ -331,7 +331,7 @@ const messageUnschedule = (id) => {
 }
 
 onMounted(() => {
-    channel_id.value = usePage().props.channel.id;
+    //channel_id.value = usePage().props.channel.id;
     updateSchedulesMessages();
 
     emitter.on('schedule.status', (data) => {
@@ -353,16 +353,16 @@ onMounted(() => {
         }
     });
 
-    window.Echo.private('schedule.' + channel_id.value)
-        //.listen('App\\Events\\ScheduledInChannel', (e) => {
-        .listen('ScheduledInChannel', (e) => {
-            updateSchedulesMessages();
-        });
+    // window.Echo.private('schedule.' + channel_id.value)
+    //     //.listen('App\\Events\\ScheduledInChannel', (e) => {
+    //     .listen('ScheduledInChannel', (e) => {
+    //         updateSchedulesMessages();
+    //     });
 });
 
-onUnmounted(() => {
-    window.Echo.leave('schedule.' + channel_id.value);
-});
+// onUnmounted(() => {
+//     window.Echo.leave('schedule.' + channel_id.value);
+// });
 
 const scheduleCreate = () => {
     axios.post(route('messages.store'), {
