@@ -4,11 +4,7 @@
     <AuthenticatedLayout>
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Posts</h2>
-            <!-- TODO: filters -->
-            <span>Scheduled</span>
-            <span>Waiting</span>
-            <span>Published</span>
-            <span>All</span>
+
             <PrimaryButtonLink :href="route('posts.create')">Add new</PrimaryButtonLink>
         </template>
 

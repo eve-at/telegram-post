@@ -7,6 +7,11 @@
                 class="font-semibold text-xl text-gray-800 leading-tight" 
                 v-html="'Poll - ' + $props.title"
             ></h2>
+
+            <PrimaryButtonLink 
+                :href="route('polls.create')"
+                v-if="!! $props.poll.id"
+            >Add new</PrimaryButtonLink>
         </template>
 
         <LayoutContent 
@@ -160,6 +165,7 @@ import draggable from 'vuedraggable';
 import Modal from '@/Components/Modal.vue'
 import { Head, useForm, usePage, router } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted, onUpdated, watch, computed } from 'vue';
+import PrimaryButtonLink from '@/Components/PrimaryButtonLink.vue';
 //import Checkbox from '@/Components/Checkbox.vue';
 
 const props = defineProps({

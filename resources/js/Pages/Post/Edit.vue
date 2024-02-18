@@ -7,6 +7,11 @@
                 class="font-semibold text-xl text-gray-800 leading-tight" 
                 v-html="'Post - ' + $props.title"
             ></h2>
+
+            <PrimaryButtonLink 
+                :href="route('posts.create')"
+                v-if="!! $props.post.id"
+            >Add new</PrimaryButtonLink>
         </template>
 
         <LayoutContent 
@@ -84,7 +89,7 @@
                                 </SecondaryButton>
                             </div>
                         </div>
-                        <TextArea id="body" v-model="postForm.body" rows="6" />
+                        <TextArea id="body" v-model="postForm.body" rows="15" />
                         <InputError :message="postForm.errors.body" />
                         <InputError 
                             v-if="templateStatus.status === 'error'" 
@@ -162,6 +167,7 @@ import { ref, onUpdated, onMounted, onUnmounted, watch, computed } from 'vue';
 import useEmitter from '@/Composables/useEmitter.js';
 import axios from 'axios';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import PrimaryButtonLink from '@/Components/PrimaryButtonLink.vue';
 
 const emitter = useEmitter();
 let serverMessage = {};
