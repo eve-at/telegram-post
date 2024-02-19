@@ -8,6 +8,10 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m';
 import { ProCalendar } from "vue-pro-calendar";
 import VCalendar from 'v-calendar';
 import mitt from 'mitt';
+import { getCookie, setCookie } from './Composables/useCookie.js';
+
+window.getCookie = getCookie;
+window.setCookie = setCookie;
 
 const emitter = mitt();
 

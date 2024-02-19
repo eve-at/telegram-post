@@ -181,7 +181,7 @@ setOptions({
                 serverMessage = JSON.parse(response);
             },
             headers: {
-                'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
+                'X-XSRF-TOKEN': window.getCookie('XSRF-TOKEN')
             }
         },
 
@@ -190,7 +190,7 @@ setOptions({
             url: route('posts.media.upload-undo'),
 
             headers: {
-                'X-CSRF-TOKEN': document.head.querySelector("meta[name='csrf-token']").content
+                'X-XSRF-TOKEN': window.getCookie('XSRF-TOKEN')
             }
         },
 
