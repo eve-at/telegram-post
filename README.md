@@ -1,6 +1,15 @@
 # Telegram Post
 
-Post into Telegram channel via Web interface
+Delayed posting in a Telegram channel via the web interface (Laravel / Vue 3 / Inertia.js)
+
+## Interface preview
+
+### Preview Tab
+![Preview Tab](https://github.com/eve-at/telegram-post/blob/master/public/images/post-preview.jpg?raw=true)
+### Shedule Tab
+![Shedule Tab](https://github.com/eve-at/telegram-post/blob/master/public/images/post-sheduling.jpg?raw=true)
+### How It Looks On Telegram After Publication
+![Published Post on Telegram](https://github.com/eve-at/telegram-post/blob/master/public/images/how-it-looks-on-telegram.jpg?raw=true)
 
 ## Installation
 - Clone & `composer install`
@@ -19,3 +28,5 @@ Create the symbolic link for your media storage
 ```
 php artisan storage:link
 ```
+
+WIP
