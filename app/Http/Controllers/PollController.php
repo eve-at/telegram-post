@@ -18,6 +18,7 @@ class PollController extends Controller
         return Inertia::render('Poll/Index', [
             'polls' => PollResource::collection(
                 Poll::where('channel_id', session('channel.id'))
+                    ->with(['user'])
                     ->orderBy('created_at', 'DESC')
                     ->paginate()
             )

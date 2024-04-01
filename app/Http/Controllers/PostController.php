@@ -20,6 +20,7 @@ class PostController extends Controller
         return Inertia::render('Post/Index', [
             'posts' => PostResource::collection(
                 Post::where('channel_id', session('channel.id'))
+                    ->with(['user', 'filenames'])
                     ->orderBy('created_at', 'DESC')
                     ->paginate()
             )
@@ -107,7 +108,7 @@ class PostController extends Controller
             return response()->json(['error', 'The file could no be saved.'], 500);
         }
 
-        return $request->file('filename')->hashName();
+        return [$request->file('filename')->hashName()];
     }
 
     public function uploadUndo(Request $request)

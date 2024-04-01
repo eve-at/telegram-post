@@ -347,10 +347,12 @@ const handleProcessedFile = (error, file) => {
         return;
     }
     
-    filenameIds.value[file.id] = file.serverId;
+    const fileName = JSON.parse(file.serverId).pop();
+
+    filenameIds.value[file.id] = fileName;
 
     // prepend the new file
-    postForm.filenames.unshift(file.serverId);
+    postForm.filenames.unshift(fileName);
     updateFilepaths();
 }
 
