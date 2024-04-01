@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, nextTick } from 'vue';
 
 defineProps({
     modelValue: {
@@ -16,11 +16,14 @@ defineEmits(['update:modelValue']);
 
 const input = ref(null);
 
-onMounted(() => {
+onMounted(async () => {
     if (input.value.hasAttribute('autofocus')) {
+        document.activeElement && document.activeElement.blur();        
+        await nextTick();
         input.value.focus();
     }
     if (input.value.hasAttribute('autoselect') && input.value.value.length) {
+        await nextTick();
         input.value.select();
     }
 });
