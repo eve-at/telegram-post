@@ -34,7 +34,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import "vue-pro-calendar/style";
 import { ref, onMounted, toRaw } from "vue";
-import { Configs } from "vue-pro-calendar/dist/types/stores/events.d.js";
+import { Configs } from "../../../../node_modules/vue-pro-calendar/dist/types/stores/events.d.js";
 import { E_CustomEvents } from "vue-pro-calendar"
 import axios from 'axios';
 import PrimaryButtonLink from '@/Components/PrimaryButtonLink.vue';
@@ -112,11 +112,11 @@ const fetchMessages = async (e) => {
     position: absolute;
     top: 25px;
     right: -20px;
-} 
+}
 
 .widget-calendar-wrapper > div:first-child {
     padding-top: 0;
-} 
+}
 .calendar-base > div:first-child > div:last-child {
     display: none;
 }

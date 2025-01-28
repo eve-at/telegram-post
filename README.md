@@ -29,4 +29,25 @@ Create the symbolic link for your media storage
 php artisan storage:link
 ```
 
-WIP
+## Run in local
+
+1. Install the dependencies
+```
+composer install
+```
+
+2. Start the server
+```
+./vendor/bin/sail up
+```
+
+3. In another terminal window execute
+```
+npm run dev
+```
+
+
+To connect to the MySQL server execute:
+```
+mysql -h 127.0.0.1 -P 3307 -u db -p
+```
