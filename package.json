@@ -11,7 +11,7 @@
         "@vitejs/plugin-vue": "^4.5.0",
         "alpinejs": "^3.4.2",
         "autoprefixer": "^10.4.12",
-        "axios": "^1.6.1",
+        "axios": "^1.7.9",
         "filepond-plugin-file-validate-type": "^1.2.8",
         "laravel-vite-plugin": "^1.0.0",
         "postcss": "^8.4.31",
