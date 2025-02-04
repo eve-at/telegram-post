@@ -2,15 +2,11 @@
 
 use App\Http\Controllers\ChannelController;
 use App\Http\Controllers\ConceptController;
-use App\Http\Controllers\MediaGroupController;
 use App\Http\Controllers\MessageController;
-use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\PollController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SessionChannelController;
-use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -43,18 +39,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/messages/dates/{start}/{end}', [MessageController::class, 'dates'])
         ->name('messages.dates');
     Route::resource('messages', MessageController::class)->except(['show']);
-    
+
     Route::resource('channels', ChannelController::class)->except(['show']);
     Route::patch('/channels/{channel}/template', [ChannelController::class, 'setTemplate'])->name('channel_template.set');
     Route::get('/channels/{channel}/template', [ChannelController::class, 'getTemplate'])->name('channel_template.get');
     Route::patch('/session_channel/{channel}/update', [SessionChannelController::class, 'update'])->name('session_channel.update');
-    
+
     Route::post('/posts/upload', [PostController::class, 'upload'])->name('posts.media.upload');
     Route::delete('/posts/upload-undo', [PostController::class, 'uploadUndo'])->name('posts.media.upload-undo');
     Route::resource('posts', PostController::class)->except(['show']);
-    
+
     Route::resource('polls', PollController::class)->except(['show']);
-    
+
     Route::post('/concepts/store', [ConceptController::class, 'store'])->name('concepts.post');
 });
 
