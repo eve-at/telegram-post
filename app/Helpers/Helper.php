@@ -9,5 +9,3 @@ class Helper
         return storage_path(implode(DIRECTORY_SEPARATOR, ['app', 'public', 'media', $channelId, $filename]));
     }
 }
-
-
