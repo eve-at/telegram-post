@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Traits\Conceptable;
 use App\Http\Resources\PostResource;
-use App\Http\Services\SMS\SMSService;
-use App\Http\Services\SMS\VonageProvider;
 use App\Models\Post;
 use App\Models\PostFile;
 use Exception;
@@ -67,17 +65,6 @@ class PostController extends Controller
             $file->type = str_ends_with($filename, '.mp4') ? 'video' : 'photo';
             $file->post_id = $post->id;
             $file->save();
-        }
-
-
-        // Send SMS to confirm
-        if (config('app.CONFIRM_MESSAGE_VIA_SMS')) {
-            $sms = new SMSService(new VonageProvider());
-            $sms->send(
-                config('app.PHONE_NUMBER_FOR_SMS'),
-                'TGPost',
-                "The post ID {$post->id} was created."
-            );
         }
 
         if ($concept) {

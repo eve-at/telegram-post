@@ -6,6 +6,7 @@ use App\DTOs\PublishedMessage;
 use App\Events\MessagePublished;
 use App\Http\Services\TelegramService;
 use App\Models\Message;
+use App\Notifications\MessagePublished as NotificationsMessagePublished;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -32,6 +33,8 @@ class PublishMessage implements ShouldQueue
     {
         //Log::info('publish message #' . $this->message->id . ' into chat ' . $this->message->messagable->channel->chat_id);
         $response = TelegramService::make($this->message->messagable)->publish();
+
+        //TODO: $this->message->messagable()->first()?->user()->first()->notify(new NotificationsMessagePublished($this->message));
 
         MessagePublished::dispatch(new PublishedMessage(
             message: $this->message,

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Notification;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -22,6 +23,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone_number',
+        'send_notifications',
+        'prefer_email',
     ];
 
     /**
@@ -38,6 +42,9 @@ class User extends Authenticatable
         'id',
         'name',
         'email',
+        'phone_number',
+        'send_notifications',
+        'prefer_email',
     ];
 
     /**
@@ -49,6 +56,14 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * Route notifications for the Vonage channel.
+     */
+    public function routeNotificationForVonage(): string
+    {
+        return $this->phone_number ?: config('app.VONAGE_SMS_FOR');
+    }
 
     public function posts(): HasMany
     {
@@ -63,5 +78,5 @@ class User extends Authenticatable
     public function polls(): HasMany
     {
         return $this->hasMany(Poll::class);
-    } 
+    }
 }

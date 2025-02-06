@@ -20,10 +20,11 @@ return [
 
     'HORIZON_ADMIN_EMAIL' => env('HORIZON_ADMIN_EMAIL'),
 
-    'VONAGE_API_KEY' => env('VONAGE_API_KEY'),
-    'VONAGE_API_SECRET' => env('VONAGE_API_SECRET'),
+    'VONAGE_KEY' => env('VONAGE_KEY'),
+    'VONAGE_SECRET' => env('VONAGE_SECRET'),
+    'VONAGE_SMS_FROM' => env('VONAGE_SMS_FROM'),
+    'VONAGE_SMS_FOR' => env('VONAGE_SMS_FOR'),
     'CONFIRM_MESSAGE_VIA_SMS' => env('CONFIRM_MESSAGE_VIA_SMS', false),
-    'PHONE_NUMBER_FOR_SMS' => env('PHONE_NUMBER_FOR_SMS'),
 
     /*
     |--------------------------------------------------------------------------

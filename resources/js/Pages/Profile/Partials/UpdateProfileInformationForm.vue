@@ -3,6 +3,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import Checkbox from '@/Components/Checkbox.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 
 defineProps({
@@ -19,6 +20,9 @@ const user = usePage().props.auth.user;
 const form = useForm({
     name: user.name,
     email: user.email,
+    phone_number: user.phone_number,
+    send_notifications: user.send_notifications,
+    prefer_email: user.prefer_email,
 });
 </script>
 
@@ -83,6 +87,46 @@ const form = useForm({
                 >
                     A new verification link has been sent to your email address.
                 </div>
+            </div>
+
+            <div>
+                <InputLabel for="phone_number" value="Phone number" />
+
+                <TextInput
+                    id="phone_number"
+                    type="text"
+                    class="mt-1 block w-full"
+                    v-model="form.phone_number"
+                    required
+                />
+
+                <InputError class="mt-2" :message="form.errors.phone_number" />
+            </div>
+
+            <div>
+                <div class="flex gap-2">
+                    <Checkbox
+                        id="send_notifications"
+                        v-model="form.send_notifications"
+                        :checked=!!form.send_notifications
+                    />
+                    <InputLabel for="send_notifications" value="Send notifications when a post was published" />
+                </div>
+
+                <InputError class="mt-2" :message="form.errors.send_notifications" />
+            </div>
+
+            <div v-show="form.send_notifications && form.phone_number.length">
+                <div class="flex gap-2">
+                    <Checkbox
+                        id="prefer_email"
+                        v-model="form.prefer_email"
+                        :checked=!!form.prefer_email
+                    />
+                    <InputLabel for="prefer_email" value="Prefer email notifications over SMS" />
+                </div>
+
+                <InputError class="mt-2" :message="form.errors.prefer_email" />
             </div>
 
             <div class="flex items-center gap-4">
